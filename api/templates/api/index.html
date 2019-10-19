@@ -1,0 +1,25 @@
+{% extends 'api/base.html' %}
+{% block content %}
+    <h1>Dashboard</h1>
+{%  if categories %}
+    <h1>Categories</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Percentage</th>
+            <th>Current Balance</th>
+        </tr>
+        {% for category in categories %}
+            <tr>
+                <td>{{ category.name }}</td>
+                <td>{{ category.percentage }}</td>
+                <td>{{ category.current_balance }}</td>
+            </tr>
+
+        {% endfor %}
+    </table>
+
+    {% else %}
+    <p>Sorry, no categories</p>
+{% endif %}
+{% endblock %}
