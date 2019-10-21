@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from .models import Category, Transaction
+from .models import Budget, Transaction
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Category
+        model = Budget
         fields = "__all__"
 
 

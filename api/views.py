@@ -5,7 +5,7 @@ import json
 
 
 from .serializers import CategorySerializer, TransactionSerializer
-from .models import Category, Transaction
+from .models import Budget, Transaction
 
 def test_budget_is_balanced(request):
     """
@@ -61,14 +61,14 @@ class CategoryView(APIView):
         """
         Returns everything, what is security
         """
-        return Response(CategorySerializer(Category.objects.all(), many=True).data, status=200)
+        return Response(CategorySerializer(Budget.objects.all(), many=True).data, status=200)
 
 
 def get_budget_summary(request):
     # api/v1/summary
 
     # 1. getting data and serializidng
-    data = Category.objects.all()
+    data = Budget.objects.all()
 
     serial = CategorySerializer(data=data, many=True)
 
@@ -79,6 +79,6 @@ def get_budget_summary(request):
 def dashboard(request):
     context = {}
 
-    context['categories'] = Category.objects.all()
+    context['budgets'] = Budget.objects.all()
 
     return render(request, 'api/index.html', context=context)

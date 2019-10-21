@@ -1,25 +1,25 @@
 {% extends 'api/base.html' %}
 {% block content %}
     <h1>Dashboard</h1>
-{%  if categories %}
-    <h1>Categories</h1>
+{%  if budgets %}
+    <h1>Budgets</h1>
     <table>
         <tr>
             <th>Name</th>
             <th>Percentage</th>
             <th>Current Balance</th>
         </tr>
-        {% for category in categories %}
+        {% for budget in budgets %}
             <tr>
-                <td>{{ category.name }}</td>
-                <td>{{ category.percentage }}</td>
-                <td>{{ category.current_balance }}</td>
+                <td>{{ budget.name }}</td>
+                <td>{{ budget.percentage }}</td>
+                <td>{{ budget.current_balance }}</td>
             </tr>
 
         {% endfor %}
     </table>
 
     {% else %}
-    <p>Sorry, no categories</p>
+    <p>Sorry, no budgets</p>
 {% endif %}
 {% endblock %}
