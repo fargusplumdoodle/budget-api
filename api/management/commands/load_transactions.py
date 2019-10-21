@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from api.models import Transaction
 import os
+import csv
 
 """
 takes input csv with following attributes:
@@ -8,7 +9,6 @@ takes input csv with following attributes:
 
 Sample can be found in docs/csv/transaction.csv
 """
-# TODO: add example csv to docs
 
 
 class Command(BaseCommand):
@@ -25,6 +25,7 @@ class Command(BaseCommand):
        CSV must contain following attributes: 
             amount, budget, date, description
             
+        Sample can be found in docs/csv/transaction.csv
     '''
 
     def fail(self, msg):
