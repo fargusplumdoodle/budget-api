@@ -1,4 +1,4 @@
-from .models import Budget, Config
+from .models import Budget, Transaction
 
 
 def budgets_sum_to_one():
@@ -36,7 +36,23 @@ def add_money(amount):
     :param amount: amount in dollars you wish to add between all budgets. If the number
                     is negative, this will subtract from all budgets the same way.
     :raises ValueError: if budgets are not balanced
+    :returns list of transactions:
     """
     # ensuring budgets are balanced
-    print(budgets_sum_to_one())
     assert budgets_sum_to_one() is None
+
+    added_transactions = []
+
+    for budget in Budget.objects.all():
+        trans_amount = amount * budget.percentage
+
+        transaction = Transaction(
+            amount=trans_amount,
+            budget=budget,
+            description=f"add_money(). Total amount added: {amount*budget.percentage}",
+        )
+        transaction.save()
+
+        added_transactions.append(transaction)
+
+    return added_transactions

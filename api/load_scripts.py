@@ -35,9 +35,9 @@ def load_budgets(csv_path, verbose=True):
 
             # generating header
             header = (
-                    "Budget".rjust(output_col_width)
-                    + "Percentage".rjust(output_col_width)
-                    + "Initial Balance".rjust(output_col_width)
+                "Budget".rjust(output_col_width)
+                + "Percentage".rjust(output_col_width)
+                + "Initial Balance".rjust(output_col_width)
             )
 
             print(header + "\n" + str("-" * len(header)) + "\n")
@@ -51,18 +51,16 @@ def load_budgets(csv_path, verbose=True):
                 budget, _ = Budget.objects.get_or_create(
                     name=csv_data[row][headers.index("name")],
                     percentage=csv_data[row][headers.index("percentage")],
-                    initial_balance=csv_data[row][
-                        headers.index("initial_balance")
-                    ]
+                    initial_balance=csv_data[row][headers.index("initial_balance")],
                 )
                 budget.save()
 
                 if verbose:
                     # Outputing information about budgets to user
                     budget_console_output = (
-                            f"{budget.name}".rjust(output_col_width)
-                            + f"{budget.percentage}".rjust(output_col_width)
-                            + f"{budget.initial_balance}".rjust(output_col_width)
+                        f"{budget.name}".rjust(output_col_width)
+                        + f"{budget.percentage}".rjust(output_col_width)
+                        + f"{budget.initial_balance}".rjust(output_col_width)
                     )
                     print(budget_console_output + "\n")
 
@@ -106,16 +104,15 @@ def load_transactions(csv_path):
         for row in range(1, len(csv_data)):
 
             # creating budget if it doesn't exist
-            if len(Budget.objects.filter(
-                name=csv_data[row][headers.index("budget")]
-            )) != 1:
+            if (
+                len(Budget.objects.filter(name=csv_data[row][headers.index("budget")]))
+                != 1
+            ):
                 fail(f'Budget "{csv_data[row][headers.index("budget")]}" doesnt exist')
 
             # MODIFY HERE WHEN NEW ATTRIBUTES ARE ADDED TO TRANSACTION
             try:
-                budget = Budget.objects.get(
-                    name=csv_data[row][headers.index("budget")]
-                )
+                budget = Budget.objects.get(name=csv_data[row][headers.index("budget")])
                 Transaction.objects.create(
                     amount=csv_data[row][headers.index("amount")],
                     description=csv_data[row][headers.index("description")],

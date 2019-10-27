@@ -68,18 +68,18 @@ class TestHelpers(TestCase):
         """
         all_budgets = Budget.objects.all()
         pre_number_of_transaction = len(Transaction.objects.all())
+        amount = 100
 
         # adding 100 dollars
-        add_money(100)
+        transactions = add_money(amount)
 
         # there should be one transaction added per budget
         assert len(Transaction.objects.all()) == pre_number_of_transaction + len(
             all_budgets
         )
 
-        recent_transactions = Transaction.objects.order_by("date")[::-1]
-
-        print(recent_transactions)
+        for trans in transactions:
+            assert trans.amount == trans.budget.percentage * amount
 
     def test_budgets_sum_to_one(self):
         # TODO: THIS
