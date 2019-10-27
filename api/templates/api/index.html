@@ -22,4 +22,11 @@
     {% else %}
     <p>Sorry, no budgets</p>
 {% endif %}
+
+    <h2>Budget Balanced</h2>
+    {% if budget_balanced %}
+        <p>WARNING: budget not balanced, total of all budgets its {{ budget_balanced }}, it should be 1</p>
+    {% else %}
+        <p>Budget is balanced!</p>
+    {% endif %}
 {% endblock %}
