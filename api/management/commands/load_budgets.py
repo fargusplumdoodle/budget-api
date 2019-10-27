@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
-from api.models import Transaction, Budget
+from api.models import Budget
+from api.helper import budgets_sum_to_one
 import os
 import csv
 
@@ -9,6 +10,7 @@ Sample can be found in docs/csv/transaction.csv
 
 
 class Command(BaseCommand):
+    OUTPUT_COL_WIDTH = 30
     help = '''
     ----------------
     load_transaction
@@ -26,7 +28,7 @@ class Command(BaseCommand):
     '''
 
     # To add new fields, add here and in csv loop
-    REQUIRED_FIELDS = ['amount', 'budget', 'date', 'description']
+    REQUIRED_FIELDS = ['name', 'percentage', 'initial_balance']
 
     def fail(self, msg):
         print("\nError: ", msg)
@@ -41,7 +43,7 @@ class Command(BaseCommand):
         """
         Checks if csv has appropriate headers
 
-        :param csv_headers: a list of headers, example: ['amount', 'budget', 'date', 'description']
+        :param csv_headers: a list of headers, example: ['name', 'percentage', 'initial_balance']
         :return: returns error message if true, returns null if false
         """
         for field in self.REQUIRED_FIELDS:
@@ -78,22 +80,43 @@ class Command(BaseCommand):
             if error is not None:
                 self.fail(error)
 
-            # getting
+            self.stdout.write("LOADED CSV")
+
+            # generating header
+            header = ("Budget".rjust(self.OUTPUT_COL_WIDTH) +
+                                "Percentage".rjust(self.OUTPUT_COL_WIDTH) +
+                              "Initial Balance".rjust(self.OUTPUT_COL_WIDTH))
+
+            self.stdout.write( header + "\n" + str("-" * len(header)) + "\n")
+
+            # setting values
             for row in range(1, len(csv_data)):
 
                 # creating budget if it doesn't exist
                 budget, _ = Budget.objects.get_or_create(
-                    name=csv_data[row][headers.index('budget')]
+                    name=csv_data[row][headers.index('name')]
                 )
 
                 # MODIFY HERE WHEN NEW ATTRIBUTES ARE ADDED TO TRANSACTION
                 try:
-                    Transaction.objects.create(
-                        amount=csv_data[row][headers.index('amount')],
-                        description=csv_data[row][headers.index('description')],
-                        budget=budget,
-                        date=csv_data[row][headers.index('date')]
-                    )
+                    budget.percentage = csv_data[row][headers.index('percentage')]
+                    budget.initial_balance = csv_data[row][headers.index('initial_balance')]
+                    budget.save()
+
+                    # Outputing information about budgets to user
+                    budget_console_output = (f"{budget.name}".rjust(self.OUTPUT_COL_WIDTH) +
+                              f"{budget.percentage}".rjust(self.OUTPUT_COL_WIDTH) +
+                              f"{budget.initial_balance}".rjust(self.OUTPUT_COL_WIDTH))
+                    self.stdout.write(budget_console_output + "\n")
+                    self.stdout.write('*' * len(header))
+
                 except ValueError as e:
                     self.fail(f"Invalid Data: {e}")
 
+            # verifying budget was created correctly
+            # this will be None if the budget is balanced
+            budget_total = budgets_sum_to_one()
+            if budget_total:
+                self.stderr.write(f"WARNING: Budget not balanced! "
+                                  f"Total percentages add to {budget_total}, they should add to 1"
+                                  f"\nYou may want to revise your budgets")

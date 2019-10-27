@@ -4,8 +4,8 @@ from .management.commands.load_transactions import Command as LoadTransaction
 
 
 class load_transaction(TestCase):
-    def test_validate_csv(self):
 
+    def test_validate_csv(self):
         lt = LoadTransaction()
 
         # trying valid input

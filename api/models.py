@@ -3,7 +3,7 @@ from django.db import models
 
 class Budget(models.Model):
     name = models.TextField(max_length=20, unique=True)
-    percentage = models.FloatField(max_length=0.2, null=True)
+    percentage = models.FloatField(max_length=100, null=True)
     initial_balance = models.FloatField(max_length=4000, null=True)
     current_balance = models.FloatField(max_length=4000, null=True)
     monthly_contribution = models.FloatField(max_length=4000, null=True)
