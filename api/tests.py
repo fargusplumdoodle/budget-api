@@ -2,21 +2,19 @@ from django.test import TestCase
 from .models import Budget, Transaction
 from django.core.management import call_command
 from .helper import add_money, budgets_sum_to_one
-from .management.commands.load_transactions import Command as LoadTransaction
-
+from .load_scripts import invalid_csv_headers, fail
 BUDGET_SAMPLE_LOCATION = "docs/csv/budgets_sample.csv"
 
-class TestCommands(TestCase):
-    def test_validate_csv(self):
-        lt = LoadTransaction()
+
+class TestLoadScripts(TestCase):
+    def test_invalid_csv_headers(self):
 
         # trying valid input
-        fields = [x for x in lt.REQUIRED_FIELDS]
-        assert lt.invalid_csv_headers(fields) is None
+        fields = ['a', 'b', 'c']
+        assert invalid_csv_headers(fields, fields) is None
 
         # trying one less field
-        fields.pop()
-        assert lt.invalid_csv_headers(fields) is not None
+        assert invalid_csv_headers(fields, fields.pop()) is None
 
 
 class TestHelpers(TestCase):

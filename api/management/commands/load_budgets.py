@@ -23,7 +23,6 @@ class Command(BaseCommand):
         Sample can be found in docs/csv/transaction.csv
     """
 
-
     def add_arguments(self, parser):
         # path to the csv containing transactions. Must exist
         parser.add_argument("input_csv", nargs="+", type=str)
