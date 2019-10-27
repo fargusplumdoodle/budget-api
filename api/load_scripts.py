@@ -6,7 +6,7 @@ import os
 import csv
 
 
-def load_budgets(csv_path):
+def load_budgets(csv_path, verbose=True):
     # To add new fields, add here and in csv loop
     output_col_width = 20
     required_fields = ["name", "percentage", "initial_balance"]
@@ -30,16 +30,17 @@ def load_budgets(csv_path):
         if error is not None:
             fail(error)
 
-        print("LOADED CSV")
+        if verbose:
+            print("LOADED CSV")
 
-        # generating header
-        header = (
-                "Budget".rjust(output_col_width)
-                + "Percentage".rjust(output_col_width)
-                + "Initial Balance".rjust(output_col_width)
-        )
+            # generating header
+            header = (
+                    "Budget".rjust(output_col_width)
+                    + "Percentage".rjust(output_col_width)
+                    + "Initial Balance".rjust(output_col_width)
+            )
 
-        print(header + "\n" + str("-" * len(header)) + "\n")
+            print(header + "\n" + str("-" * len(header)) + "\n")
 
         # setting values
         for row in range(1, len(csv_data)):
@@ -56,13 +57,14 @@ def load_budgets(csv_path):
                 )
                 budget.save()
 
-                # Outputing information about budgets to user
-                budget_console_output = (
-                        f"{budget.name}".rjust(output_col_width)
-                        + f"{budget.percentage}".rjust(output_col_width)
-                        + f"{budget.initial_balance}".rjust(output_col_width)
-                )
-                print(budget_console_output + "\n")
+                if verbose:
+                    # Outputing information about budgets to user
+                    budget_console_output = (
+                            f"{budget.name}".rjust(output_col_width)
+                            + f"{budget.percentage}".rjust(output_col_width)
+                            + f"{budget.initial_balance}".rjust(output_col_width)
+                    )
+                    print(budget_console_output + "\n")
 
             except ValueError as e:
                 fail(f"Invalid Data: {e}")
