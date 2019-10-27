@@ -17,7 +17,4 @@ from django.contrib import admin
 from api.views import dashboard
 from django.urls import path
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('dashboard/', dashboard)
-]
+urlpatterns = [path("admin/", admin.site.urls), path("dashboard/", dashboard)]

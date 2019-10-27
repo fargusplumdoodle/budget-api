@@ -1,4 +1,4 @@
-from .models import Budget
+from .models import Budget, Config
 
 
 def budgets_sum_to_one():
@@ -17,8 +17,26 @@ def budgets_sum_to_one():
         total += budget.percentage
 
     # returning None if budget is balanced
-    if 0.999 < total < 1.0001:
+    if 0.999 < total < 1.0005:
         return None
     else:
         # returning total
         return total
+
+
+def add_money(amount):
+    """
+    For adding/subtracting money to all budgets based on their percentage attribute.
+
+    To add money to a single budget use the admin inferface... for now.
+
+    Example: if food gets 30% of the budget, and you were to call this function with
+            amount=100, then this would create a transaction with the food:
+
+    :param amount: amount in dollars you wish to add between all budgets. If the number
+                    is negative, this will subtract from all budgets the same way.
+    :raises ValueError: if budgets are not balanced
+    """
+    # ensuring budgets are balanced
+    print(budgets_sum_to_one())
+    assert budgets_sum_to_one() is None

@@ -3,7 +3,7 @@ from django.db import models
 
 class Budget(models.Model):
     name = models.TextField(max_length=20, unique=True)
-    percentage = models.FloatField(max_length=100, null=True)
+    percentage = models.FloatField(max_length=100)
     initial_balance = models.FloatField(max_length=4000, null=True)
     current_balance = models.FloatField(max_length=4000, null=True)
     monthly_contribution = models.FloatField(max_length=4000, null=True)
@@ -16,7 +16,7 @@ class Transaction(models.Model):
     amount = models.FloatField(max_length=4000)
     description = models.TextField(max_length=300, null=True)
     budget = models.ForeignKey(Budget, null=True, on_delete=models.SET_NULL)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return str(self.amount) + "_" + str(self.date)
