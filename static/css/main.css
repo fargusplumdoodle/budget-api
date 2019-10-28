@@ -30,3 +30,10 @@ tr:nth-child(odd) {
 tr:nth-child(even) {
     background-color: #a8a8a8;
 }
+
+
+/* SIDEBAR */
+#sidebar {
+    position: fixed;
+    padding-top: 8%;
+}

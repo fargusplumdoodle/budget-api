@@ -3,9 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>Budget</title>
+    {% load static %}
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
 </head>
 <body>
-{% block content %}
-{% endblock %}
+{# header/nav #}
+<nav class="navbar-nav navbar-expand-sm navbar-light">
+    {# logo #}
+    <h1>Sekhnet: Budget</h1>
+    {# items #}
+    <li class="navbar-collapse collapse">
+        <ul class="navbar-nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'add_money' %}">Add Money</a>
+            </li>
+        </ul>
+</nav>
+
+{# messages #}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+{# MAIN PAGE STUFF #}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <div class="col-sm-4">
+            {% include 'api/sidebar.html' %}
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

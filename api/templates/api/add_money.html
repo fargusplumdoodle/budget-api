@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'api/base.html' %}
+{% block content %}
+    <h1>Add Money</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ add_money_form }}
+        <button class='btn btn-lg' type="submit">Submit</button>
+    </form>
+
+    <p class="well">The amount you add here will go into each budget despending on the specific budgets "percentage" attribute</p>
+
+    {% if trans_list %}
+        <h2>Added Transactions</h2>
+        {% include 'api/transaction_table.html' %}
+    {% endif %}
+
+{% endblock %}

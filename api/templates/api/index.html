@@ -2,17 +2,17 @@
 {% block content %}
     <h1>Dashboard</h1>
 
+    <hr/>
+    <br/>
+
     <h2>Budgets</h2>
     {% include 'api/budget_table.html' %}
+
+    <hr/>
+    <br/>
 
     <h2>Recent Transactions</h2>
     {% include 'api/transaction_table.html' %}
 
-    <h2>Budget Balanced</h2>
-    {% if budget_balanced %}
-        <p>WARNING: budget not balanced, total of all budgets its {{ budget_balanced }}, it should be 1</p>
-    {% else %}
-        <p>Budget is balanced!</p>
-    {% endif %}
 
 {% endblock %}
