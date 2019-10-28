@@ -45,11 +45,10 @@ def add_money(amount):
 
     for budget in Budget.objects.all():
         trans_amount = amount * budget.percentage
-
         transaction = Transaction(
             amount=trans_amount,
             budget=budget,
-            description=f"add_money(). Total amount added: {amount*budget.percentage}",
+            description=f"add_money: Total amount added %.2f" % float(amount*budget.percentage),
         )
         transaction.save()
 

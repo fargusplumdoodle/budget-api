@@ -15,7 +15,7 @@ class Budget(models.Model):
             balance += x.amount
         return balance
 
-    def readable_percentage(self):
+    def pretty_percentage(self):
         return "%.2f" % self.percentage
 
     def __str__(self):
@@ -27,6 +27,9 @@ class Transaction(models.Model):
     description = models.TextField(max_length=300, null=True)
     budget = models.ForeignKey(Budget, null=True, on_delete=models.SET_NULL)
     date = models.DateField(auto_now_add=True)
+
+    def pretty_amount(self):
+        return "%.2f" % self.amount
 
     def __str__(self):
         return str(self.amount) + "_" + str(self.date)

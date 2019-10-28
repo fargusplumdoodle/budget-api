@@ -8,7 +8,7 @@
         </tr>
         {% for trans in trans_list %}
             <tr>
-                <td><a href="{% url 'budget' trans.budget %}">{{ trans.amount }}</a></td>
+                <td><a href="{% url 'budget' trans.budget %}">{{ trans.pretty_amount }}</a></td>
                 <td><a href="{% url 'budget' trans.budget %}">{{ trans.date }}</a></td>
                 <td><a href="{% url 'budget' trans.budget %}">{{ trans.description }}</a></td>
                 <td><a href="{% url 'budget' trans.budget %}">{{ trans.budget }}</a></td>
