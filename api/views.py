@@ -1,17 +1,27 @@
 # from rest_framework.response import Response
 # from rest_framework.views import APIView
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from .models import Budget, Transaction
 from .helper import budgets_sum_to_one, add_money as add_money_function
 from .forms import AddMoneyForm
+from budget import settings
 
 
 def dashboard(request):
+
+    # x will be a redirect to the login page if the user is not authenticated
+    x = verify_user(request)
+    if x:
+        return x
+
     context = {}
 
     context["budget_list"] = Budget.objects.all()
     context["budget_balanced"] = budgets_sum_to_one()
+
+    context["total_money"] = "%.2f" % float(sum([x.amount for x in Transaction.objects.all()]) + sum([x.initial_balance for x in context['budget_list']]))
 
     context["trans_list"] = Transaction.objects.order_by("date")[::-1][:10]
 
@@ -21,6 +31,10 @@ def dashboard(request):
 
 
 def budget(request, budget_name):
+    # x will be a redirect to the login page if the user is not authenticated
+    x = verify_user(request)
+    if x:
+        return x
     budget = get_object_or_404(Budget, name=budget_name)
 
     context = {
@@ -36,6 +50,10 @@ def budget(request, budget_name):
 
 
 def add_money(request):
+    # x will be a redirect to the login page if the user is not authenticated
+    x = verify_user(request)
+    if x:
+        return x
     # adding form to context
     context = {"add_money_form": AddMoneyForm}
 
@@ -78,6 +96,10 @@ def add_money(request):
 
 
 def add_sidebar_context(context, request):
+    # x will be a redirect to the login page if the user is not authenticated
+    x = verify_user(request)
+    if x:
+        return x
     """
     Takes your current context and adds the sidebar information to it
     :param context: current context info for page
@@ -87,8 +109,10 @@ def add_sidebar_context(context, request):
         "budget_balanced": budgets_sum_to_one(),
         "sidebar": [
             ("Add transaction", "/admin/api/transaction/add/"),
+            ("View Budgets", "/admin/api/budget/"),
             ("Admin page", "/admin/"),
         ],
+        "username": request.user
     }
 
     if sidebar_context["budget_balanced"] is not None:
@@ -98,3 +122,14 @@ def add_sidebar_context(context, request):
         )
 
     return {**context, **sidebar_context}
+
+
+def verify_user(request):
+    """
+    :return: None if user is authenticated, returns redirect if they are not authenticated
+    """
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse(settings.LOGIN_URL))
+    else:
+        return None
+
