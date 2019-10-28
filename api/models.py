@@ -5,15 +5,13 @@ class Budget(models.Model):
     name = models.TextField(max_length=20, unique=True)
     percentage = models.FloatField(max_length=100)
     initial_balance = models.FloatField(max_length=4000, null=True)
-    current_balance = models.FloatField(max_length=4000, null=True)
-    monthly_contribution = models.FloatField(max_length=4000, null=True)
 
     def balance(self):
         # the current balance is equal to the sum of all transactions plus the inital balance
         balance = self.initial_balance
         for x in Transaction.objects.filter(budget=self):
             balance += x.amount
-        return balance
+        return "%.2f" % balance
 
     def pretty_percentage(self):
         return "%.2f" % self.percentage
