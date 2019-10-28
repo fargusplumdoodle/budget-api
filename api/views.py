@@ -70,7 +70,7 @@ def add_money(request):
                 context["trans_list"] = transactions
 
                 messages.success(
-                    request, f'Added {form.cleaned_data.get("amount")} to budgets!'
+                    request, f'Added {form.cleaned_data.get("amount")}$ to budgets!'
                 )
                 # if ANYTHING went wrong here, let them know
             except AssertionError:

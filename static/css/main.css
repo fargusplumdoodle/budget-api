@@ -25,6 +25,9 @@ nav {
 .navbar-light .navbar-nav .nav-link {
     color: #ececec;
 }
+label {
+    padding: 11px;
+}
 #page-content {
     padding-top: 30px;
     padding-bottom: 50px;

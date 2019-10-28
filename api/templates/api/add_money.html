@@ -1,16 +1,18 @@
 {% extends 'api/base.html' %}
 {% block content %}
     <h1>Add Money</h1>
-
+    <hr>
     <form method="POST">
         {% csrf_token %}
-        {{ add_money_form }}
-        <button class='btn btn-lg' type="submit">Submit</button>
+        {{ add_money_form.as_p }}
+        <button class='btn btn-success' type="submit">Submit</button>
     </form>
 
+    <hr>
     <p class="well">The amount you add here will go into each budget despending on the specific budgets "percentage" attribute</p>
 
     {% if trans_list %}
+        <hr>
         <h2>Added Transactions</h2>
         {% include 'api/transaction_table.html' %}
     {% endif %}
