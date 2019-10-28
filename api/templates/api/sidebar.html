@@ -1,0 +1,7 @@
+<div id="sidebar">
+    {% if sidebar %}
+        {% for link, text in sidebar %}
+            <a href="{{ link }}">{{ text }}</a>
+        {% endfor %}
+    {% endif %}
+</div>

@@ -18,7 +18,7 @@ from api.views import dashboard, budget
 from django.urls import path
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("budget/<str:budget_name>/", budget),
-    path("dashboard/", dashboard),
+    path("admin/", admin.site.urls, name='admin'),
+    path("budget/<str:budget_name>/", budget, name='budget'),
+    path("dashboard/", dashboard, name='dashboard'),
 ]

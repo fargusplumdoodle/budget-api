@@ -1,0 +1,14 @@
+{% extends 'api/base.html' %}
+{% block content %}
+    <h1>Budget {{ budget.name }}</h1>
+
+    <h2>Info</h2>
+    <p>Balance: {{ budget.balance }}</p>
+    <p>Initial Balance: {{ budget.initial_balance }}</p>
+    <p>Percentage: {{ budget.percentage }}</p>
+
+
+    <h2>Transactions</h2>
+    {%  include 'api/budgets/../transaction_table.html' %}
+
+{% endblock %}

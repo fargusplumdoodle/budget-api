@@ -1,0 +1,18 @@
+{% if budget_list %}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Percentage</th>
+            <th>Balance</th>
+        </tr>
+        {% for budget in budget_list %}
+            <tr>
+                <td><a href="{% url 'budget' budget.name %}">{{ budget.name }}</a></td>
+                <td><a href="{% url 'budget' budget.name %}">{{ budget.readable_percentage }}</a></td>
+                <td><a href="{% url 'budget' budget.name %}">{{ budget.balance }}</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>Sorry, no budgets found</p>
+{% endif %}
