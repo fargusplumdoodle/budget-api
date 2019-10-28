@@ -3,15 +3,32 @@ body {
     color: #e4f1f3;
 }
 a {
-
-    color: #037BFB;
+    color: #ececec;
+}
+a:hover {
+    color: #0052cb;
 }
 
+hr {
+
+    border: 0.5px solid #e4f1f3;
+}
+
+#nav-title {
+    padding: 13px;
+}
 nav {
-    background-color: #999999;
+    background-color: #0052cb;
     font-family: Ubuntu;
-}
 
+}
+.navbar-light .navbar-nav .nav-link {
+    color: #ececec;
+}
+#page-content {
+    padding-top: 30px;
+    padding-bottom: 50px;
+}
 table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -33,11 +50,11 @@ td, th {
 }
 
 tr:nth-child(odd) {
-    background-color: #f2f2f2;
+    background-color: #626669;
 }
 
 tr:nth-child(even) {
-    background-color: #a8a8a8;
+    background-color: #9b9b9b;
 }
 
 
