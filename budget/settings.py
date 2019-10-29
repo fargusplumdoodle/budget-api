@@ -93,7 +93,6 @@ WSGI_APPLICATION = "budget.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
 if DEBUG:
     DATABASES = {
         "default": {
