@@ -1,0 +1,18 @@
+# THE FOLLOWING ENVIRONMENT VARIABLES ARE REQUIRED
+
+# django debug
+export DEBUG
+
+# django secret key
+export SECRET_KEY
+
+# database IP address to connect to 
+export DB_HOST
+
+# database credentials
+export PROD_USER
+export PROD_DB
+export PROD_PASS
+export DEV_USER
+export DEV_DB
+export DEV_PASS
