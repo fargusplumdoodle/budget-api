@@ -1,5 +1,5 @@
 .env
-./scripts/
+./scripts/run*
 docs
 deploy
 docker
