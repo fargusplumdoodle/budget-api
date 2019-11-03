@@ -6,4 +6,4 @@ __pycache__
 db.sqlite3
 .env
 scripts/run_prod.sh
-deploy/build
+deploy
