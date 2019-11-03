@@ -1,0 +1,8 @@
+.env
+./scripts/
+docs
+deploy
+docker
+venv
+**/__pycache__
+
