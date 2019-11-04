@@ -1,7 +1,8 @@
 from django.test import TestCase
 from .models import Budget, Transaction
 from django.core.management.base import CommandError
-from .helper import add_money, budgets_sum_to_one
+import datetime
+from .helper import add_money, budgets_sum_to_one, generate_transactions
 from .load_scripts import load_budgets, load_transactions, invalid_csv_headers, fail
 
 BUDGET_SAMPLE_LOCATION = "docs/csv/budgets_sample.csv"
@@ -81,6 +82,13 @@ class TestHelpers(TestCase):
         for trans in transactions:
             assert trans.amount == trans.budget.percentage * amount
 
-    def test_budgets_sum_to_one(self):
-        # TODO: THIS
-        pass
+    def test_generate_transactions(self):
+        # testing there were 10 transactions created:w
+
+        start_date = datetime.datetime(2019, 10, 30)
+
+        before_transactions = len(Transaction.objects.all())
+
+        generate_transactions(start_date, 10, 10)
+
+        assert len(Transaction.objects.all()) == before_transactions + 10

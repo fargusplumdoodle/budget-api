@@ -1,4 +1,6 @@
 from .models import Budget, Transaction
+from budget.settings import DEBUG
+from django.utils import timezone
 
 
 def budgets_sum_to_one():
@@ -48,10 +50,75 @@ def add_money(amount):
         transaction = Transaction(
             amount=trans_amount,
             budget=budget,
-            description=f"add_money: Total amount added %.2f" % float(amount*budget.percentage),
+            description=f"add_money: Total amount added %.2f"
+            % float(amount * budget.percentage),
         )
         transaction.save()
 
         added_transactions.append(transaction)
 
     return added_transactions
+
+
+def generate_transactions(start_date, num_paycheques, income):
+
+    # exiting if not debug
+    if not DEBUG:
+        raise EnvironmentError("Will not generate transactions when DEBUG is True")
+
+    budgets = Budget.objects.all()
+    number_of_days_between_paychecks = 14
+
+    for x in range(-num_paycheques, 0):
+        trans = Transaction(
+            amount=income,
+            description="Autoadded with generate_transactions command",
+            budget=budgets[x % len(budgets)],
+            date=start_date - timezone.timedelta(days=-int(number_of_days_between_paychecks * x))
+        )
+        trans.save()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
