@@ -92,3 +92,4 @@ class TestHelpers(TestCase):
         generate_transactions(start_date, 10, 10)
 
         assert len(Transaction.objects.all()) == before_transactions + 10
+

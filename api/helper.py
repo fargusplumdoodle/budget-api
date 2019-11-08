@@ -70,11 +70,12 @@ def generate_transactions(start_date, num_paycheques, income):
     number_of_days_between_paychecks = 14
 
     for x in range(-num_paycheques, 0):
+        date = start_date - timezone.timedelta(days=-int(number_of_days_between_paychecks * x))
         trans = Transaction(
             amount=income,
             description="Autoadded with generate_transactions command",
             budget=budgets[x % len(budgets)],
-            date=start_date - timezone.timedelta(days=-int(number_of_days_between_paychecks * x))
+            date=date
         )
         trans.save()
 
