@@ -61,7 +61,8 @@ def add_money(amount):
 
 
 def generate_transactions(start_date, num_paycheques, income):
-
+    # TODO: fix transaction stickyness to day
+    print("WARNING: IT IS CURRENTLY IMPOSSIBLE TO ADD TRANSACTIONS ON DAYS OTHER THAN THE CURRENT ONE")
     # exiting if not debug
     if not DEBUG:
         raise EnvironmentError("Will not generate transactions when DEBUG is True")
