@@ -34,6 +34,6 @@ class Command(BaseCommand):
         # amount = int(options["amount"][0])
 
         budgets = Budget.objects.all()
-        start = date(2019, 10, 15)
-        end = date(2019, 12, 5)
+        start = date(2018, 10, 15)
+        end = date(2020, 12, 5)
         Graph.balance_history(budgets, start, end)
