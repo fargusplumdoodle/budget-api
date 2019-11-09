@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand, CommandError
 from api.Graph import Graph
-from django.utils import timezone
-from budget.settings import DEBUG
 from api.models import Budget
 from datetime import date
+from datetime import datetime
+from datetime import timedelta
 
 """
 Sample can be found in docs/csv/transaction.csv """
@@ -17,23 +17,22 @@ class Command(BaseCommand):
 
     Usage: 'python3 manage.py graph_history'
 
-    Generates a graph for the 
+    Generates a graph for the last x month of transactions
+    
+    Parameters:
+        1: number of previous months to graph
     """
 
     def add_arguments(self, parser):
         # path to the csv containing transactions. Must exist
-        # parser.add_argument("months", nargs="+", type=int)
+        parser.add_argument("months", nargs="+", type=int)
         pass
 
     def handle(self, *args, **options):
-        if not DEBUG:
-            raise EnvironmentError("Will not generate transactions when DEBUG is True")
-
         # only checking first argument
-        # months = int(options["months"][0])
-        # amount = int(options["amount"][0])
+        months = int(options["months"][0])
 
         budgets = Budget.objects.all()
-        start = date(2018, 10, 15)
-        end = date(2020, 12, 5)
+        start = datetime.now() - timedelta(days=31 * months)
+        end = datetime.now()
         Graph.balance_history(budgets, start, end)
