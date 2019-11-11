@@ -22,7 +22,9 @@ class GraphBudgetHistory(APIView):
         try:
             Validators.GraphBudgetHistory.validate(request)
         except Validators.ValidationError as e:
-            return Response(str(e), status=400, content_type="text/plain")
+            return Response(
+                {"error": str(e)}, status=400, content_type="application/json"
+            )
 
         try:
             budgets = Budget.objects.filter(
@@ -45,7 +47,6 @@ class GraphBudgetHistory(APIView):
 
 
 def dashboard(request):
-
     # x will be a redirect to the login page if the user is not authenticated
     x = verify_user(request)
     if x:

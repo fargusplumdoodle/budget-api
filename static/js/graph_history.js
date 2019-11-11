@@ -22,6 +22,7 @@ const get_budget_info = async (start, end, budgets, url) => {
 
     } catch (e) {
         // catching errors
+        alert(e);
         console.log(e);
         return undefined;
     }
@@ -36,7 +37,16 @@ const renderGraph = (url) => {
 
     // plotting budgets after fetch
     get_budget_info(start, end, budgets, url).then((data) => {
-        console.log(data);
+
+        // handling errors
+        if ('error' in data) {
+            // displaying message to user
+            alert(data.error);
+
+            // exiting..
+            return;
+        }
+
         // getting chart from page
         var ctx = document.getElementById('myChart').getContext('2d');
 

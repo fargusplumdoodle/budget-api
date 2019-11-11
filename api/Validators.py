@@ -12,7 +12,9 @@ something like this in your endpoint
     try:
         Validators.GraphBudgetHistory.validate(request)
     except Validators.ValidationError as e:
-        return Response(str(e), status=400, content_type="text/plain")
+            return Response(
+                {"error": str(e)}, status=400, content_type="application/json"
+            )
 
 Each class will have a "validate" function that will call other functions in the class
 this makes testing easy

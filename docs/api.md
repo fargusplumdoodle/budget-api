@@ -33,6 +33,7 @@ Must have:
 }
 ```
 ####Response:
+Status: 200
 ```json
 {
     'days':['2019-10-11 00:21:30.307150', ...],
@@ -45,4 +46,12 @@ Must have:
             ...
     ]
 }
+```
+#### Error Response
+If there is an issue with the request, the error response will be in 
+this format 
+
+Status code: 400
+```json
+{"error": "description of error}
 ```
