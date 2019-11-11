@@ -80,6 +80,8 @@ const renderGraph = (url) => {
                 datasets: datasets
             },
             options: {
+                maintainAspectRatio: false,
+                responsive: true,
                 scales: {
                     yAxes: [{
                         ticks: {
@@ -87,9 +89,10 @@ const renderGraph = (url) => {
                         }
                     }]
                 }
-            }
+            },
         });
     });
+    myChart.height = 512;
 
 };
 

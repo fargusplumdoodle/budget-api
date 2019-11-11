@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 from .models import Budget, Transaction
 from django.db.models.query import QuerySet
 from datetime import date
@@ -72,13 +71,6 @@ class Graph:
                     sum(x.amount for x in days_transactions[day].filter(budget=budget))
                     + budget.initial_balance
                 )
-
-        for budget in budgets:
-            plt.plot(days_x, budgets_y[budget], label=budget.name)
-
-        if show:
-            plt.legend()
-            plt.show()
 
         # generating output data
         graph_data = {"days": [str(x) for x in days_x], "budgets": []}
