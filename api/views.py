@@ -9,6 +9,7 @@ from .forms import AddMoneyForm, GraphHistoryForm
 from budget import settings
 from .Graph import Graph
 import datetime
+from . import Validators
 
 
 class GraphBudgetHistory(APIView):
@@ -18,21 +19,28 @@ class GraphBudgetHistory(APIView):
         if x:
             return x
 
-        # TODO: VALIDATION AND SUCH
-        # TODO: this whole endpoint
-        budgets = Budget.objects.filter(name__in=request.GET.get("budgets", 'no budgets yo').split(','))
+        try:
+            Validators.GraphBudgetHistory.validate(request)
+        except Validators.ValidationError as e:
+            return Response(str(e), status=400, content_type="text/plain")
 
-        start_list = [int(x) for x in request.GET.get("start", "").split('-')]
-        end_list = [int(x) for x in request.GET.get("end", "").split('-')]
+        try:
+            budgets = Budget.objects.filter(
+                name__in=request.GET.get("budgets", "no budgets yo").split(",")
+            )
 
-        start = datetime.date(start_list[0], start_list[1], start_list[2])
-        end = datetime.date(end_list[0], end_list[1], end_list[2])
+            start_list = [int(x) for x in request.GET.get("start", "").split("-")]
+            end_list = [int(x) for x in request.GET.get("end", "").split("-")]
 
-        response = Graph.balance_history(
-            budgets,
-            start,
-            end
-        )
+            start = datetime.date(start_list[0], start_list[1], start_list[2])
+            end = datetime.date(end_list[0], end_list[1], end_list[2])
+
+            response = Graph.balance_history(budgets, start, end)
+        except Exception:
+            return Response(
+                "unknown error occurred", status=400, content_type="text/plain"
+            )
+
         return Response(response, status=200, content_type="application/json")
 
 
