@@ -5,11 +5,22 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from .models import Budget, Transaction
 from .helper import budgets_sum_to_one, add_money as add_money_function
-from .forms import AddMoneyForm
+from .forms import AddMoneyForm, GraphHistoryForm
 from budget import settings
+import json
 
 class GraphBudgetHistory(APIView):
-    def post(self):
+    def post(self, request):
+        # x will be a redirect to the login page if the user is not authenticated
+        x = verify_user(request)
+        if x:
+            return x
+
+        # TODO: VALIDATION AND SUCH
+        data = json.loads(request.body)
+
+        # TODO: this whole endpoint
+
 
 
 def dashboard(request):
@@ -141,7 +152,11 @@ def test_chart(request):
     x = verify_user(request)
     if x:
         return x
-    context = {}
+
+    context = {
+        'graph_history_form': GraphHistoryForm
+    }
+
     return render(
         request, "api/test_chart.html", context=add_sidebar_context(context, request)
     )

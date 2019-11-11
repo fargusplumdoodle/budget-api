@@ -25,6 +25,6 @@ urlpatterns = [
     path("login/",  login_view.LoginView.as_view(template_name="api/login.html"), name='login'),
     path("logout/", login_view.LogoutView.as_view(template_name="api/login.html"), name='logout'),
     path("test_chart/", test_chart, name='test_chart'),
-    path("api/v1/graph/history", test_chart, name='test_chart'),
+    path("api/v1/graph/history", GraphBudgetHistory, name='graph_history'),
 
 ]

@@ -5,14 +5,19 @@ Graph History
 Warning: very resource intensive query,
          it is quite poorly designed
 
-Endpoint: api/graph/history
+Endpoint: api/v1/graph/history
 
 #### Request:
-
 Must have:
-- start date: str, format below
+- start date: str, format below 
+
+        Restrictions:
+        min="2019-10-01" max="2077-07-31"
 
 - end date: str, format below
+
+        Restrictions:
+        min="2019-10-01" max="2077-07-31"
 
 - budgets: list of budget names, must exist in db. 
 
