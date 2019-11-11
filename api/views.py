@@ -172,14 +172,19 @@ def verify_user(request):
         return None
 
 
-def test_chart(request):
+def graph_history_page(request):
+    """
+    For generating graphs
+    This page does not use the sidebar
+    """
+
     x = verify_user(request)
     if x:
         return x
 
-    context = {"graph_history_form": GraphHistoryForm,
-               "budgets": [x.name for x in Budget.objects.all()]}
+    context = {
+        "graph_history_form": GraphHistoryForm,
+        "budgets": [x.name for x in Budget.objects.all()],
+    }
 
-    return render(
-        request, "api/test_chart.html", context=add_sidebar_context(context, request)
-    )
+    return render(request, "api/graph_history.html", context=context)

@@ -11,14 +11,14 @@
         <div class="row">
             <div  class="col-sm-6">
                 <label for="id_start">Start Date:</label>
-                <input type="date" min="2019-10-01" max="2077-07-31" id="id_start">
+                <input class="btn form-input" type="date" min="2019-10-01" max="2077-07-31" id="id_start">
                 <br>
                 <label for="id_end">End Date:</label>
-                <input type="date" min="2019-10-01" max="2077-07-31" id="id_end">
+                <input class="btn form-input"type="date" min="2019-10-01" max="2077-07-31" id="id_end">
             </div>
             <div class="col-sm-6">
                 <label for="id_budgets">Budgets:</label>
-                <select id="id_budgets" name="budgets" required="" multiple="">
+                <select class="btn form-input" id="id_budgets" name="budgets" required="" multiple="">
                     {% for budget in budgets %}
                         <option value="{{ budget }}">{{ budget }}</option>
                     {% endfor %}
