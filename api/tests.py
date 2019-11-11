@@ -4,6 +4,7 @@ from django.core.management.base import CommandError
 import datetime
 from .helper import add_money, budgets_sum_to_one, generate_transactions
 from .load_scripts import load_budgets, load_transactions, invalid_csv_headers, fail
+from . import Validators
 
 BUDGET_SAMPLE_LOCATION = "docs/csv/budgets_sample.csv"
 TRANSACTION_SAMPLE_LOCATION = "docs/csv/transaction_sample.csv"
@@ -93,3 +94,57 @@ class TestHelpers(TestCase):
 
         assert len(Transaction.objects.all()) == before_transactions + 10
 
+
+class TestGraphBudgetHistoryValidator(TestCase):
+    def test_check_parameters_valid(self):
+        valid_params = {
+            "start": "2019-11-6",
+            "end": "2019-12-1",
+            "budgets": ",".join([x.name for x in Budget.objects.all()]),
+        }
+        Validators.GraphBudgetHistory.check_parameters(valid_params)
+
+    def test_check_parameters_invalid(self):
+        invalid_params = [
+            {"start": "2019-11-6", "end": "2019-12-1"},
+            {
+                "start": "2019-11-6",
+                "budgets": ",".join([x.name for x in Budget.objects.all()]),
+            },
+            {
+                "end": "2019-12-1",
+                "budgets": ",".join([x.name for x in Budget.objects.all()]),
+            },
+        ]
+        passed = False
+        for invalid_param in invalid_params:
+            try:
+                Validators.GraphBudgetHistory.check_parameters(invalid_param)
+            except Validators.ValidationError:
+                passed = True
+            assert passed
+
+    def test_check_dates_valid(self):
+        valid_dates = [
+            ("2019-11-6", "2019-11-7"),
+            ("2019-10-6", "2019-11-6"),
+            ("2019-11-8", "2020-11-6"),
+            ("2068-12-2", "2069-11-6"),
+        ]
+        for start, end in valid_dates:
+            Validators.GraphBudgetHistory.check_dates(start, end)
+
+    def test_check_dates_invalid(self):
+        invalid_dates = [
+            ("20s19-11-6", "20s19-11-7"),
+            ("2012-01-6", "2019--6"),
+            ("1919-1-8", "2020-11-6"),
+            ("20638-12-2", "2069-11-6"),
+        ]
+        for start, end in invalid_dates:
+            passed = False
+            try:
+                Validators.GraphBudgetHistory.check_dates(start, end)
+            except Validators.ValidationError:
+                passed = True
+            assert passed
