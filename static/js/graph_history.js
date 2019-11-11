@@ -41,40 +41,29 @@ const renderGraph = (url) => {
         var ctx = document.getElementById('myChart').getContext('2d');
 
         let datasets = [];
-        let labels = [];
-
-        // generating datasets
-        for(let i = 0; i < data.budgets.length; i++) {
-            labels.push(data.budgets[i].name);
-            datasets.push({
-                label: data.budgets[i].name,
-                data: data.budgets[i].data,
-                backgroundColor: ['rgba(255,255,255,1)'],
-                borderWidth: 1
-            })
-        }
-        console.log(datasets);
-        /*backgroundColor: [
+        let background_colors = [
             'rgba(255, 99, 132, 0.2)',
             'rgba(54, 162, 235, 0.2)',
             'rgba(255, 206, 86, 0.2)',
             'rgba(75, 192, 192, 0.2)',
             'rgba(153, 102, 255, 0.2)',
             'rgba(255, 159, 64, 0.2)'
-        ],
-            borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-        ],*/
+        ];
+
+        // generating datasets
+        for(let i = 0; i < data.budgets.length; i++) {
+            datasets.push({
+                label: data.budgets[i].name,
+                data: data.budgets[i].data,
+                backgroundColor: [background_colors[i % background_colors.length]],
+                borderWidth: 1
+            })
+        }
         // setting up chart
         var myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: data.days,
                 datasets: datasets
             },
             options: {
