@@ -104,6 +104,28 @@ class TestGraphBudgetHistoryValidator(TestCase):
         }
         Validators.GraphBudgetHistory.check_parameters(valid_params)
 
+    def test_check_budgets_valid(self):
+        # generating throwaway budgets
+        budgets = []
+        for x in range(10):
+            budget, created = Budget.objects.get_or_create(name=str(x), percentage=x)
+            budgets.append(budget.name)
+
+        valid_params = [",".join(budgets[:5]), ",".join(budgets[:2]), ",".join(budgets)]
+        for budget in valid_params:
+            Validators.GraphBudgetHistory.check_budgets(budget)
+
+    def test_check_budgets_invalid(self):
+        # generating throwaway budgets
+        invalid_params = ["", "kljsldkfjlskdjflskdjfj,laskdf234235", "39gulkj,food"]
+        for budget in invalid_params:
+            passed = False
+            try:
+                Validators.GraphBudgetHistory.check_budgets(budget)
+            except Validators.ValidationError:
+                passed = True
+            assert passed
+
     def test_check_parameters_invalid(self):
         invalid_params = [
             {"start": "2019-11-6", "end": "2019-12-1"},

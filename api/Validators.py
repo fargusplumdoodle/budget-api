@@ -21,6 +21,7 @@ If any issue occurs, we raise a ValidationError("description of issue"). Validat
 is defined in this file
 """
 import datetime
+from .models import Budget
 
 
 class GraphBudgetHistory:
@@ -45,6 +46,10 @@ class GraphBudgetHistory:
         GraphBudgetHistory.check_parameters(request.GET)
 
         # - check if dates are valid
+        GraphBudgetHistory.check_dates(request.GET.get("start"), request.GET.get("end"))
+
+        # - test if budgets actually exist
+        GraphBudgetHistory.check_budgets(request.GET.get("budgets"))
 
     @staticmethod
     def check_parameters(get):
@@ -53,7 +58,7 @@ class GraphBudgetHistory:
         :param get: dict of get parameters
         :raises Validation.ValidationError:
         """
-        valid_params = ['start', 'end', 'budgets']
+        valid_params = ["start", "end", "budgets"]
         for param in valid_params:
             if param not in get:
                 raise ValidationError(f"Error: Missing {param} from get parameters")
@@ -68,19 +73,52 @@ class GraphBudgetHistory:
         :param end: str end date
         :raises Validation.ValidationError:
         """
+        dates = [start, end]
+        for date in dates:
+            try:
+                ls = [int(x) for x in date.split("-")]
+                tested_date = datetime.date(ls[0], ls[1], ls[2])
+            except Exception as e:
+                raise ValidationError("invalid start or end date")
+
+            if tested_date < datetime.date(2019, 10, 1) or tested_date > datetime.date(
+                2077, 7, 31
+            ):
+                raise ValidationError(
+                    "start and end dates cannot be less than (2019, 10, 1) or greater than (2077, 7, 31)"
+                )
+
+    @staticmethod
+    def check_budgets(budgets):
+        """
+        Checks if budgets parameter is valid and that all budgets exist
+        :param budgets: string list of budgets. Example: food,housing,personal
+        :return:
+        """
+        if not isinstance(budgets, str):
+            raise ValidationError(
+                'Error, invalid list of budgets. Example: "food,housing,personal"'
+            )
+
         try:
-            start_list = [int(x) for x in start.split('-')]
-            end_list = [int(x) for x in end.split('-')]
+            budgets_ls = budgets.split(",")
+        except:
+            raise ValidationError(
+                'Error, invalid list of budgets. Example: "food,housing,personal"'
+            )
 
-            start = datetime.date(start_list[0], start_list[1], start_list[2])
-            end = datetime.date(end_list[0], end_list[1], end_list[2])
-        except Exception as e:
-            raise ValidationError("invalid start or end date")
+        if len(budgets_ls) < 1:
+            raise ValidationError(
+                'Error, No budgets supplied. invalid list of budgets. Example: "food,housing,personal"'
+            )
 
-        if start < datetime.date(2019, 10, 1) or start > datetime.date(2077, 7, 31):
-            raise ValidationError("Start date cannot be less than (2019, 10, 1) or greater than (2077, 7, 31)")
-        if end < datetime.date(2019, 10, 1) or end > datetime.date(2077, 7, 31):
-            raise ValidationError("End date cannot be less than (2019, 10, 1) or greater than (2077, 7, 31)")
+        actual_budgets = [x.name for x in Budget.objects.all()]
+        for budget in budgets_ls:
+            if budget not in actual_budgets:
+                raise ValidationError(
+                    f'Error, budget {budget} does not exist. Example: "food,housing,personal"'
+                )
+
 
 class ValidationError(Exception):
     pass
