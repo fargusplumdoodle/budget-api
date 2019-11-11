@@ -7,20 +7,34 @@ from .models import Budget, Transaction
 from .helper import budgets_sum_to_one, add_money as add_money_function
 from .forms import AddMoneyForm, GraphHistoryForm
 from budget import settings
-import json
+from .Graph import Graph
+import datetime
+
 
 class GraphBudgetHistory(APIView):
-    def post(self, request):
+    def get(self, request, format=None):
         # x will be a redirect to the login page if the user is not authenticated
         x = verify_user(request)
         if x:
             return x
 
         # TODO: VALIDATION AND SUCH
-        data = json.loads(request.body)
-
         # TODO: this whole endpoint
+        budgets = Budget.objects.filter(name__in=request.GET.get("budgets", 'no budgets yo').split(','))
 
+        start_list = [int(x) for x in request.GET.get("start", "").split('-')]
+        end_list = [int(x) for x in request.GET.get("end", "").split('-')]
+
+        start = datetime.date(start_list[0], start_list[1], start_list[2])
+        end = datetime.date(end_list[0], end_list[1], end_list[2])
+
+        response = Graph.balance_history(
+            budgets,
+            start,
+            end
+        )
+        print(response)
+        return Response(status=200)
 
 
 def dashboard(request):
@@ -35,7 +49,10 @@ def dashboard(request):
     context["budget_list"] = Budget.objects.all()
     context["budget_balanced"] = budgets_sum_to_one()
 
-    context["total_money"] = "%.2f" % float(sum([x.amount for x in Transaction.objects.all()]) + sum([x.initial_balance for x in context['budget_list']]))
+    context["total_money"] = "%.2f" % float(
+        sum([x.amount for x in Transaction.objects.all()])
+        + sum([x.initial_balance for x in context["budget_list"]])
+    )
 
     context["trans_list"] = Transaction.objects.order_by("date")[::-1][:10]
 
@@ -126,7 +143,7 @@ def add_sidebar_context(context, request):
             ("View Budgets", "/admin/api/budget/"),
             ("Admin page", "/admin/"),
         ],
-        "username": request.user
+        "username": request.user,
     }
 
     if sidebar_context["budget_balanced"] is not None:
@@ -153,11 +170,8 @@ def test_chart(request):
     if x:
         return x
 
-    context = {
-        'graph_history_form': GraphHistoryForm
-    }
+    context = {"graph_history_form": GraphHistoryForm}
 
     return render(
         request, "api/test_chart.html", context=add_sidebar_context(context, request)
     )
-

@@ -2,19 +2,17 @@
 
 const get_budget_info = async (start, end, budgets, url) => {
     // defining body according to api standard
-    const body = {
-        'start': start,
-        'end': end,
-        'budgets': budgets
-    };
+    const csrftoken = getCookie('csrftoken');
+
+    url = url + "?start=" + start + "&end=" + end + "&budgets=" + budgets;
     // defining settings
     const settings = {
-        method: "POST",
+        method: "GET",
         headers: {
             Accept: 'application/json',
-            "Content-Type": 'application/json'
+            "Content-Type": 'application/json',
+            "X-CSRFToken": csrftoken
         },
-        body: JSON.stringify(body)
     };
     try {
 
@@ -62,3 +60,20 @@ function getSelectValues(select) {
   }
   return result;
 }
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+

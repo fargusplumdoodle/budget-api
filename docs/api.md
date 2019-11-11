@@ -21,11 +21,6 @@ Must have:
 
 - budgets: list of budget names, must exist in db. 
 
-- all_budgets: bool
-
-If "all_budgets" is true, value of 'budgets'
-is ignored and all budgets are included in output.
-
        
 ```json
 {
@@ -35,8 +30,6 @@ is ignored and all budgets are included in output.
       'food',
       'personal'
   ],
-  'all_budgets': false
-  
 }
 ```
 ####Response:
