@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from api.Graph import Graph
 from api.models import Budget
-from datetime import date
 from datetime import datetime
 from datetime import timedelta
 

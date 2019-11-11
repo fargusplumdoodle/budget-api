@@ -1,5 +1,5 @@
-# from rest_framework.response import Response
-# from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
@@ -7,6 +7,9 @@ from .models import Budget, Transaction
 from .helper import budgets_sum_to_one, add_money as add_money_function
 from .forms import AddMoneyForm
 from budget import settings
+
+class GraphBudgetHistory(APIView):
+    def post(self):
 
 
 def dashboard(request):
@@ -132,4 +135,14 @@ def verify_user(request):
         return HttpResponseRedirect(reverse(settings.LOGIN_URL))
     else:
         return None
+
+
+def test_chart(request):
+    x = verify_user(request)
+    if x:
+        return x
+    context = {}
+    return render(
+        request, "api/test_chart.html", context=add_sidebar_context(context, request)
+    )
 

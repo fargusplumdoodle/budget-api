@@ -10,10 +10,26 @@ class Graph:
     def balance_history(budgets, start, end, show=False):
         """
         Generates a graph of the provided budgets over two dates
+
         :param budgets: queryset of budget objects
         :param start: start date
         :param end: end date
-        :param show: if we show the plot after generation
+        :param show: if we show the plot after generation, dont use this
+                        in prod
+        :return: Python Dictionary
+            {
+                'days':['2019-10-11 00:21:30.307150', ...],
+                'budgets': {
+                        'budget_name': [125, 167, 35, ...],
+                        ...
+                }
+            }
+
+            days: a list of dates for each data point in each budget
+            budgets: a dict of budgets and their datapoints for each day
+
+            The datapoints are the balance of the budget at that particular time.
+            More info in 'docs/api.md'
         """
         # validation
         assert isinstance(budgets, QuerySet)  # must be a query set of budgets
@@ -23,7 +39,7 @@ class Graph:
 
         # generating time axis
         days = (end - start).days
-
+        all_transactions = Transaction.objects.all()
         days_x = []
 
         # each key is a budget
@@ -39,7 +55,7 @@ class Graph:
             current_day = start + timedelta(days=x)
 
             # finding all transactions up to this day
-            transactions_up_to_today = Transaction.objects.filter(date__lt=current_day)
+            transactions_up_to_today = all_transactions.filter(date__lt=current_day)
 
             # setting this date to those transactions
             days_transactions[current_day] = transactions_up_to_today
@@ -59,5 +75,18 @@ class Graph:
 
         for budget in budgets:
             plt.plot(days_x, budgets_y[budget], label=budget.name)
-        plt.legend()
-        plt.show()
+
+        if show:
+            plt.legend()
+            plt.show()
+
+
+        # generating output data
+        graph_data = {
+            "days": [str(x) for x in days_x],
+            "budgets": {}
+        }
+        for budget_model in budgets_y:
+            graph_data["budgets"][budget_model.name] = budgets_y[budget_model]
+
+        return graph_data
