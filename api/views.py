@@ -33,8 +33,7 @@ class GraphBudgetHistory(APIView):
             start,
             end
         )
-        print(response)
-        return Response(status=200)
+        return Response(response, status=200, content_type="application/json")
 
 
 def dashboard(request):

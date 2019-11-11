@@ -80,13 +80,11 @@ class Graph:
             plt.legend()
             plt.show()
 
-
         # generating output data
-        graph_data = {
-            "days": [str(x) for x in days_x],
-            "budgets": {}
-        }
+        graph_data = {"days": [str(x) for x in days_x], "budgets": []}
         for budget_model in budgets_y:
-            graph_data["budgets"][budget_model.name] = budgets_y[budget_model]
+            graph_data["budgets"].append(
+                {"name": str(budget_model.name), "data": budgets_y[budget_model]}
+            )
 
         return graph_data

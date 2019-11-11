@@ -36,9 +36,13 @@ Must have:
 ```json
 {
     'days':['2019-10-11 00:21:30.307150', ...],
-    'budgets': {
-            'budget_name': [125, 167, 35, ...],
+    'budgets': [
+            {
+              'name': 'budget_name',
+             'data': [125, 167, 35, ...],
+             }
+            
             ...
-    }
+    ]
 }
 ```

@@ -15,20 +15,10 @@ const get_budget_info = async (start, end, budgets, url) => {
         },
     };
     try {
+        // fetching data from URL
+        const response = await fetch(url, settings);
 
-        // fetching data from
-        const response = fetch(url, settings);
-
-        if (!response.ok) {
-            // checking if response is OK
-            console.log("ERROR: bad response");
-            console.log(response.status);
-            console.log(response.body);
-            return undefined
-
-        }
-
-        return await response.json();
+        return response.json();
 
     } catch (e) {
         // catching errors
@@ -39,14 +29,70 @@ const get_budget_info = async (start, end, budgets, url) => {
 };
 
 const renderGraph = (url) => {
+    // getting data from form
     let start = document.getElementById("id_start").value;
     let end = document.getElementById("id_end").value;
     let budgets = getSelectValues(document.getElementById("id_budgets"));
-    let data = get_budget_info(start, end, budgets, url)
+
+    // plotting budgets after fetch
+    get_budget_info(start, end, budgets, url).then((data) => {
+        console.log(data);
+        // getting chart from page
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        let datasets = [];
+        let labels = [];
+
+        // generating datasets
+        for(let i = 0; i < data.budgets.length; i++) {
+            labels.push(data.budgets[i].name);
+            datasets.push({
+                label: data.budgets[i].name,
+                data: data.budgets[i].data,
+                backgroundColor: ['rgba(255,255,255,1)'],
+                borderWidth: 1
+            })
+        }
+        console.log(datasets);
+        /*backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+        ],
+            borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+        ],*/
+        // setting up chart
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    });
 
 };
 
 function getSelectValues(select) {
+    // gets list of select values, credit: stack overflow
   var result = [];
   var options = select && select.options;
   var opt;
@@ -62,6 +108,7 @@ function getSelectValues(select) {
 }
 
 function getCookie(name) {
+    // gets the csrf cookie, credit: django CSRF documentation
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
