@@ -1,29 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Budget</title>
-    {% load static %}
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
-</head>
+{# header  #}
+{% include "api/base_templates/header.html" %}
+
 <body>
 {# header/nav #}
-<nav class="navbar-nav navbar-expand-sm navbar-light">
-    {# logo #}
-    <h4 id="nav-title">Sekhnet  Budget</h4>
-    {# items #}
-    <li class="navbar-collapse collapse">
-        <ul class="navbar-nav nav-pills">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'dashboard' %}">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'add_money' %}">Add Money</a>
-            </li>
-        </ul>
-</nav>
+{% include "api/base_templates/navbar.html" %}
 
 {# messages #}
 {% if messages %}
@@ -43,7 +25,7 @@
             {% endblock %}
         </div>
         <div class="col-sm-4">
-            {% include 'api/sidebar.html' %}
+            {% include 'api/base_templates/sidebar.html' %}
         </div>
     </div>
 </div>
