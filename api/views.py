@@ -177,7 +177,8 @@ def test_chart(request):
     if x:
         return x
 
-    context = {"graph_history_form": GraphHistoryForm}
+    context = {"graph_history_form": GraphHistoryForm,
+               "budgets": [x.name for x in Budget.objects.all()]}
 
     return render(
         request, "api/test_chart.html", context=add_sidebar_context(context, request)

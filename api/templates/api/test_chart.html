@@ -1,18 +1,39 @@
-{% extends 'api/base.html' %}
+{% extends 'api/base_templates/base_no_sidebar.html' %}
 {% block content %}
-    <canvas id="myChart" width="400" height="400"></canvas>
     {% load static %}
     <script src="{% static "js/Chart.min.js" %}"></script>
     <script src="{% static "js/graph_history.js" %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static "css/graph_history_page.css" %}">
 
     {# Form for getting graph data #}
-        {% csrf_token %}
-        {{ graph_history_form }}
-        <button id="graph-button">Graph</button>
+    {% csrf_token %}
+    <div id="graph-input" class="container">
+        <div class="row">
+            <div  class="col-sm-6">
+                <label for="id_start">Start Date:</label>
+                <input type="date" min="2019-10-01" max="2077-07-31" id="id_start">
+                <br>
+                <label for="id_end">End Date:</label>
+                <input type="date" min="2019-10-01" max="2077-07-31" id="id_end">
+            </div>
+            <div class="col-sm-6">
+                <label for="id_budgets">Budgets:</label>
+                <select id="id_budgets" name="budgets" required="" multiple="">
+                    {% for budget in budgets %}
+                        <option value="{{ budget }}">{{ budget }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button class="btn-success btn" id="graph-button">Graph</button>
+        <hr/>
 
-    <script>
-        document.getElementById("graph-button").onclick = () => {
-            renderGraph('{% url 'graph_history' %}');
-        };
-    </script>
+        {# Defining canvas for chart #}
+        <canvas id="myChart" width="400" height="400"></canvas>
+        <script>
+            // setting onclick for form
+            document.getElementById("graph-button").onclick = () => {
+                renderGraph('{% url 'graph_history' %}');
+            };
+        </script>
 {% endblock %}
