@@ -2,9 +2,27 @@ from .models import Budget, Transaction
 from django.db.models.query import QuerySet
 from datetime import date
 from datetime import timedelta
+import random
 
 
 class Graph:
+    @staticmethod
+    def get_days_to_process(days):
+        """
+            We have to have 14 or less plots
+            --------------------------------
+
+            So if there is less than or equal to 14 plots, we will show them
+
+            otherwise, we have to remove random plots until the number is divisible
+            by 14
+
+            then when getting the days we are going to calculate we skip every day
+            that isn't divisible by 14
+        """
+        if days == 0:
+            return []
+        return [0] + [x for x in range(1, days - 1, int(days / 14))] + [days]
     @staticmethod
     def balance_history(budgets, start, end, show=False):
         """
@@ -47,10 +65,17 @@ class Graph:
         for budget in budgets:
             budgets_y[budget] = []
 
-        # creating a dictionary of dates to list of all transactions up to that date
+        """
+        This holds a key for each day
+        """
         days_transactions = {}
-        for x in range(days):
-            # finding current day
+
+        for x in Graph.get_days_to_process(days):
+            # -------------------------------------
+            # This gets a query of all transactions
+            #   up to this day on all budgets
+            # then associates it with a day
+            # -------------------------------------
             current_day = start + timedelta(days=x)
 
             # finding all transactions up to this day
@@ -80,3 +105,5 @@ class Graph:
             )
 
         return graph_data
+
+
