@@ -90,7 +90,8 @@ class TestHelpers(TestCase):
 
         before_transactions = len(Transaction.objects.all())
 
-        generate_transactions(start_date, 10, 10)
+        trans = generate_transactions(start_date, 10, 10, save=True)
+        assert len(trans) == 10
 
         assert len(Transaction.objects.all()) == before_transactions + 10
 

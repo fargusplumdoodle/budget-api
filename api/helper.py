@@ -60,8 +60,18 @@ def add_money(amount):
     return added_transactions
 
 
-def generate_transactions(start_date, num_paycheques, income):
+def generate_transactions(start_date, num_paycheques, income, save=False):
+    """
+    Creates a bunch of transactions
+
+    :param start_date: start date, datetime
+    :param num_paycheques: number of paycheques to generate
+    :param income: amount you make per 14 days
+    :param save: if true we will save transactions, doesn't work in debug
+    :return: list of transacitons
+    """
     # TODO: fix transaction stickyness to day
+    # BUG: transactions stuck on their day they were initialized at
     print("WARNING: IT IS CURRENTLY IMPOSSIBLE TO ADD TRANSACTIONS ON DAYS OTHER THAN THE CURRENT ONE")
     # exiting if not debug
     if not DEBUG:
@@ -70,6 +80,7 @@ def generate_transactions(start_date, num_paycheques, income):
     budgets = Budget.objects.all()
     number_of_days_between_paychecks = 14
 
+    transactions = []
     for x in range(-num_paycheques, 0):
         date = start_date - timezone.timedelta(days=int(number_of_days_between_paychecks * x))
         trans = Transaction(
@@ -78,7 +89,14 @@ def generate_transactions(start_date, num_paycheques, income):
             budget=budgets[x % len(budgets)],
             date=date
         )
-        trans.save()
+        # wont save unless we are in debug mode
+        if save and DEBUG:
+            trans.save()
+        #  adding transaction to return list
+        transactions.append(trans)
+
+    # returning transacions
+    return transactions
 
 
 
