@@ -51,7 +51,7 @@ def add_money(amount):
             amount=trans_amount,
             budget=budget,
             description=f"add_money: Total amount added %.2f"
-            % float(amount * budget.percentage),
+            % float(amount),
         )
         transaction.save()
 
