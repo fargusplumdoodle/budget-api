@@ -9,6 +9,7 @@ class Graph:
     @staticmethod
     def get_days_to_process(days):
         """
+        :param
             We have to have 14 or less plots
             --------------------------------
 
@@ -20,9 +21,15 @@ class Graph:
             then when getting the days we are going to calculate we skip every day
             that isn't divisible by 14
         """
-        if days == 0:
+        if days <= 0:
             return []
+
+        # if there are less than 14 days we show them all
+        if days <= 14:
+            return [x for x in range(days)]
+
         return [0] + [x for x in range(1, days - 1, int(days / 14))] + [days]
+
     @staticmethod
     def balance_history(budgets, start, end, show=False):
         """
