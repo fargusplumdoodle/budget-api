@@ -92,14 +92,12 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
         # wont save unless we are in debug mode
         if save and DEBUG:
             trans.save()
+
         #  adding transaction to return list
         transactions.append(trans)
 
     # returning transacions
     return transactions
-
-
-
 
 
 
