@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Budget(models.Model):
@@ -32,3 +33,24 @@ class Transaction(models.Model):
     def __str__(self):
         return str(self.amount) + "_" + str(self.date)
 
+
+class Profile(models.Model):
+    """
+    For keeping track of basic user information
+    ------------------------------------------
+
+    if there are two or more budgets to a single user, only the first one
+    will be used
+        Profile.objects.filter(user=user).first()
+    """
+    # the amount each paycheck is, assuming they get paid every 14 days
+    pay_biweekly = models.IntegerField()
+
+    # this is for determining which days you are paid for
+    # just give any day that you had a paycheque.
+    # this program can calculate every other paycheque
+    # you have ever had by adding/subtracting 14 days
+    initial_paydate = models.DateField()
+
+    # for associating a user with their profile
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
