@@ -26,7 +26,7 @@ def budgets_sum_to_one():
         return total
 
 
-def add_money(amount):
+def add_money(amount, save=False):
     """
     For adding/subtracting money to all budgets based on their percentage attribute.
 
@@ -53,7 +53,8 @@ def add_money(amount):
             description=f"add_money: Total amount added %.2f"
             % float(amount),
         )
-        transaction.save()
+        if save:
+            transaction.save()
 
         added_transactions.append(transaction)
 
@@ -70,11 +71,7 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
     :param save: if true we will save transactions, doesn't work in debug
     :return: list of transacitons
     """
-    # TODO: fix transaction stickyness to day
-    # BUG: transactions stuck on their day they were initialized at
-    print("WARNING: IT IS CURRENTLY IMPOSSIBLE TO ADD TRANSACTIONS ON DAYS OTHER THAN THE CURRENT ONE")
-    # exiting if not debug
-    if not DEBUG:
+    if not DEBUG and save:
         raise EnvironmentError("Will not generate transactions when DEBUG is True")
 
     budgets = Budget.objects.all()
@@ -83,18 +80,21 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
     transactions = []
     for x in range(-num_paycheques, 0):
         date = start_date - timezone.timedelta(days=int(number_of_days_between_paychecks * x))
-        trans = Transaction(
-            amount=income,
-            description="Autoadded with generate_transactions command",
-            budget=budgets[x % len(budgets)],
-            date=date
-        )
-        # wont save unless we are in debug mode
-        if save and DEBUG:
-            trans.save()
+        for budget in budgets:
+            trans_amount = income * budget.percentage
+            trans = Transaction(
+                amount=trans_amount,
+                budget=budget,
+                description=f"generate_transactions command. Total amount added %.2f"
+                            % float(income),
+                date=date
+            )
+            # wont save unless we are in debug mode
+            if save and DEBUG:
+                trans.save()
 
-        #  adding transaction to return list
-        transactions.append(trans)
+            #  adding transaction to return list
+            transactions.append(trans)
 
     # returning transacions
     return transactions

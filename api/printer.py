@@ -29,7 +29,7 @@ class Printer:
         # printing transactions
         for trans in transaction_list:
             print(
-                str(trans.amount).ljust(col_width) +
+                str("%.2f" % float(trans.amount)).ljust(col_width) +
                 str(trans.budget).ljust(col_width),
                 str(trans.date).ljust(col_width),
             )

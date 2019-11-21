@@ -103,7 +103,7 @@ def add_money(request):
             # attempting to add amount
             try:
                 # adding money, getting transaction list
-                transactions = add_money_function(form.cleaned_data.get("amount"))
+                transactions = add_money_function(form.cleaned_data.get("amount"), save=True)
 
                 # adding trans list to show to the user
                 context["trans_list"] = transactions
