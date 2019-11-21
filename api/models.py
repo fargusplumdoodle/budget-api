@@ -34,6 +34,7 @@ class Transaction(models.Model):
         return str(self.amount) + "_" + str(self.date)
 
 
+'''
 class Profile(models.Model):
     """
     For keeping track of basic user information
@@ -54,3 +55,4 @@ class Profile(models.Model):
 
     # for associating a user with their profile
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+'''
