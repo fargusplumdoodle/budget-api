@@ -32,6 +32,3 @@ class Transaction(models.Model):
     def __str__(self):
         return str(self.amount) + "_" + str(self.date)
 
-
-class Config(models.Model):
-    paycheque_amount = models.FloatField(max_length=4000)
