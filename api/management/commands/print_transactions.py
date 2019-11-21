@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
 from api.load_scripts import load_budgets
+from api.models import Transaction
+from api.printer import Printer
 
 """
 Sample can be found in docs/csv/transaction.csv
@@ -9,26 +11,25 @@ Sample can be found in docs/csv/transaction.csv
 class Command(BaseCommand):
     help = """
     ----------------
-    load_transaction
+    print_transactions 
     ----------------
     
-    Usage: 'python3 manage.py load_transactions path/to/file.csv'
+    Will print the x most recent transactions
     
     Input:
-       path to csv file
+        number of transactions to show
        
-       CSV must contain following attributes: 
-            amount, budget, date, description
-            
-        Sample can be found in docs/csv/transaction.csv
     """
 
     def add_arguments(self, parser):
         # path to the csv containing transactions. Must exist
-        parser.add_argument("input_csv", nargs="+", type=str)
+        parser.add_argument("num_transactions", nargs="+", type=int)
 
     def handle(self, *args, **options):
         # only checking first argument
-        csv_path = options["input_csv"][0]
+        num_transactions = options["num_transactions"][0]
 
-        load_budgets(csv_path)
+        trans = list(Transaction.objects.order_by('date'))
+        Printer.print_transactions(
+            list(trans[0 - num_transactions:])
+        )

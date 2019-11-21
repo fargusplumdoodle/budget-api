@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from api.helper import generate_transactions
 from django.utils import timezone
 from budget.settings import DEBUG
+from api.printer import Printer
 
 """
 Sample can be found in docs/csv/transaction.csv """
@@ -36,6 +37,7 @@ class Command(BaseCommand):
         # path to the csv containing transactions. Must exist
         parser.add_argument("months", nargs="+", type=int)
         parser.add_argument("amount", nargs="+", type=int)
+        parser.add_argument("--save", action="store_true", help="actually save to database")
 
     def handle(self, *args, **options):
         if not DEBUG:
@@ -45,4 +47,12 @@ class Command(BaseCommand):
         months = int(options["months"][0])
         amount = int(options["amount"][0])
 
-        generate_transactions(timezone.now(), months * 2, amount)
+        trans = generate_transactions(timezone.now(), months * 2, amount, save=options["save"])
+
+        Printer.print_transactions(trans)
+
+        if not options['save']:
+            print()
+            print(
+                "WARNING: --save flag not set, no transactions were saved to the database"
+            )
