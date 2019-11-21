@@ -24,7 +24,7 @@ class Transaction(models.Model):
     amount = models.FloatField(max_length=4000)
     description = models.TextField(max_length=300, null=True)
     budget = models.ForeignKey(Budget, null=True, on_delete=models.SET_NULL)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
 
     def pretty_amount(self):
         return "%.2f" % self.amount

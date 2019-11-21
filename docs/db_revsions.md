@@ -22,6 +22,15 @@ class Transaction(models.Model):
 2019-11-10
 ------
 Allowing date to be changed
+NOTE: this didnt work
 ```python
     date = models.DateField(auto_now=True)
+```
+
+2019-11-20
+------
+- Allowing date to be changed
+- removed config table. It was never used
+```python
+    date = models.DateField()
 ```
