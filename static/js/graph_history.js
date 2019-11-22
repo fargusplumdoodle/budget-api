@@ -37,7 +37,6 @@ const renderGraph = (url) => {
 
     // plotting budgets after fetch
     get_budget_info(start, end, budgets, url).then((data) => {
-
         // handling errors
         if ('error' in data) {
             // displaying message to user
@@ -62,9 +61,11 @@ const renderGraph = (url) => {
             'rgba(102, 255, 102, 0.2)',
             'rgba(102, 102, 255, 0.2)',
         ];
+        // setting stats on the page
+        set_stats(data);
 
         // generating datasets
-        for(let i = 0; i < data.budgets.length; i++) {
+        for (let i = 0; i < data.budgets.length; i++) {
             datasets.push({
                 label: data.budgets[i].name,
                 data: data.budgets[i].data,
@@ -94,22 +95,80 @@ const renderGraph = (url) => {
     });
     myChart.height = 512;
 
+
 };
+
+function set_stats(data) {
+    /*
+        Populates div "stats"
+
+        1. the difference_value
+            - this is the amount gained/lost from the start to the end
+     */
+
+    let difference_value = get_difference_value(data);
+    let percent_difference = get_percent_difference_value(data);
+
+    let statslist = document.getElementById('statslist');
+
+    statslist.innerHTML = "<tr><th>Field</th><th>Value</th></tr>";
+    statslist.innerHTML += "<tr>" +
+        "<td>Total Difference</td>" +
+        "<td>" + String(difference_value.toFixed(2)) + "</td>" +
+        "</tr>";
+    statslist.innerHTML += String("<tr><td>Percent Difference</td><td>" +
+                String(percent_difference.toFixed(2)) +
+             "%</td></tr>");
+}
+
+function get_difference_value(data) {
+    /*
+        dollar value difference between the start and end dates in dataset
+
+        "param data: is the graph_history API response json object
+     */
+    let start_balance = 0;
+    for (let i = 0; i < data.budgets.length; i++) {
+        start_balance += data.budgets[i].data[0]
+    }
+    let end_balance = 0;
+    for (let i = 0; i < data.budgets.length; i++) {
+        end_balance += data.budgets[i].data[data.days.length - 1]
+    }
+    return end_balance - start_balance;
+}
+
+function get_percent_difference_value(data) {
+    /*
+        dollar value difference between the start and end dates in dataset
+
+        "param data: is the graph_history API response json object
+     */
+    let start_balance = 0;
+    for (let i = 0; i < data.budgets.length; i++) {
+        start_balance += data.budgets[i].data[0]
+    }
+    let end_balance = 0;
+    for (let i = 0; i < data.budgets.length; i++) {
+        end_balance += data.budgets[i].data[data.days.length - 1]
+    }
+    return start_balance / end_balance;
+}
 
 function getSelectValues(select) {
     // gets list of select values, credit: stack overflow
-  var result = [];
-  var options = select && select.options;
-  var opt;
+    var result = [];
+    var options = select && select.options;
+    var opt;
 
-  for (var i=0, iLen=options.length; i<iLen; i++) {
-    opt = options[i];
+    for (var i = 0, iLen = options.length; i < iLen; i++) {
+        opt = options[i];
 
-    if (opt.selected) {
-      result.push(opt.text);
+        if (opt.selected) {
+            result.push(opt.text);
+        }
     }
-  }
-  return result;
+    return result;
 }
 
 function getCookie(name) {

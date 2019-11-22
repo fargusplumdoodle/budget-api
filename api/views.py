@@ -188,4 +188,4 @@ def graph_history_page(request):
         "budgets": [x.name for x in Budget.objects.all()],
     }
 
-    return render(request, "api/graph_history.html", context=context)
+    return render(request, "api/graph/graph_history.html", context=context)
