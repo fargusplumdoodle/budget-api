@@ -4,6 +4,6 @@ __pycache__
 **/migrations
 .idea
 db.sqlite3
-.env
+.env*
 scripts/run_prod.sh
 deploy
