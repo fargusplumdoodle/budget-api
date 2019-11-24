@@ -2,7 +2,7 @@ from django.test import TestCase
 from .models import Budget, Transaction
 from django.core.management.base import CommandError
 import datetime
-from .helper import add_money, budgets_sum_to_one, generate_transactions
+from .helper import add_money, average, generate_transactions
 from .load_scripts import load_budgets, load_transactions, invalid_csv_headers, fail
 from . import Validators
 
@@ -11,6 +11,8 @@ TRANSACTION_SAMPLE_LOCATION = "docs/csv/transaction_sample.csv"
 
 BAD_BUDGETS_LOCATION = "docs/csv/bad_budgets_sample.csv"
 BAD_TRANSACTION_LOCATION = "docs/csv/bad_transaction_sample.csv"
+
+TEST_TRANSACTION_DESCRIPTION = 'test transaction, please ignore'
 
 
 class TestLoadScripts(TestCase):
@@ -73,27 +75,60 @@ class TestHelpers(TestCase):
         amount = 100
 
         # adding 100 dollars
-        transactions = add_money(amount)
+        transactions = add_money(amount, save=True)
 
         # there should be one transaction added per budget
-        assert len(Transaction.objects.all()) == pre_number_of_transaction + len(
-            all_budgets
-        )
+        assert len(Transaction.objects.all()) == pre_number_of_transaction + len(all_budgets)
 
         for trans in transactions:
             assert trans.amount == trans.budget.percentage * amount
 
+    def test_add_money_date(self):
+        date = datetime.date(2019, 1, 1)
+        trans = add_money(2, date=date)
+        for x in trans:
+            assert x.date == date
+
     def test_generate_transactions(self):
-        # testing there were 10 transactions created:w
+        # testing there were 10 transactions created
 
         start_date = datetime.datetime(2019, 10, 30)
 
         before_transactions = len(Transaction.objects.all())
 
         trans = generate_transactions(start_date, 10, 10, save=True)
-        assert len(trans) == 10
+        assert len(trans) == 100
+        assert len(Transaction.objects.all()) == before_transactions + 100
 
-        assert len(Transaction.objects.all()) == before_transactions + 10
+    def test_average(self) -> None:
+        # creating 2 budgets
+        self.budget1, created = Budget.objects.get_or_create(name="b1", percentage=0)
+        self.budget2, created = Budget.objects.get_or_create(name="b2", percentage=0)
+        self.budgets = [self.budget1, self.budget2]
+
+        # creating 1 transaction for each budget on each day
+        # for the first 10 days of 2019
+
+        self.amount_per_transaction = 10
+        self.transactions = []
+        self.amount_added = 0
+        for x in range(1, 10):
+            for budget in self.budgets:
+                trans, created = Transaction.objects.get_or_create(
+                    amount=self.amount_per_transaction,
+                    description=TEST_TRANSACTION_DESCRIPTION,
+                    budget=budget,
+                    date=datetime.datetime(2019, 1, x),
+                )
+                self.amount_added += self.amount_per_transaction
+                self.transactions.append(
+                    trans
+                )
+
+        # calculating average per transaction
+        self.average = 20.0
+
+        assert self.average == average(self.transactions[0].date, self.transactions[-1].date, self.budgets)
 
 
 class TestGraphBudgetHistoryValidator(TestCase):

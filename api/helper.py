@@ -1,6 +1,7 @@
 from .models import Budget, Transaction
 from budget.settings import DEBUG
 from django.utils import timezone
+import datetime
 
 
 def budgets_sum_to_one():
@@ -26,7 +27,7 @@ def budgets_sum_to_one():
         return total
 
 
-def add_money(amount, save=False):
+def add_money(amount, save=False, date=None):
     """
     For adding/subtracting money to all budgets based on their percentage attribute.
 
@@ -43,6 +44,8 @@ def add_money(amount, save=False):
     # ensuring budgets are balanced
     assert budgets_sum_to_one() is None
 
+    # defaults to today
+    date = datetime.date.today() if date is None else date
     added_transactions = []
 
     for budget in Budget.objects.all():
@@ -51,7 +54,8 @@ def add_money(amount, save=False):
             amount=trans_amount,
             budget=budget,
             description=f"add_money: Total amount added %.2f"
-            % float(amount),
+                        % float(amount),
+            date=date
         )
         if save:
             transaction.save()
@@ -74,69 +78,32 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
     if not DEBUG and save:
         raise EnvironmentError("Will not generate transactions when DEBUG is True")
 
-    budgets = Budget.objects.all()
     number_of_days_between_paychecks = 14
+
+    # wont save unless we are in debug mode
+    save = save and DEBUG
 
     transactions = []
     for x in range(-num_paycheques, 0):
         date = start_date - timezone.timedelta(days=int(number_of_days_between_paychecks * x))
-        for budget in budgets:
-            trans_amount = income * budget.percentage
-            trans = Transaction(
-                amount=trans_amount,
-                budget=budget,
-                description=f"generate_transactions command. Total amount added %.2f"
-                            % float(income),
-                date=date
-            )
-            # wont save unless we are in debug mode
-            if save and DEBUG:
-                trans.save()
-
-            #  adding transaction to return list
-            transactions.append(trans)
+        transactions = transactions + add_money(income, date=date, save=save)
 
     # returning transacions
     return transactions
 
 
+def average(start, end, budgets):
+    assert start < end  # start must be less than end
+    days = (end - start).days
 
+    sum = 0
+    for x in range(1, days + 2):
+        date = start + datetime.timedelta(days=x)
+        # this is a list of the transactions that occured on this day
+        # within the specified budgets
+        transactions = Transaction.objects.filter(date=date, budget__in=budgets)
 
+        for x in transactions:
+            sum += x.amount
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return round(sum/days, 2)
