@@ -2,7 +2,7 @@ from django.test import TestCase
 from .models import Budget, Transaction
 from django.core.management.base import CommandError
 import datetime
-from .helper import add_money, average_per_day, generate_transactions
+from .helper import add_money, average_per_day, generate_transactions, get_report, get_sum_of_transactions
 from .load_scripts import load_budgets, load_transactions, invalid_csv_headers, fail
 from . import Validators
 
@@ -64,6 +64,30 @@ class TestHelpers(TestCase):
         load_budgets(BUDGET_SAMPLE_LOCATION, verbose=False)
         load_transactions(TRANSACTION_SAMPLE_LOCATION)
 
+        # creating 2 budgets
+        self.budget1, created = Budget.objects.get_or_create(name="b1", percentage=0)
+        self.budget2, created = Budget.objects.get_or_create(name="b2", percentage=0)
+        self.budgets = [self.budget1, self.budget2]
+
+        # creating 1 transaction for each budget on each day
+        # for the first 10 days of 2019
+
+        self.amount_per_transaction = 10
+        self.transactions = []
+        self.amount_added = 0
+        for x in range(1, 10):
+            for budget in self.budgets:
+                trans, created = Transaction.objects.get_or_create(
+                    amount=self.amount_per_transaction,
+                    description=TEST_TRANSACTION_DESCRIPTION,
+                    budget=budget,
+                    date=datetime.datetime(2019, 1, x),
+                )
+                self.amount_added += self.amount_per_transaction
+                self.transactions.append(
+                    trans
+                )
+
     def test_add_money(self):
         """
         We want to ensure that
@@ -101,34 +125,45 @@ class TestHelpers(TestCase):
         assert len(Transaction.objects.all()) == before_transactions + 100
 
     def test_average(self) -> None:
-        # creating 2 budgets
-        self.budget1, created = Budget.objects.get_or_create(name="b1", percentage=0)
-        self.budget2, created = Budget.objects.get_or_create(name="b2", percentage=0)
-        self.budgets = [self.budget1, self.budget2]
-
-        # creating 1 transaction for each budget on each day
-        # for the first 10 days of 2019
-
-        self.amount_per_transaction = 10
-        self.transactions = []
-        self.amount_added = 0
-        for x in range(1, 10):
-            for budget in self.budgets:
-                trans, created = Transaction.objects.get_or_create(
-                    amount=self.amount_per_transaction,
-                    description=TEST_TRANSACTION_DESCRIPTION,
-                    budget=budget,
-                    date=datetime.datetime(2019, 1, x),
-                )
-                self.amount_added += self.amount_per_transaction
-                self.transactions.append(
-                    trans
-                )
 
         # calculating average per transaction
-        self.average = 20.0
+        average = 20.0
 
-        assert self.average == average_per_day(self.transactions[0].date, self.transactions[-1].date, self.budgets)
+        assert average == average_per_day(self.transactions[0].date, self.transactions[-1].date, self.budgets)
+
+    def test_get_sum_of_transactions(self):
+        sum = get_sum_of_transactions(self.transactions[:2])
+        assert sum == 20
+
+    def test_get_sum_of_transactions_with_budget(self):
+        trans = Transaction.objects.filter(
+            date__in=[datetime.date(2019, 1, 1), datetime.date(2019, 1, 2)]
+        )
+        sum = get_sum_of_transactions(trans, budget=self.budget1)
+        assert sum == 20.0
+
+    def test_get_report(self):
+        data = get_report(self.transactions[0].date, self.transactions[-1].date, self.budgets)
+        print(self.amount_added)
+        print(self.amount_added)
+
+        assert isinstance(data, list)
+        for x in data:
+            assert isinstance(x, dict)
+            assert "name" in x
+            assert x['name'] in self.budgets
+
+            assert "start_balance" in x
+            assert x['start_balance'] == 0
+
+            assert "end_balance" in x
+            assert x['end_balance'] == self.amount_added
+
+            assert "total_income" in x
+            assert x["total_income"] == self.amount_added
+
+            assert "total_outcome" in x
+            assert x["total_income"] == 0
 
 
 class TestGraphBudgetHistoryValidator(TestCase):

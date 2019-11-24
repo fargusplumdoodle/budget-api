@@ -104,6 +104,10 @@ def average_per_day(start, end, budgets):
     assert start < end  # start must be less than end
     days = (end - start).days
 
+    # fixing bad input
+    if days <= 0:
+        return 0.0
+
     sum = 0
     for x in range(1, days + 2):
         date = start + datetime.timedelta(days=x)
@@ -114,4 +118,67 @@ def average_per_day(start, end, budgets):
         for x in transactions:
             sum += x.amount
 
-    return round(sum/days, 2)
+    return round(sum / days, 2)
+
+
+def get_sum_of_transactions(trans, budget=None):
+    """
+    :param trans: QuerySet of Transactions
+    :param budget: budget to get sum for
+    :return: summation of all transacions amount value
+    """
+    sum = 0
+    if budget is not None:
+        for x in trans.filter(budget=budget):
+            sum += x.amount
+    else:
+        for x in trans:
+            sum += x.amount
+
+    return sum
+
+
+def get_report(start, end, budgets):
+    """
+
+    :param start: date, start date must be less than end date
+    :param end: end date
+    :param budgets: list of budget objects to get the average spent per day of
+    :return: list of budget info objects
+        [
+            {
+                name: budget_name,
+                start_balance: start balance during time period,
+                end_balance: end balance after time period,
+                total_income: the total amount added to this budget during the time perod
+                total_outcome: the total amount spent from this budget during the time perod
+            },...
+        ]
+    """
+    assert start < end  # start must be less than end
+
+    # getting transactions
+    trans = Transaction.objects.filter(
+        date__gte=start,
+        date__lte=end
+    )
+    positive_trans = Transaction.objects.filter(
+        date__gte=start,
+        date__lte=end,
+    )
+    all_transactions_before_start = Transaction.objects.filter(date__lt=start, budget__in=budgets)
+    data = []
+    # TODO: this im done
+    for x in trans:
+        for budget in budgets:
+            start_balance = get_sum_of_transactions(all_transactions_before_start, budget)
+            print("start balance", start_balance)
+            print("total income:", total_income)
+            data.append({
+                'name': budget.name,
+                'start_balance': start_balance,
+                # 'end_balance': ,
+            })
+
+    print("total difference", get_sum_of_transactions(trans))
+    return data
