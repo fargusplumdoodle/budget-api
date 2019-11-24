@@ -92,7 +92,15 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
     return transactions
 
 
-def average(start, end, budgets):
+def average_per_day(start, end, budgets):
+    """
+    Average function:
+    returns the average amount spent per day
+    :param start: date, start date must be less than end date
+    :param end: end date
+    :param budgets: list of budget objects to get the average spent per day of
+    :return: average amount spent per day
+    """
     assert start < end  # start must be less than end
     days = (end - start).days
 

@@ -2,7 +2,7 @@ from django.test import TestCase
 from .models import Budget, Transaction
 from django.core.management.base import CommandError
 import datetime
-from .helper import add_money, average, generate_transactions
+from .helper import add_money, average_per_day, generate_transactions
 from .load_scripts import load_budgets, load_transactions, invalid_csv_headers, fail
 from . import Validators
 
@@ -128,7 +128,7 @@ class TestHelpers(TestCase):
         # calculating average per transaction
         self.average = 20.0
 
-        assert self.average == average(self.transactions[0].date, self.transactions[-1].date, self.budgets)
+        assert self.average == average_per_day(self.transactions[0].date, self.transactions[-1].date, self.budgets)
 
 
 class TestGraphBudgetHistoryValidator(TestCase):
