@@ -107,7 +107,6 @@ function set_stats(data) {
      */
 
     let difference_value = get_difference_value(data);
-    let percent_difference = get_percent_difference_value(data);
 
     let statslist = document.getElementById('statslist');
 
@@ -116,9 +115,6 @@ function set_stats(data) {
         "<td>Total Difference</td>" +
         "<td>" + String(difference_value.toFixed(2)) + "</td>" +
         "</tr>";
-    statslist.innerHTML += String("<tr><td>Percent Difference</td><td>" +
-                String(percent_difference.toFixed(2)) +
-             "%</td></tr>");
 }
 
 function get_difference_value(data) {
@@ -136,23 +132,6 @@ function get_difference_value(data) {
         end_balance += data.budgets[i].data[data.days.length - 1]
     }
     return end_balance - start_balance;
-}
-
-function get_percent_difference_value(data) {
-    /*
-        dollar value difference between the start and end dates in dataset
-
-        "param data: is the graph_history API response json object
-     */
-    let start_balance = 0;
-    for (let i = 0; i < data.budgets.length; i++) {
-        start_balance += data.budgets[i].data[0]
-    }
-    let end_balance = 0;
-    for (let i = 0; i < data.budgets.length; i++) {
-        end_balance += data.budgets[i].data[data.days.length - 1]
-    }
-    return start_balance / end_balance;
 }
 
 function getSelectValues(select) {
