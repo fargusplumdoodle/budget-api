@@ -28,7 +28,7 @@ class Graph:
         if days <= 14:
             return [x for x in range(days)]
 
-        return [0] + [x for x in range(1, days - 1, int(days / 14))] + [days]
+        return [0] + list(range(1, days - 1, int(days / 14))) + [days]
 
     @staticmethod
     def balance_history(budgets, start, end, show=False):
@@ -62,7 +62,7 @@ class Graph:
         assert isinstance(end, date)  # must be datetime.date
 
         # generating time axis
-        days = (end - start).days
+        days = (end - start).days + 1
         all_transactions = Transaction.objects.all()
         days_x = []
 
