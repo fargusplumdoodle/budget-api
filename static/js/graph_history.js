@@ -1,5 +1,29 @@
 'use strict';
 
+
+function set_initial_dates(url) {
+    /*
+    This sets the first dates to be
+        start is 1 week from today
+        end is today
+
+       when the user first reaches the page
+     */
+    let end = new Date();
+    end.setDate(end.getDate());
+
+    let start = new Date();
+    start.setDate(start.getDate() - 7);
+
+    const options = {year: 'numeric', day: '2-digit', month: '2-digit'};
+
+    document.getElementById('id_start').value = start.toLocaleDateString('UTC', options);
+    document.getElementById('id_end').value = end.toLocaleDateString('UTC', options);
+
+    // showing graph
+    renderGraph(url);
+}
+
 const get_budget_info = async (start, end, budgets, url) => {
     // defining body according to api standard
     const csrftoken = getCookie('csrftoken');
@@ -102,19 +126,60 @@ function set_stats(data) {
     /*
         Populates div "stats"
 
-        1. the difference_value
+        the difference_value
             - this is the amount gained/lost from the start to the end
+        growth factor
+            - How many times bigger the budget became since the start
+
+         This populates the table on the "graph_history" page
+
      */
 
-    let difference_value = get_difference_value(data);
+    let difference_value = get_difference_value(data).toFixed(2);
+    let percent_difference = get_percent_difference_value(data).toFixed(2);
+    let start_balance = get_start_balance(data).toFixed(2)
+    let end_balance = get_end_balance(data).toFixed(2)
 
     let statslist = document.getElementById('statslist');
 
     statslist.innerHTML = "<tr><th>Field</th><th>Value</th></tr>";
     statslist.innerHTML += "<tr>" +
         "<td>Total Difference</td>" +
-        "<td>" + String(difference_value.toFixed(2)) + "</td>" +
+        "<td>" + String(difference_value) + "</td>" +
         "</tr>";
+    statslist.innerHTML += String("<tr><td>Start Balance</td><td>" +
+        String(start_balance) +
+        "</td></tr>");
+    statslist.innerHTML += String("<tr><td>End Balance</td><td>" +
+        String(end_balance) +
+        "</td></tr>");
+    statslist.innerHTML += String("<tr><td>Growth Factor</td><td>" +
+        String(percent_difference) +
+        "x</td></tr>");
+}
+
+function get_start_balance(data) {
+    /*
+        returns the balance at the start of the time period
+        "param data: is the graph_history API response json object
+     */
+    let start_balance = 0;
+    for (let i = 0; i < data.budgets.length; i++) {
+        start_balance += data.budgets[i].data[0];
+    }
+    return start_balance;
+}
+
+function get_end_balance(data) {
+    /*
+        returns the balance at the end of the time period
+        "param data: is the graph_history API response json object
+     */
+    let end_balance = 0;
+    for (let i = 0; i < data.budgets.length; i++) {
+        end_balance += data.budgets[i].data[data.days.length - 1];
+    }
+    return end_balance;
 }
 
 function get_difference_value(data) {
@@ -123,15 +188,23 @@ function get_difference_value(data) {
 
         "param data: is the graph_history API response json object
      */
-    let start_balance = 0;
-    for (let i = 0; i < data.budgets.length; i++) {
-        start_balance += data.budgets[i].data[0]
+    return get_end_balance(data) - get_start_balance(data);
+}
+
+function get_percent_difference_value(data) {
+    /*
+        dollar value difference between the start and end dates in dataset
+
+        "param data: is the graph_history API response json object
+     */
+    let start_balance = get_start_balance(data);
+
+    // this fixes dividing by zero errors
+    if (start_balance === 0) {
+        start_balance = 1;
     }
-    let end_balance = 0;
-    for (let i = 0; i < data.budgets.length; i++) {
-        end_balance += data.budgets[i].data[data.days.length - 1]
-    }
-    return end_balance - start_balance;
+
+    return get_end_balance(data) / start_balance;
 }
 
 function getSelectValues(select) {

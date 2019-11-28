@@ -117,10 +117,10 @@ def add_money(request):
                     request,
                     f'Failed to add {form.cleaned_data.get("amount")}, budget imbalanced. Balance your budget first',
                 )
-            except:
-                messages.warning(
-                    request, f'Failed to add {form.cleaned_data.get("amount")}'
-                )
+            #except:
+            #    messages.warning(
+            #        request, f'Failed to add {form.cleaned_data.get("amount")}'
+            #    )
         else:
             messages.warning(request, f"Invalid input")
 

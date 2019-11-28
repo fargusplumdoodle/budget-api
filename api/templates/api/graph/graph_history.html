@@ -20,7 +20,7 @@
                 <label for="id_budgets">Budgets:</label>
                 <select class="btn form-input" id="id_budgets" name="budgets" required="" multiple="">
                     {% for budget in budgets %}
-                        <option value="{{ budget }}">{{ budget }}</option>
+                        <option value="{{ budget }}" selected="selected">{{ budget }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -33,10 +33,18 @@
         <canvas id="myChart" width="400" height="400"></canvas>
         </div>
         <script>
+            // GLOBAL VARIABLES
+            const GRAPH_HISTORY_API_URL = '{% url 'api_graph_history' %}';
+
             // setting onclick for form
             document.getElementById("graph-button").onclick = () => {
-                renderGraph('{% url 'api_graph_history' %}');
+                renderGraph(GRAPH_HISTORY_API_URL);
             };
+
+            window.onload = function () {
+                set_initial_dates(GRAPH_HISTORY_API_URL);
+            };
+
         </script>
 
         <div id="stats_container">
