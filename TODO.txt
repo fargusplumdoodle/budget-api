@@ -12,3 +12,4 @@ rename Sekhnet Budget to OpenBudget
 get UI screenshots 
 fix tests
 fix bug with firefox not auto loading the graph
+go through each function and ensure it has tests
