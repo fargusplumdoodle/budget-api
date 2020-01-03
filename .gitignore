@@ -7,3 +7,4 @@ db.sqlite3
 .env*
 scripts/run_prod.sh
 deploy
+**.sw*

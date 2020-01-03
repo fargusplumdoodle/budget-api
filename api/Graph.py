@@ -9,7 +9,12 @@ class Graph:
     @staticmethod
     def get_days_to_process(days):
         """
-        :param
+        :param days: int, number of days 
+        :returns: list of day numbers
+
+        This function is for helping us find the number of plots
+        on the graph history page.
+
             We have to have 14 or less plots
             --------------------------------
 
