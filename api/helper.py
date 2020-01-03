@@ -34,7 +34,8 @@ def add_money(amount, save=False, date=None):
     To add money to a single budget use the admin inferface... for now.
 
     Example: if food gets 30% of the budget, and you were to call this function with
-            amount=100, then this would create a transaction with the food:
+            amount=100, then this would create a transaction on the food budget
+            for 30$
 
     :param amount: amount in dollars you wish to add between all budgets. If the number
                     is negative, this will subtract from all budgets the same way.
@@ -67,7 +68,7 @@ def add_money(amount, save=False, date=None):
 
 def generate_transactions(start_date, num_paycheques, income, save=False):
     """
-    Creates a bunch of transactions
+    Creates a bunch of transactions. This function is largly for testing
 
     :param start_date: start date, datetime
     :param num_paycheques: number of paycheques to generate
@@ -139,8 +140,8 @@ def get_sum_of_transactions(trans, budget=None):
 
 
 def get_report(start, end, budgets):
+    # TODO: REMOVE THIS UNUSED FUNCTION
     """
-
     :param start: date, start date must be less than end date
     :param end: end date
     :param budgets: list of budget objects to get the average spent per day of
@@ -168,7 +169,6 @@ def get_report(start, end, budgets):
     )
     all_transactions_before_start = Transaction.objects.filter(date__lt=start, budget__in=budgets)
     data = []
-    # TODO: this im done
     for x in trans:
         for budget in budgets:
             start_balance = get_sum_of_transactions(all_transactions_before_start, budget)

@@ -6,4 +6,9 @@
 after doing all of these things, merge back into averages
 
 rename api directory to web
-
+convert money storage method to cents? is it easy to do?
+add general usage docs, what processes must be done through the admin interface?
+rename Sekhnet Budget to OpenBudget
+get UI screenshots 
+fix tests
+fix bug with firefox not auto loading the graph
