@@ -37,8 +37,9 @@ class Graph:
 
     @staticmethod
     def balance_history(budgets, start, end, show=False):
+        # TODO: remove show variable
         """
-        Generates a graph of the provided budgets over two dates
+        Generates graph data of the provided budgets over two dates
 
         :param budgets: queryset of budget objects
         :param start: start date
