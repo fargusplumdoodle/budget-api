@@ -1,0 +1,9 @@
+---------------------------
+# THIS IS THE LIST OF TODOS
+# BEFORE OPENSOURCING THE REPO
+---------------------------
+
+after doing all of these things, merge back into averages
+
+rename api directory to web
+
