@@ -75,7 +75,7 @@ WSGI_APPLICATION = "budget.wsgi.application"
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {
 "default": {
-    "ENGINE": "django.contrib.gis.db.backends.postgis",
+    "ENGINE": "django.db.backends.postgresql",
     "NAME": DB,
     "USER": DB_USER,
     "PASSWORD": DB_PASS,
