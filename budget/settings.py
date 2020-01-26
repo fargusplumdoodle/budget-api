@@ -11,27 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-
-ENVIROMENT_VARIABLES = [
-    "DEBUG",
-    "SECRET_KEY",
-    "DB_HOST",
-    "PROD_USER",
-    "PROD_DB",
-    "PROD_PASS",
-    "DEV_USER",
-    "DEV_DB",
-    "DEV_PASS",
-]
-for var in ENVIROMENT_VARIABLES:
-    try:
-        assert os.getenv(var) is not None
-    except AssertionError:
-        print(f"ENVIRONMENT VARIABLE '{var}' is not set!")
-
-        if var == "SECRET_KEY":
-            print("FATAL ERROR: SECRET KEY REQUIRED")
-            exit(-1)
+from .environment import DEBUG, SECRET_KEY, DB_HOST, DB, DB_USER, DB_PASS
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,10 +21,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG") == "TRUE"
+DEBUG = DEBUG
 
 ALLOWED_HOSTS = ["*"]
 
@@ -93,32 +73,18 @@ WSGI_APPLICATION = "budget.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-if DEBUG:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("DEV_DB"),
-            "USER": os.getenv("DEV_USER"),
-            "PASSWORD": os.getenv("DEV_PASS"),
-            "HOST": os.getenv("DB_HOST"),
-            "PORT": 5432,
-            "ATOMIC_REQUESTS": True,
-            "CONN_MAX_AGE": 0,
-        }
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("PROD_DB"),
-            "USER": os.getenv("PROD_USER"),
-            "PASSWORD": os.getenv("PROD_PASS"),
-            "HOST": os.getenv("DB_HOST"),
-            "PORT": 5432,
-            "ATOMIC_REQUESTS": True,
-            "CONN_MAX_AGE": 0,
-        }
-    }
+DATABASES = {
+"default": {
+    "ENGINE": "django.contrib.gis.db.backends.postgis",
+    "NAME": DB,
+    "USER": DB_USER,
+    "PASSWORD": DB_PASS,
+    "HOST": DB_HOST,
+    "PORT": 5432,
+    "ATOMIC_REQUESTS": True,
+    "CONN_MAX_AGE": 0,
+}
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

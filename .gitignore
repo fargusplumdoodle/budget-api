@@ -8,3 +8,4 @@ db.sqlite3
 scripts/run_prod.sh
 deploy
 **.sw*
+budget/environment.py

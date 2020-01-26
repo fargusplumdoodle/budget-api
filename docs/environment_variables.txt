@@ -1,18 +1,28 @@
+#
 # THE FOLLOWING ENVIRONMENT VARIABLES ARE REQUIRED
+#
+# Please fill them out according to your specific environment
+# then move to ./icebreak/environment.py 
+# 
+# THIS IS A PYTHON FILE
+# it will be read by settings.py
+# 
+# MAKE SURE ./icebreak/environment.py IS IN
+# YOUR .gitignore
+#
+# 
 
 # django debug
-export DEBUG
+DEBUG=
 
 # django secret key
-export SECRET_KEY
+SECRET_KEY=
 
 # database IP address to connect to 
-export DB_HOST
+DB_HOST=
 
-# database credentials
-export PROD_USER
-export PROD_DB
-export PROD_PASS
-export DEV_USER
-export DEV_DB
-export DEV_PASS
+# database credentials. 
+DB_HOST=
+DB=
+DB_USER=
+DB_PASS=
