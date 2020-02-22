@@ -1,4 +1,5 @@
 .env
+.env*
 ./scripts/run*
 docs
 deploy
