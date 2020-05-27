@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t budget .
+docker build -t hub.sekhnet.ra/budget .

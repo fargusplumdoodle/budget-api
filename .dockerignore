@@ -1,9 +1,8 @@
 .env
 .env*
-./scripts/run*
+./scripts
 docs
 deploy
 docker
 venv
 **/__pycache__
-
