@@ -4,6 +4,8 @@ _v1.0_
 Very simple budgeting software I wrote
 to keep track of my budgets
 
+Sekhnet Budget is a Django based webapp that I deploy
+on my local network at home using Kubernetes.
 
 ### How it works
 Each budget is issued a percentage that represents
