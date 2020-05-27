@@ -70,6 +70,9 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
     """
     Creates a bunch of transactions. This function is largly for testing
 
+    Calls add_money to generate transactions, this will add num_paycheques * x where x is
+    the number of budgets that exist
+
     :param start_date: start date, datetime
     :param num_paycheques: number of paycheques to generate
     :param income: amount you make per 14 days
@@ -138,47 +141,3 @@ def get_sum_of_transactions(trans, budget=None):
 
     return sum
 
-
-def get_report(start, end, budgets):
-    # TODO: REMOVE THIS UNUSED FUNCTION
-    """
-    :param start: date, start date must be less than end date
-    :param end: end date
-    :param budgets: list of budget objects to get the average spent per day of
-    :return: list of budget info objects
-        [
-            {
-                name: budget_name,
-                start_balance: start balance during time period,
-                end_balance: end balance after time period,
-                total_income: the total amount added to this budget during the time perod
-                total_outcome: the total amount spent from this budget during the time perod
-            },...
-        ]
-    """
-    assert start < end  # start must be less than end
-
-    # getting transactions
-    trans = Transaction.objects.filter(
-        date__gte=start,
-        date__lte=end
-    )
-    positive_trans = Transaction.objects.filter(
-        date__gte=start,
-        date__lte=end,
-    )
-    all_transactions_before_start = Transaction.objects.filter(date__lt=start, budget__in=budgets)
-    data = []
-    for x in trans:
-        for budget in budgets:
-            start_balance = get_sum_of_transactions(all_transactions_before_start, budget)
-            print("start balance", start_balance)
-            print("total income:", total_income)
-            data.append({
-                'name': budget.name,
-                'start_balance': start_balance,
-                # 'end_balance': ,
-            })
-
-    print("total difference", get_sum_of_transactions(trans))
-    return data

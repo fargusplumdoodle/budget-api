@@ -2,7 +2,7 @@ from django.test import TestCase
 from .models import Budget, Transaction
 from django.core.management.base import CommandError
 import datetime
-from .helper import add_money, average_per_day, generate_transactions, get_report, get_sum_of_transactions
+from .helper import add_money, average_per_day, generate_transactions, get_sum_of_transactions
 from .load_scripts import load_budgets, load_transactions, invalid_csv_headers, fail
 from . import Validators
 
@@ -121,8 +121,9 @@ class TestHelpers(TestCase):
         before_transactions = len(Transaction.objects.all())
 
         trans = generate_transactions(start_date, 10, 10, save=True)
-        assert len(trans) == 100
-        assert len(Transaction.objects.all()) == before_transactions + 100
+
+        assert len(trans) == 10 * len(Budget.objects.all())
+        assert len(Transaction.objects.all()) == before_transactions + 10 * len(Budget.objects.all())
 
     def test_average(self) -> None:
 
@@ -141,29 +142,6 @@ class TestHelpers(TestCase):
         )
         sum = get_sum_of_transactions(trans, budget=self.budget1)
         assert sum == 20.0
-
-    def test_get_report(self):
-        data = get_report(self.transactions[0].date, self.transactions[-1].date, self.budgets)
-        print(self.amount_added)
-        print(self.amount_added)
-
-        assert isinstance(data, list)
-        for x in data:
-            assert isinstance(x, dict)
-            assert "name" in x
-            assert x['name'] in self.budgets
-
-            assert "start_balance" in x
-            assert x['start_balance'] == 0
-
-            assert "end_balance" in x
-            assert x['end_balance'] == self.amount_added
-
-            assert "total_income" in x
-            assert x["total_income"] == self.amount_added
-
-            assert "total_outcome" in x
-            assert x["total_income"] == 0
 
 
 class TestGraphBudgetHistoryValidator(TestCase):
