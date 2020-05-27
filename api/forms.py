@@ -4,7 +4,7 @@ import datetime
 
 
 class AddMoneyForm(forms.Form):
-    amount = forms.IntegerField(required=True)
+    amount = forms.FloatField(required=True)
 
 
 class GraphHistoryForm(forms.Form):
