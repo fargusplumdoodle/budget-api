@@ -34,4 +34,3 @@ test:
   script:
     - /code/build/docker-entrypoint.sh
     - /venv/bin/python manage.py test
-
