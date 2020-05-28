@@ -1,10 +1,24 @@
 from django import forms
-from .models import Budget
+from .models import Budget, Transaction
 import datetime
+
+
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 
 class AddMoneyForm(forms.Form):
     amount = forms.FloatField(required=True)
+
+
+class AddTransactionForm(forms.ModelForm):
+
+    class Meta:
+        model = Transaction
+        fields = '__all__'
+        widgets = {
+            'date': DateInput()
+        }
 
 
 class GraphHistoryForm(forms.Form):

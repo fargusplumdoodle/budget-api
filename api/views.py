@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from .models import Budget, Transaction
 from .helper import budgets_sum_to_one, add_money as add_money_function
-from .forms import AddMoneyForm, GraphHistoryForm
+from .forms import AddMoneyForm, GraphHistoryForm, AddTransactionForm
 from budget import settings
 from .Graph import Graph
 import datetime
@@ -79,13 +79,56 @@ def budget(request, budget_name):
     context = {
         "budget": budget,
         "trans_list": Transaction.objects.filter(budget=budget).order_by("date")[::-1][
-            :10
-        ],
+                      :10
+                      ],
     }
 
     return render(
         request, "api/budget.html", context=add_sidebar_context(context, request)
     )
+
+
+def add_transaction(request):
+    # x will be a redirect to the login page if the user is not authenticated
+    x = verify_user(request)
+    if x:
+        return x
+    # adding form to context
+    context = {"add_transaction_form": AddTransactionForm}
+
+    if request.method == "POST":
+        form = AddTransactionForm(request.POST)
+
+        if form.is_valid():
+            # attempting to add amount
+            try:
+                # Creating transaction
+                trans = Transaction.objects.create(
+                    amount=form.cleaned_data.get("amount"),
+                    description=form.cleaned_data.get("description"),
+                    budget=Budget.objects.get(name=form.cleaned_data.get("budget")),
+                    date=form.cleaned_data.get("date"),
+                )
+                messages.success(
+                    request, f'Added {trans.amount}$ to {trans.budget.name}!'
+                )
+                # if ANYTHING went wrong here, let them know
+            except AssertionError:
+                messages.warning(
+                    request,
+                    f'Failed to add {form.cleaned_data.get("amount")}, budget imbalanced. Balance your budget first',
+                )
+        else:
+            messages.warning(request, f"Invalid input")
+
+        return render(
+            request, "api/add_transaction.html", context=add_sidebar_context(context, request)
+        )
+    else:
+        # returning a regular page
+        return render(
+            request, "api/add_transaction.html", context=add_sidebar_context(context, request)
+        )
 
 
 def add_money(request):
@@ -117,7 +160,7 @@ def add_money(request):
                     request,
                     f'Failed to add {form.cleaned_data.get("amount")}, budget imbalanced. Balance your budget first',
                 )
-            #except:
+            # except:
             #    messages.warning(
             #        request, f'Failed to add {form.cleaned_data.get("amount")}'
             #    )
@@ -147,7 +190,7 @@ def add_sidebar_context(context, request):
     sidebar_context = {
         "budget_balanced": budgets_sum_to_one(),
         "sidebar": [
-            ("Add transaction", "/admin/api/transaction/add/"),
+            ("Add transaction", "/add_transaction/"),
             ("View Budgets", "/admin/api/budget/"),
             ("Admin page", "/admin/"),
         ],
