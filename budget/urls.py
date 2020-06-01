@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from web.views import dashboard, budget, add_money, graph_history_page, GraphBudgetHistory, add_transaction
-from django.urls import path
+from django.urls import path, include
 import django.contrib.auth.views as login_view
 urlpatterns = [
     path("admin/", admin.site.urls, name='admin'),
@@ -25,7 +25,7 @@ urlpatterns = [
     path("", dashboard, name='dashboard'),
     path("login/",  login_view.LoginView.as_view(template_name="api/login.html"), name='login'),
     path("logout/", login_view.LogoutView.as_view(template_name="api/login.html"), name='logout'),
-    path("graph_history/", graph_history_page, name='graph_history'),
-    path("web/v1/graph/history", GraphBudgetHistory.as_view(), name='api_graph_history'),
+    path("graph_history", graph_history_page, name='graph_history'),
+    path("api/v1/", include("api.urls")),
 
 ]

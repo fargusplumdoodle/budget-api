@@ -14,6 +14,7 @@ import os
 
 try:
     from budget.environment import DEBUG, SECRET_KEY, DB_HOST, DB, DB_USER, DB_PASS
+
     print("Read variables from environment file")
 except ImportError:
     DEBUG = os.getenv("DEBUG") == "TRUE"
@@ -48,6 +49,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "api",
     "web",
 ]
 
@@ -109,6 +113,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ]
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
