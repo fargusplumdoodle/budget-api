@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
-from api.helper import generate_transactions
+from web.helper import generate_transactions
 from django.utils import timezone
 from budget.settings import DEBUG
-from api.printer import Printer
+from web.printer import Printer
 
 """
 Sample can be found in docs/csv/transaction.csv """

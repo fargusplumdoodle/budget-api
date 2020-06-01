@@ -25,7 +25,7 @@ function set_initial_dates(url) {
 }
 
 const get_budget_info = async (start, end, budgets, url) => {
-    // defining body according to api standard
+    // defining body according to web standard
     const csrftoken = getCookie('csrftoken');
 
     url = url + "?start=" + start + "&end=" + end + "&budgets=" + budgets;

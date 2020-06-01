@@ -1,4 +1,4 @@
-from api.models import Transaction, Budget
+from web.models import Transaction, Budget
 from .helper import budgets_sum_to_one
 
 from django.core.management.base import CommandError

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
-from api.load_scripts import load_budgets
-from api.models import Transaction
-from api.printer import Printer
+from web.load_scripts import load_budgets
+from web.models import Transaction
+from web.printer import Printer
 
 """
 Sample can be found in docs/csv/transaction.csv

@@ -59,7 +59,7 @@ class Graph:
             budgets: a dict of budgets and their datapoints for each day
 
             The datapoints are the balance of the budget at that particular time.
-            More info in 'docs/api.md'
+            More info in 'docs/web.md'
         """
         # validation
         assert isinstance(budgets, QuerySet)  # must be a query set of budgets

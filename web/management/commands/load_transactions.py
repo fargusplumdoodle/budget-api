@@ -1,5 +1,5 @@
-from django.core.management.base import BaseCommand
-from api.load_scripts import load_budgets
+from django.core.management.base import BaseCommand, CommandError
+from web.load_scripts import load_transactions
 
 """
 Sample can be found in docs/csv/transaction.csv
@@ -31,4 +31,4 @@ class Command(BaseCommand):
         # only checking first argument
         csv_path = options["input_csv"][0]
 
-        load_budgets(csv_path)
+        load_transactions(csv_path)
