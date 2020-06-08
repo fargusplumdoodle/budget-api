@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from api.views.budget import BudgetView, BudgetTransactionView
-from api.views.transaction import AddTransactionView
+from api.views.transaction import AddTransactionView, AddMoneyView
 from web.views import GraphBudgetHistory
 from api.views.account import CreateAccountView, ObtainAuthToken
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path("budget", BudgetView.as_view(), name='budgets'),
     path("budget/<int:budget_id>", BudgetTransactionView.as_view(), name='budget_transaction'),
     path("transaction", AddTransactionView.as_view(), name='add_transaction'),
+    path("add_money", AddMoneyView.as_view(), name='add_money'),
 ]

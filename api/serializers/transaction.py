@@ -12,3 +12,6 @@ class TransactionSerialzer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = '__all__'
+
+class AddMoneySerializer(serializers.Serializer):
+    amount = serializers.FloatField(max_value=4000)
