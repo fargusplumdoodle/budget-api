@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "cae49dca-e522-4d3b-a6eb-c4c41ade5772",
+		"name": "Budget",
+		"description": "Set of API Calls for the budget app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "dev",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "dev",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{HOST}}{{VERSION}}user/login",
+							"host": [
+								"{{HOST}}{{VERSION}}user"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register User",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"123\",\n\t\"password\": \"123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}{{VERSION}}user/register",
+							"host": [
+								"{{HOST}}{{VERSION}}user"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "GET budgets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{HOST}}{{VERSION}}budget",
+					"host": [
+						"{{HOST}}{{VERSION}}budget"
+					]
+				},
+				"description": "Returns list of budgets and their attributes"
+			},
+			"response": []
+		},
+		{
+			"name": "GET transactions from a budget",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{HOST}}{{VERSION}}budget/1?max=10000",
+					"host": [
+						"{{HOST}}{{VERSION}}budget"
+					],
+					"path": [
+						"1"
+					],
+					"query": [
+						{
+							"key": "max",
+							"value": "10000"
+						}
+					]
+				},
+				"description": "Returns list of budgets and their attributes"
+			},
+			"response": []
+		},
+		{
+			"name": "add new transaction",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"amount\": 999,\n        \"description\": \"athis is new yo10.00\",\n        \"budget\": 1222,\n        \"date\": \"2021-03-15\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOST}}{{VERSION}}transaction",
+					"host": [
+						"{{HOST}}{{VERSION}}transaction"
+					]
+				},
+				"description": "Returns list of budgets and their attributes"
+			},
+			"response": []
+		},
+		{
+			"name": "add money",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"amount\": 999\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOST}}{{VERSION}}add_money",
+					"host": [
+						"{{HOST}}{{VERSION}}add_money"
+					]
+				},
+				"description": "Returns list of budgets and their attributes"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "Token 3e0097f43a0aa75cb8a46e65e3b4a20f027fe359",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "Authorization",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "5935c385-3190-4ad4-bac2-eccf27506aaa",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "614384b1-9eea-445a-b27c-c0b145bf46c4",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "5449c57e-7750-4e37-824c-53b56e54da15",
+			"key": "HOST",
+			"value": "http://localhost:8000/",
+			"type": "string"
+		},
+		{
+			"id": "b3a57b34-f785-4912-adac-f7691bc1c710",
+			"key": "VERSION",
+			"value": "api/v1",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
