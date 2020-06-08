@@ -67,6 +67,15 @@ class BudgetTransactionView(APIView):
             -> if it isnt included it will default to 10
 
         Getting all
+        [
+            {
+                "id": 1,
+                "amount": 3.2573006970000002,
+                "description": "add_money: Total amount added 10.00",
+                "budget": 1,
+                "date": "2021-03-15"
+            }
+        ]
 
         :param budget_id:
         """
