@@ -1,5 +1,5 @@
 # Sekhnet Budget
-_v1.0_
+_v1.1_
 
 Very simple budgeting software I wrote
 to keep track of my budgets
@@ -11,16 +11,26 @@ on my local network at home using Kubernetes.
 Each budget is issued a percentage that represents
 what portion of income should go to it. for example,
 if housing is 30% and you add 1000$ of income, 300$ will
-got to housing and the 700$ will be divided among the other 
+got to housing and the 700$ will be divided among the other
 budgets
 
+For most functionality use the django admin interface
+
 ### Stability
-I have been using this for the last 6 months (as of this commit), running 
+I have been using this for the last 6 months (as of this commit), running
 it on my local kubernetes cluster. It has been working great for me.
 
 I intend on using and updating this for the rest of my life
 But note I will likely go significant periods of time without
 updating it.
+
+### API
+Really basic API functionality has been added. Documentation can
+be found in the Postman Collection located at `docs/Budget.postman_collection.json`
+
+All the requests are prefixed with `/api/v1`
+
+Destructive functionality hasnt been implemented yet. This is for safety reasons.
 
 ### Running locally
 
@@ -46,7 +56,7 @@ python3 manage.py migrate
 python3 manage.py runserver
 ```
 
-Note sometimes the api models are not migrated, this 
+Note sometimes the api models are not migrated, this
 can be solved with:
 ```
 python3 manage.py makemigrations api
