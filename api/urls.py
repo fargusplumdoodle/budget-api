@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from api.views.budget import BudgetView
+from api.views.budget import BudgetView, BudgetTransactionView
 from web.views import GraphBudgetHistory
 from api.views.account import CreateAccountView, ObtainAuthToken
 
@@ -9,4 +9,5 @@ urlpatterns = [
     path("user/login", ObtainAuthToken.as_view(), name="login"),
     path("graph/history", GraphBudgetHistory.as_view(), name='api_graph_history'),
     path("budget", BudgetView.as_view(), name='budgets'),
+    path("budget/<int:budget_id>", BudgetTransactionView.as_view(), name='budget_transaction'),
 ]

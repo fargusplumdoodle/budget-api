@@ -7,3 +7,4 @@ source venv/bin/activate
 ./scripts/load_budgets.sh
 
 python3 manage.py createsuperuser --username dev --email ''
+python3 manage.py generate_transactions 10 10 --save
