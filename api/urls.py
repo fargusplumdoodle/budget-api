@@ -1,9 +1,11 @@
-from django.urls import path, include
+from django.urls import path
 
 from api.views.budget import BudgetView, BudgetTransactionView
 from api.views.transaction import AddTransactionView, AddMoneyView
 from web.views import GraphBudgetHistory
 from api.views.account import CreateAccountView, ObtainAuthToken
+
+app_name = 'api'
 
 urlpatterns = [
     path("user/register", CreateAccountView.as_view(), name="register-user"),
