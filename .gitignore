@@ -10,4 +10,4 @@ deploy
 **.sw*
 budget/environment.py
 flutter
-helm/install.sh
+helm/install*
