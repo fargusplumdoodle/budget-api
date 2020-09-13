@@ -1,9 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render, get_object_or_404, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from .models import Budget, Transaction
+from api.models import Budget, Transaction
 from .helper import budgets_sum_to_one, add_money as add_money_function
 from .forms import AddMoneyForm, GraphHistoryForm, AddTransactionForm
 from budget import settings

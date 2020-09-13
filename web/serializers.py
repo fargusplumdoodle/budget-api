@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Budget, Transaction
+from api.models import Budget, Transaction
 
 
 class CategorySerializer(serializers.ModelSerializer):

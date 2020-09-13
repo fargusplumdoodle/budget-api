@@ -1,4 +1,4 @@
-from .models import Transaction
+from api.models import Transaction
 
 
 class Printer:

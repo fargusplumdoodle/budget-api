@@ -1,4 +1,4 @@
-from .models import Budget, Transaction
+from api.models import Budget, Transaction
 from budget.settings import DEBUG
 from django.utils import timezone
 import datetime

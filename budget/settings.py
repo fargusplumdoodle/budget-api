@@ -143,5 +143,5 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 
 STATIC_URL = "/static/"
 
-LOGIN_REDIRECT_URL = "dashboard"
-LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "web:dashboard"
+LOGIN_URL = "web:login"

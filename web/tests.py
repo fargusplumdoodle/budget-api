@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Budget, Transaction
+from api.models import Budget, Transaction
 from django.core.management.base import CommandError
 import datetime
 from .helper import add_money, average_per_day, generate_transactions, get_sum_of_transactions

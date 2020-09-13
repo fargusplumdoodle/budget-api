@@ -1,8 +1,7 @@
-from .models import Budget, Transaction
+from api.models import Transaction
 from django.db.models.query import QuerySet
 from datetime import date
 from datetime import timedelta
-import random
 
 
 class Graph:

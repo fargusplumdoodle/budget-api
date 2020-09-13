@@ -6,3 +6,9 @@ deploy
 docker
 venv
 **/__pycache__
+budget/environment.py
+helm
+README.md
+flutter
+Dockerfile
+TODO.txt

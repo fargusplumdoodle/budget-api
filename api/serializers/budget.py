@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from web.models import Budget
+from api.models import Budget
 
 
 class BudgetSerializer(serializers.ModelSerializer):

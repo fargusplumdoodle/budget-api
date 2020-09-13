@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-from web.load_scripts import load_budgets
-from web.models import Transaction
+from api.models import Transaction
 from web.printer import Printer
 
 """

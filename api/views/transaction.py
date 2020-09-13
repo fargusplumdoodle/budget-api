@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from web.helper import add_money
-from web.models import Budget, Transaction
+from api.models import Transaction
 import io
 from api.serializers.transaction import TransactionSerialzer, AddMoneySerializer
 

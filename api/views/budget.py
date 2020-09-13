@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.serializers.budget import BudgetSerializer
-from web.models import Budget, Transaction
+from api.models import Budget, Transaction
 from api.serializers.transaction import TransactionSerialzer
 
 

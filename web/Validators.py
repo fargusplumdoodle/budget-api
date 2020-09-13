@@ -23,7 +23,7 @@ If any issue occurs, we raise a ValidationError("description of issue"). Validat
 is defined in this file
 """
 import datetime
-from .models import Budget
+from api.models import Budget
 
 
 class GraphBudgetHistory:
