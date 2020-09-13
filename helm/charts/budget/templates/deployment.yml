@@ -45,8 +45,3 @@ spec:
             secretKeyRef:
               name: {{ include "backend.fullname" . }}-secret
               key: DB
-        - name: DEBUG
-          valueFrom:
-            secretKeyRef:
-              name: {{ include "backend.fullname" . }}-secret
-              key: DEBUG

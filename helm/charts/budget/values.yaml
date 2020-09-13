@@ -16,7 +16,6 @@ db:
 
 django:
   SECRET_KEY: temp
-  DEBUG: False
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -28,8 +27,9 @@ serviceAccount:
   name: ""
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   port: 80
+  load_balancer_ip: 10.0.1.84
 
 ingress:
   enabled: false

@@ -12,3 +12,6 @@ spec:
       targetPort: 8000
   selector:
     app: {{ include "backend.fullname" . }}
+{{- if .Values.service.load_balancer_ip }}
+  loadBalancerIP: {{ .Values.service.load_balancer_ip }}
+{{ end }}
