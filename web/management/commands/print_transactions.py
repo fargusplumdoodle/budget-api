@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from api.models import Transaction
-from web.printer import Printer
+from api2.printer import Printer
 
 """
 Sample can be found in docs/csv/transaction.csv

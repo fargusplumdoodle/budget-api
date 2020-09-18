@@ -1,8 +1,12 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.contrib.auth.models import User
+
+from api2.utils import add_income
+
+from django.core.management.base import BaseCommand
 from web.helper import generate_transactions
 from django.utils import timezone
 from budget.settings import DEBUG
-from web.printer import Printer
+from api2.printer import Printer
 
 """
 Sample can be found in docs/csv/transaction.csv """
@@ -18,7 +22,8 @@ class Command(BaseCommand):
 
     Refuses to run when DEBUG is True
 
-    Generates the last n paycheques, assuming you got payed every 2 weeks
+    Generates the last n paycheques, assuming you got payed every 2 weeks.
+    creates for each user
 
     parameters
         $1: int number of paycheques
@@ -62,3 +67,40 @@ class Command(BaseCommand):
             print(
                 "WARNING: --save flag not set, no transactions were saved to the database"
             )
+
+    @staticmethod
+    def generate_transactions(start_date, num_paycheques, income, save=False):
+        """
+        Creates a bunch of transactions. This function is largly for testing
+
+        Calls add_money to generate transactions, this will add num_paycheques * x where x is
+        the number of budgets that exist.
+
+        REPEATS OPERATION FOR THE FIRST 5 USERS IT FINDS
+
+        :param start_date: start date, datetime
+        :param num_paycheques: number of paycheques to generate
+        :param income: amount you make per 14 days
+        :param save: if true we will save transactions, doesn't work in debug
+        :return: list of transacitons
+        """
+        if not DEBUG and save:
+            raise EnvironmentError("Will not generate transactions when DEBUG is True")
+
+        number_of_days_between_paychecks = 14
+
+        # wont save unless we are in debug mode
+        save = save and DEBUG
+
+        transactions = []
+        user, created = User.objects.get_or_create(username='dev')
+        if created:
+            user.set_password('dev')
+            save()
+
+        for x in range(-num_paycheques, 0):
+            date = start_date - timezone.timedelta(days=-int(number_of_days_between_paychecks * x))
+            transactions = transactions + add_income(amount=int(income), user=user, date=date, save=save)
+
+        # returning transacions
+        return transactions

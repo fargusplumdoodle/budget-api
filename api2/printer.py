@@ -1,4 +1,4 @@
-from api.models import Transaction
+from api2.models import Transaction
 
 
 class Printer:
@@ -29,7 +29,7 @@ class Printer:
         # printing transactions
         for trans in transaction_list:
             print(
-                str("%.2f" % float(trans.amount)).ljust(col_width) +
+                str("%s" % float(trans.amount)).ljust(col_width) +
                 str(trans.budget).ljust(col_width),
                 str(trans.date).ljust(col_width),
             )

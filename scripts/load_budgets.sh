@@ -1,3 +1,3 @@
 #!/bin/bash
-python manage.py load_budgets docs/csv/budgets_sample.csv
+python3 manage.py load_budgets docs/csv/budgets_sample.csv
 

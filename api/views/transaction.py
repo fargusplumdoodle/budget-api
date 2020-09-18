@@ -38,6 +38,7 @@ class AddTransactionView(APIView):
         else:
             return Response(serializer.errors, status=400, content_type="application/json")
 
+
 class AddMoneyView(APIView):
     authentication_classes = [BasicAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]

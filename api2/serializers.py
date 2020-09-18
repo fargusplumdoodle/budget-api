@@ -38,4 +38,4 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class AddMoneySerializer(serializers.Serializer):
-    amount = serializers.FloatField(max_value=4000)
+    amount = serializers.IntegerField()
