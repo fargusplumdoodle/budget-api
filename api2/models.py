@@ -13,7 +13,7 @@ class Budget(models.Model):
         balance = self.initial_balance
         for x in Transaction.objects.filter(budget=self):
             balance += x.amount
-        return str(balance)
+        return balance
 
     def pretty_percentage(self):
         return str(self.percentage)
