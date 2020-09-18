@@ -28,8 +28,8 @@ class Command(BaseCommand):
                 "Will not generate transactions when DEBUG isnt True"
             )
         user, created = User.objects.get_or_create(username="dev")
-        if created:
-            user.set_password("dev")
+        user.set_password("dev")
+        user.save()
 
         budgets = [("food", 25), ("housing", 25), ("medical", 25), ("personal", 25)]
         for budget in budgets:
