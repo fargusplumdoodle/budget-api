@@ -42,7 +42,7 @@ class TransactionViewset(ModelViewSet):
     filterset_class = TransactionFilterset
 
     def get_queryset(self):
-        return Transaction.objects.filter(budget__user=self.request.user)
+        return Transaction.objects.filter(budget__user=self.request.user).order_by('-date')
 
     @action(detail=False, methods=['post'])
     def income(self, request):
@@ -57,11 +57,17 @@ class TransactionViewset(ModelViewSet):
         serializer = AddMoneySerializer(data=data, many=False)
         serializer.is_valid(raise_exception=True)
 
-        transactions = add_income(amount=serializer.validated_data['amount'], user=request.user, save=True)
+        transactions = add_income(
+            amount=serializer.validated_data['amount'],
+            description=serializer.validated_data['description'],
+            date=serializer.validated_data['date'],
+            user=request.user, save=True,
+        )
 
         serializer = TransactionSerializer(transactions, many=True)
 
         return Response(serializer.data, status=201, content_type="application/json")
+
 
 class CreateAccountView(APIView):
 

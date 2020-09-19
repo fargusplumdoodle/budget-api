@@ -8,7 +8,7 @@ from api2.SampleData import SAMPLE_DATA
 from api2.models import Budget, Transaction
 
 
-def add_income(amount: int, user: User, save=False, date=None):
+def add_income(amount: int, user: User, save=False, date=None, description="income"):
     """
     For adding/subtracting money to all budgets based on their percentage attribute.
 
@@ -32,11 +32,11 @@ def add_income(amount: int, user: User, save=False, date=None):
     added_transactions = []
 
     for budget in Budget.objects.filter(user=user):
-        trans_amount = round(amount * budget.percentage)
+        trans_amount = round(amount * (budget.percentage / 100))
         transaction = Transaction(
             amount=trans_amount,
             budget=budget,
-            description=random.choice(SAMPLE_DATA),
+            description=f"income: {description}",
             date=date,
         )
         if save:
