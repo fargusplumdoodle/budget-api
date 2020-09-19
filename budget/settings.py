@@ -48,13 +48,11 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
     "django_filters",
-    "api",
     "api2",
-    "web",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -144,7 +142,3 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = "/static/"
-
-LOGIN_REDIRECT_URL = "web:dashboard"
-LOGIN_URL = "web:login"

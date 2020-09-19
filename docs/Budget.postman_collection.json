@@ -7,158 +7,356 @@
 	},
 	"item": [
 		{
-			"name": "Account",
+			"name": "api/v2",
 			"item": [
 				{
-					"name": "Login",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "username",
-									"value": "dev",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "dev",
-									"type": "text"
+					"name": "budget",
+					"item": [
+						{
+							"name": "get budgets",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{HOST}}api/v2/budget/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"budget",
+										""
+									]
 								}
-							]
+							},
+							"response": []
 						},
-						"url": {
-							"raw": "{{HOST}}{{VERSION}}user/login",
-							"host": [
-								"{{HOST}}{{VERSION}}user"
-							],
-							"path": [
-								"login"
-							]
+						{
+							"name": "update budget",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"food2\",\n    \"percentage\": 25,\n    \"initial_balance\": 0,\n    \"balance\": 107736,\n    \"user\": 3\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}api/v2/budget/1/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"budget",
+										"1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete budget",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"food2\",\n    \"percentage\": 25,\n    \"initial_balance\": 0,\n    \"balance\": 107736,\n    \"user\": 3\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}api/v2/budget/1/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"budget",
+										"1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create budget",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"food\",\n    \"percentage\": 25,\n    \"initial_balance\": 0,\n    \"user\": 3\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}api/v2/budget/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"budget",
+										""
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				},
 				{
-					"name": "Register User",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"username\": \"123\",\n\t\"password\": \"123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
+					"name": "transactions",
+					"item": [
+						{
+							"name": "get transactions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{HOST}}api/v2/transaction/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"transaction",
+										""
+									]
 								}
+							},
+							"response": []
+						},
+						{
+							"name": "create transactions",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\"amount\": 2,\n\"description\": \"this is a transaction\",\n\"budget\": 3,\n\"date\": \"2020-04-04\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}api/v2/transaction/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"transaction",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update transaction",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n        \"amount\": 2500,\n        \"description\": \"income: should be 26, darn\",\n        \"budget\": 2,\n        \"date\": \"2020-09-21\"\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}api/v2/transaction/116/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"transaction",
+										"116",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete transaction",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\"amount\": 2,\n\"description\": \"this is a transaction\",\n\"budget\": 3,\n\"date\": \"2020-04-04\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}api/v2/transaction/110/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"transaction",
+										"110",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add income",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\"amount\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}api/v2/transaction/income/",
+									"host": [
+										"{{HOST}}api"
+									],
+									"path": [
+										"v2",
+										"transaction",
+										"income",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ec49f531-e3ba-4a1c-960c-d10f569d95e9",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
 							}
 						},
-						"url": {
-							"raw": "{{HOST}}{{VERSION}}user/register",
-							"host": [
-								"{{HOST}}{{VERSION}}user"
-							],
-							"path": [
-								"register"
-							]
+						{
+							"listen": "test",
+							"script": {
+								"id": "df740eae-667b-4a89-920f-6a6a34d8a229",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
 						}
-					},
-					"response": []
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Account",
+					"item": [
+						{
+							"name": "Login",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "dev",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "dev",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{HOST}}{{VERSION}}user/login",
+									"host": [
+										"{{HOST}}{{VERSION}}user"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Register User",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"username\": \"123\",\n\t\"password\": \"123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{HOST}}{{VERSION}}user/register",
+									"host": [
+										"{{HOST}}{{VERSION}}user"
+									],
+									"path": [
+										"register"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
 				}
 			],
 			"protocolProfileBehavior": {}
-		},
-		{
-			"name": "GET budgets",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{HOST}}{{VERSION}}budget",
-					"host": [
-						"{{HOST}}{{VERSION}}budget"
-					]
-				},
-				"description": "Returns list of budgets and their attributes"
-			},
-			"response": []
-		},
-		{
-			"name": "GET transactions from a budget",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{HOST}}{{VERSION}}budget/1?max=10000",
-					"host": [
-						"{{HOST}}{{VERSION}}budget"
-					],
-					"path": [
-						"1"
-					],
-					"query": [
-						{
-							"key": "max",
-							"value": "10000"
-						}
-					]
-				},
-				"description": "Returns list of budgets and their attributes"
-			},
-			"response": []
-		},
-		{
-			"name": "add new transaction",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n        \"amount\": 999,\n        \"description\": \"athis is new yo10.00\",\n        \"budget\": 1222,\n        \"date\": \"2021-03-15\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}{{VERSION}}transaction",
-					"host": [
-						"{{HOST}}{{VERSION}}transaction"
-					]
-				},
-				"description": "Returns list of budgets and their attributes"
-			},
-			"response": []
-		},
-		{
-			"name": "add money",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n        \"amount\": 999\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}{{VERSION}}add_money",
-					"host": [
-						"{{HOST}}{{VERSION}}add_money"
-					]
-				},
-				"description": "Returns list of budgets and their attributes"
-			},
-			"response": []
 		}
 	],
 	"auth": {
@@ -166,7 +364,7 @@
 		"apikey": [
 			{
 				"key": "value",
-				"value": "Token 3e0097f43a0aa75cb8a46e65e3b4a20f027fe359",
+				"value": "Token {{TOKEN}}",
 				"type": "string"
 			},
 			{
@@ -200,16 +398,14 @@
 	],
 	"variable": [
 		{
-			"id": "5449c57e-7750-4e37-824c-53b56e54da15",
+			"id": "bc27d583-4298-42f7-9ecf-770b35834543",
 			"key": "HOST",
-			"value": "http://localhost:8000/",
-			"type": "string"
+			"value": "http://localhost:8000/"
 		},
 		{
-			"id": "b3a57b34-f785-4912-adac-f7691bc1c710",
+			"id": "960948fb-de77-4abf-84e6-34f3f95fa154",
 			"key": "VERSION",
-			"value": "api/v1",
-			"type": "string"
+			"value": "api/v1"
 		}
 	],
 	"protocolProfileBehavior": {}

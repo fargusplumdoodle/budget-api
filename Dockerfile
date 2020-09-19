@@ -1,14 +1,12 @@
 FROM python:3.7-slim
 
 # Install packages needed to run your application (not build deps):
-#   mime-support -- for mime types when serving static files
 #   postgresql-client -- for running database commands
 # We need to recreate the /usr/share/man/man{1..8} directories first because
 # they were clobbered by a parent image.
 RUN set -ex \
     && RUN_DEPS=" \
         libpcre3 \
-        mime-support \
         postgresql-client \
     " \
     && seq 1 8 | xargs -I{} mkdir -p /usr/share/man/man{} \
@@ -50,7 +48,7 @@ ENV DJANGO_SETTINGS_MODULE=budget.settings
 
 # Call collectstatic (customize the following line with the minimal environment variables needed for manage.py to run):
 ENV SECRET_KEY='eyythisistemporary'
-RUN /venv/bin/python manage.py collectstatic --noinput
+# RUN /venv/bin/python manage.py collectstatic --noinput
 
 # Tell uWSGI where to find your wsgi file (change this):
 ENV UWSGI_WSGI_FILE=budget/wsgi.py
@@ -62,7 +60,7 @@ ENV UWSGI_VIRTUALENV=/venv UWSGI_HTTP=:8000 UWSGI_MASTER=1 UWSGI_HTTP_AUTO_CHUNK
 ENV UWSGI_WORKERS=2 UWSGI_THREADS=4
 
 # uWSGI static file serving configuration (customize or comment out if not needed):
-ENV UWSGI_STATIC_MAP="/static/=/code/static/" UWSGI_STATIC_EXPIRES_URI="/static/.*\.[a-f0-9]{12,}\.(css|js|png|jpg|jpeg|gif|ico|woff|ttf|otf|svg|scss|map|txt) 315360000"
+# ENV UWSGI_STATIC_MAP="/static/=/code/static/" UWSGI_STATIC_EXPIRES_URI="/static/.*\.[a-f0-9]{12,}\.(css|js|png|jpg|jpeg|gif|ico|woff|ttf|otf|svg|scss|map|txt) 315360000"
 
 # Deny invalid hosts before they get to Django (uncomment and change to your hostname(s)):
 # ENV UWSGI_ROUTE_HOST="^(?!localhost:8000$) break:400"
