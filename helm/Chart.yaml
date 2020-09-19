@@ -2,5 +2,5 @@ apiVersion: v2
 name: budget
 description: Janky budgeting software by Isaac Thiessen, probably dont actually use
 type: application
-version: 0.1.0
-appVersion: 1.0.0
+version: 1.0.0
+appVersion: 2.0.0
