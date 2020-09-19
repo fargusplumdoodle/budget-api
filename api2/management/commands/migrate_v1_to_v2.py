@@ -1,12 +1,6 @@
 from django.contrib.auth.models import User
 
-from api2.utils import add_income
-
 from django.core.management.base import BaseCommand, CommandError
-from web.helper import generate_transactions
-from django.utils import timezone
-from budget.settings import DEBUG
-from api2.printer import Printer
 from api.models import Budget as Budget1, Transaction as Transaction1
 from api2.models import Budget as Budget2, Transaction as Transaction2
 

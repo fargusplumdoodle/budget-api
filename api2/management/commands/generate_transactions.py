@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from api2.utils import add_income
 
 from django.core.management.base import BaseCommand
-from web.helper import generate_transactions
+from api.helper import generate_transactions
 from django.utils import timezone
 from budget.settings import DEBUG
 from api2.printer import Printer
