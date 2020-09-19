@@ -28,6 +28,9 @@ class Transaction(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True)
     date = models.DateField()
 
+    MAX_TRANSACTION_SUPPORTED = 100_000_00  # No greater than 10,000 dollars
+    MIN_TRANSACTION_SUPPORTED = -100_000_00  # No greater than 10,000 dollars
+
     def pretty_amount(self):
         return str(self.amount)
 

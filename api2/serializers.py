@@ -25,7 +25,10 @@ class BudgetSerializer(serializers.ModelSerializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    amount = serializers.IntegerField(max_value=4000)
+    amount = serializers.IntegerField(
+        max_value=Transaction.MAX_TRANSACTION_SUPPORTED,
+        min_value=Transaction.MIN_TRANSACTION_SUPPORTED,
+    )
     description = serializers.CharField(max_length=300)
     budget = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Budget.objects.all()
