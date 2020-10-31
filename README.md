@@ -1,5 +1,5 @@
 # Sekhnet Budget
-_v2.0_ 
+_v2.1_
 
 Very simple budgeting software I wrote
 to keep track of my budgets
@@ -40,7 +40,7 @@ docker-compose up
 
 If you run into database issues, try this
 ```
-python3 manage.py makemigrations 
+python3 manage.py makemigrations
 python3 manage.py migrate
 ```
 
@@ -51,8 +51,17 @@ If you have a Kubernetes cluster use the helm chart located in `./helm`
 
 Or use docker compose if you prefer
 
+## Prometheus metrics
+Available from `/metrics`
+
 
 # Patch notes
+## v2.1
+Date: 2020-10-31
+
+Changes:
+- Added Prometheus metrics
+- Dates not match equal to
 
 ## v2
 Date: 2020-09-19

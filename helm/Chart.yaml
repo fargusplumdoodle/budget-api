@@ -3,4 +3,4 @@ name: budget
 description: Janky budgeting software by Isaac Thiessen, probably dont actually use
 type: application
 version: 1.0.0
-appVersion: 2.0.0
+appVersion: 2.2.0
