@@ -50,3 +50,4 @@ flake8:
     - postgres
   script:
     - /venv/bin/flake8 --config .flake8 /code
+
