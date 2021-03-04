@@ -2,14 +2,14 @@ image: docker:19.03.8
 
 variables:
   POSTGRES_PASSWORD: mysecretpassword
-  POSTGRES_USER: postgis
-  POSTGRES_DB: icebreak
+  POSTGRES_USER: postgres 
+  POSTGRES_DB: postgres 
   DEBUG: "TRUE"
   SECRET_KEY: ey
   DB_HOST: postgres
-  DB_USER: postgis
-  DB: icebreak
-  DB_PASS: mysecretpassword
+  DB_USER: postgres
+  DB: postgres
+  DB_PASS: postgres
   POSTGRES_HOST_AUTH_METHOD: "trust"
   DEBIAN_FRONTEND: noninteractive
   CI_REGISTRY: hub.sekhnet.ra/budget
