@@ -11,9 +11,7 @@ from .generate_transactions import Command as GenerateTransactionsCommand
 class Command(BaseCommand):
     help = """
     Creates 4 sample budgets with the dev user
-    
     Generates transactions for those budgets
-    
     """
 
     def add_arguments(self, parser):

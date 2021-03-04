@@ -13,7 +13,12 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import TokenAuthentication
 
 from api2.models import Budget, Transaction
-from api2.serializers import BudgetSerializer, TransactionSerializer, AddMoneySerializer, RegisterSerializer
+from api2.serializers import (
+    BudgetSerializer,
+    TransactionSerializer,
+    AddMoneySerializer,
+    RegisterSerializer,
+)
 from api2.filters import BudgetFilterset, TransactionFilterset
 from api2.utils import add_income
 
@@ -32,7 +37,9 @@ class BudgetViewset(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
 
 class TransactionViewset(ModelViewSet):
@@ -42,9 +49,11 @@ class TransactionViewset(ModelViewSet):
     filterset_class = TransactionFilterset
 
     def get_queryset(self):
-        return Transaction.objects.filter(budget__user=self.request.user).order_by('-date')
+        return Transaction.objects.filter(budget__user=self.request.user).order_by(
+            "-date"
+        )
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def income(self, request):
         """
         For adding money to all budgets
@@ -58,10 +67,11 @@ class TransactionViewset(ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         transactions = add_income(
-            amount=serializer.validated_data['amount'],
-            description=serializer.validated_data['description'],
-            date=serializer.validated_data['date'],
-            user=request.user, save=True,
+            amount=serializer.validated_data["amount"],
+            description=serializer.validated_data["description"],
+            date=serializer.validated_data["date"],
+            user=request.user,
+            save=True,
         )
 
         serializer = TransactionSerializer(transactions, many=True)
@@ -70,7 +80,6 @@ class TransactionViewset(ModelViewSet):
 
 
 class CreateAccountView(APIView):
-
     @csrf_exempt
     def post(self, request):
         """

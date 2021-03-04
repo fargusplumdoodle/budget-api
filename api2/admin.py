@@ -1,5 +1,5 @@
 from django.contrib import admin
-from api2.models import *
+from api2.models import Transaction, Budget
 
 
 @admin.register(Transaction, Budget)

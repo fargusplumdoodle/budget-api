@@ -14,17 +14,17 @@ variables:
   DEBIAN_FRONTEND: noninteractive
   CI_REGISTRY: hub.sekhnet.ra/budget
 
+
 stages:
   - build
   - test
 
 build:
-  image: docker:19.03.8
-  stage: build
-  script:
-    - docker build -t "$CI_REGISTRY:$VERSION" .
-    - docker push "$CI_REGISTRY:$VERSION"
-
+	image: docker:19.03.8
+	stage: build
+	script:
+		- docker build -f build/Dockerfile-dev -t "$CI_REGISTRY:$VERSION" .
+		- docker push "$CI_REGISTRY:$VERSION"
 
 test:
   stage: test
@@ -34,3 +34,20 @@ test:
   script:
     - /code/build/docker-entrypoint.sh
     - /venv/bin/python manage.py test
+
+format:
+  stage: test
+  image: "$CI_REGISTRY:$VERSION"
+  services:
+    - postgres
+  script:
+    - /venv/bin/black --check /code
+
+flake8:
+  stage: test
+  image: "$CI_REGISTRY:$VERSION"
+  services:
+    - postgres
+  script:
+    - /venv/bin/flake8 --config .flake8 /code
+

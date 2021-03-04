@@ -54,9 +54,8 @@ def add_money(amount, save=False, date=None):
         transaction = Transaction(
             amount=trans_amount,
             budget=budget,
-            description=f"add_money: Total amount added %.2f"
-                        % float(amount),
-            date=date
+            description="add_money: Total amount added %.2f" % float(amount),
+            date=date,
         )
         if save:
             transaction.save()
@@ -89,7 +88,9 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
 
     transactions = []
     for x in range(-num_paycheques, 0):
-        date = start_date - timezone.timedelta(days=int(number_of_days_between_paychecks * x))
+        date = start_date - timezone.timedelta(
+            days=int(number_of_days_between_paychecks * x)
+        )
         transactions = transactions + add_money(income, date=date, save=save)
 
     # returning transacions
@@ -140,4 +141,3 @@ def get_sum_of_transactions(trans, budget=None):
             sum += x.amount
 
     return sum
-

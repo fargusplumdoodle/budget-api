@@ -41,7 +41,10 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class AddMoneySerializer(serializers.Serializer):
-    amount = serializers.IntegerField(max_value=Transaction.MAX_TRANSACTION_SUPPORTED, min_value=Transaction.MIN_TRANSACTION_SUPPORTED)
+    amount = serializers.IntegerField(
+        max_value=Transaction.MAX_TRANSACTION_SUPPORTED,
+        min_value=Transaction.MIN_TRANSACTION_SUPPORTED,
+    )
     description = serializers.CharField(max_length=300)
     date = serializers.DateField()
 

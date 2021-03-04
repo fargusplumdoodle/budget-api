@@ -7,8 +7,8 @@ from api2.models import Budget as Budget2, Transaction as Transaction2
 
 class Command(BaseCommand):
     help = """
-    Converts all api-v1 Budgets,Transactions to api-v2 
-    
+    Converts all api-v1 Budgets,Transactions to api-v2
+
     User supplied will inherit all existing budgets and transactions
     """
 
@@ -39,8 +39,10 @@ class Command(BaseCommand):
             budget2 = Budget2(
                 name=budget1.name,
                 percentage=round(budget1.percentage * 100),
-                initial_balance=Command.convert_dollars_to_cents(budget1.initial_balance),
-                user=user
+                initial_balance=Command.convert_dollars_to_cents(
+                    budget1.initial_balance
+                ),
+                user=user,
             )
             if save:
                 budget2.save()
@@ -54,17 +56,24 @@ class Command(BaseCommand):
         print("TRANSACTIONS")
         print("-------------------")
         for transaction1 in Transaction1.objects.all():
-            budget = Budget2.objects.get(name=transaction1.budget.name) if save else Budget2(name=transaction1.budget.name)
+            budget = (
+                Budget2.objects.get(name=transaction1.budget.name)
+                if save
+                else Budget2(name=transaction1.budget.name)
+            )
             transaction2 = Transaction2(
                 amount=Command.convert_dollars_to_cents(transaction1.amount),
                 description=transaction1.description,
                 budget=budget,
-                date=transaction1.date
+                date=transaction1.date,
             )
             if save:
                 transaction2.save()
-            print(budget.name, transaction1.amount, transaction2.amount,)
-
+            print(
+                budget.name,
+                transaction1.amount,
+                transaction2.amount,
+            )
 
     @staticmethod
     def convert_dollars_to_cents(amount):
