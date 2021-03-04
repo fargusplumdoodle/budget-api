@@ -2,29 +2,29 @@ image: docker:19.03.8
 
 variables:
   POSTGRES_PASSWORD: mysecretpassword
-  POSTGRES_USER: postgres 
-  POSTGRES_DB: postgres 
+  POSTGRES_USER: postgis
+  POSTGRES_DB: icebreak
   DEBUG: "TRUE"
   SECRET_KEY: ey
   DB_HOST: postgres
-  DB_USER: postgres
-  DB: postgres
-  DB_PASS: postgres
+  DB_USER: postgis
+  DB: icebreak
+  DB_PASS: mysecretpassword
   POSTGRES_HOST_AUTH_METHOD: "trust"
   DEBIAN_FRONTEND: noninteractive
   CI_REGISTRY: hub.sekhnet.ra/budget
+
 
 stages:
   - build
   - test
 
 build:
-  image: docker:19.03.8
-  stage: build
-  script:
-    - docker build -f build/Dockerfile-dev -t "$CI_REGISTRY:$VERSION" .
-    - docker push "$CI_REGISTRY:$VERSION"
-
+	image: docker:19.03.8
+	stage: build
+	script:
+		- docker build -f build/Dockerfile-dev -t "$CI_REGISTRY:$VERSION" .
+		- docker push "$CI_REGISTRY:$VERSION"
 
 test:
   stage: test
@@ -34,3 +34,19 @@ test:
   script:
     - /code/build/docker-entrypoint.sh
     - /venv/bin/python manage.py test
+
+format:
+  stage: test
+  image: "$CI_REGISTRY:$VERSION"
+  services:
+    - postgres
+  script:
+    - /venv/bin/black --check /code
+
+flake8:
+  stage: test
+  image: "$CI_REGISTRY:$VERSION"
+  services:
+    - postgres
+  script:
+    - /venv/bin/flake8 --config .flake8 /code
