@@ -22,7 +22,7 @@ build:
   image: docker:19.03.8
   stage: build
   script:
-    - docker build -t "$CI_REGISTRY:$VERSION" .
+    - docker build -f build/Dockerfile-dev -t "$CI_REGISTRY:$VERSION" .
     - docker push "$CI_REGISTRY:$VERSION"
 
 

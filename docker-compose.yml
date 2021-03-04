@@ -11,7 +11,9 @@ services:
    - ./flutter/postgres-data:/var/lib/postgresql
  api:
   image: hub.sekhnet.ra/budget
-  build: .
+  build:
+    context: .
+    dockerfile: ./build/Dockerfile-dev
   command: /venv/bin/python manage.py runserver 0.0.0.0:8000
   environment:
    - DB=postgres

@@ -1,0 +1,33 @@
+FROM python:3.9-slim
+
+RUN set -ex \
+    && RUN_DEPS=" \
+        libpcre3 \
+        postgresql-client \
+        build-essential \
+        libpcre3-dev \
+        libpq-dev \
+    " \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends $RUN_DEPS
+
+RUN mkdir /code/
+WORKDIR /code/
+ADD . /code/
+
+RUN set -ex \
+    && python3.9 -m venv /venv \
+    && /venv/bin/pip install -U pip pipenv \
+    && /venv/bin/pipenv lock --dev --keep-outdated --requirements > /requirements.txt \
+    && /venv/bin/pip install -r /requirements.txt 
+
+
+# uWSGI will listen on this port
+EXPOSE 8000
+
+ENV DJANGO_SETTINGS_MODULE=budget.settings
+ENV SECRET_KEY='eyythisistemporary'
+
+ENTRYPOINT ["/code/build/docker-entrypoint.sh"]
+
+CMD "/venv/bin/pipenv run python manage.py runserver 0.0.0.0:8000"
