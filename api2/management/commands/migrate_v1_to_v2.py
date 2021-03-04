@@ -7,8 +7,8 @@ from api2.models import Budget as Budget2, Transaction as Transaction2
 
 class Command(BaseCommand):
     help = """
-    Converts all api-v1 Budgets,Transactions to api-v2 
-    
+    Converts all api-v1 Budgets,Transactions to api-v2
+
     User supplied will inherit all existing budgets and transactions
     """
 

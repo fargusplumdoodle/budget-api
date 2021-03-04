@@ -9,11 +9,15 @@ SAMPLE_DATA = [
     "DONT DRINK THE SALAD YOU FOOL?",
     "My name is Inigo Montoya. You killed my father. Prepare to die.",
     "I've been involved in numerous secret raids on Al-Quaeda",
-    "I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. ",
+    "I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed for"
+    "ces. ",
     "I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands.",
-    "Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps ",
-    "As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. ",
-    "Mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker.",
+    "Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States "
+    "Marine Corps ",
+    "As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you"
+    " better prepare for the storm, maggot. ",
+    "Mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again,"
+    " fucker.",
     "I hate Russian dolls. They're so full of themselves.",
     "Do you remember that joke I told you about my spine",
     "I just went to an emotional wedding. Even the cake was in tiers.",
@@ -23,8 +27,10 @@ SAMPLE_DATA = [
     "My favorite word is 'drool.' It just rolls off the tongue.",
     "I just wrote a book on reverse psychology. Do not read it.",
     "My new thesaurus is terrible. Not only that, but it's also terrible.",
-    "I got fired from my job at the bank today. An old lady came in and asked me to check her balance, so I pushed her over.",
-    "I wasn't going to visit my family this December, but my mom promised to make me Eggs Benedict. So I'm going home for the hollandaise.",
+    "I got fired from my job at the bank today. An old lady came in and asked me to check her balance, so I pushed her"
+    " over.",
+    "I wasn't going to visit my family this December, but my mom promised to make me Eggs Benedict. So I'm going home "
+    "for the hollandaise.",
     "I like to spend every day as if it's my last. Staying in bed and calling for a nurse to bring me more pudding.",
     "Imagine if Americans switched from pounds to kilograms overnight. There would be mass confusion!",
     "It's inappropriate to make a 'dad joke' if you are not a dad. It's a faux pa.",
@@ -60,7 +66,8 @@ SAMPLE_DATA = [
     "Denmark is a cool place",
     "No matter how fast I run, I cannot run away from the pain...",
     "I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth",
-    "Mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker.",
+    "Mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again,"
+    " fucker.",
     "A Mississippi!",
     "Put it on my bill!",
     "Roberto!",

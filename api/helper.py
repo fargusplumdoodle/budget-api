@@ -54,7 +54,7 @@ def add_money(amount, save=False, date=None):
         transaction = Transaction(
             amount=trans_amount,
             budget=budget,
-            description=f"add_money: Total amount added %.2f" % float(amount),
+            description="add_money: Total amount added %.2f" % float(amount),
             date=date,
         )
         if save:

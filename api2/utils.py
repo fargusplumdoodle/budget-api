@@ -1,10 +1,7 @@
 import datetime
-import random
 
 from django.contrib.auth.models import User
 
-from api2 import SampleData
-from api2.SampleData import SAMPLE_DATA
 from api2.models import Budget, Transaction
 
 
