@@ -95,8 +95,12 @@ class Command(BaseCommand):
         transactions = []
         for user in User.objects.all()[:5]:
             for x in range(-num_paycheques, 0):
-                date = start_date - timezone.timedelta(days=-int(number_of_days_between_paychecks * x))
-                transactions = transactions + add_income(amount=int(income), user=user, date=date, save=save)
+                date = start_date - timezone.timedelta(
+                    days=-int(number_of_days_between_paychecks * x)
+                )
+                transactions = transactions + add_income(
+                    amount=int(income), user=user, date=date, save=save
+                )
 
         # returning transacions
         return transactions

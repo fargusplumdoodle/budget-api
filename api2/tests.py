@@ -22,7 +22,9 @@ class TestV1toV2(TestCase):
         """
         self.budgets = [
             Budget1.objects.create(name="food", percentage=0.25, initial_balance=0.0),
-            Budget1.objects.create(name="housing", percentage=0.2523456, initial_balance=1.0),
+            Budget1.objects.create(
+                name="housing", percentage=0.2523456, initial_balance=1.0
+            ),
             Budget1.objects.create(
                 name="test budget", percentage=0.5012324, initial_balance=100.0
             ),
@@ -53,7 +55,9 @@ class TestV1toV2(TestCase):
         ]
         for dollars, cents in exchange_rates:
             self.assertEqual(V1_to_V2.convert_dollars_to_cents(dollars), cents)
-            self.assertEqual(V1_to_V2.convert_cents_to_dollars(cents), round(dollars, 2))
+            self.assertEqual(
+                V1_to_V2.convert_cents_to_dollars(cents), round(dollars, 2)
+            )
 
     def testBudgetsTransferredSaveFalse(self):
         V1_to_V2.v1_to_v2(user=self.user.username, save=False)
@@ -82,17 +86,22 @@ class TestV1toV2(TestCase):
             budget2 = Budget2.objects.get(
                 name=budget1.name,
                 percentage=round(budget1.percentage * 100),
-                initial_balance=V1_to_V2.convert_dollars_to_cents(budget1.initial_balance),
-                user=self.user
+                initial_balance=V1_to_V2.convert_dollars_to_cents(
+                    budget1.initial_balance
+                ),
+                user=self.user,
             )
 
             # ensuring balances are equal
-            self.assertEqual(budget2.balance(), V1_to_V2.convert_dollars_to_cents(float(budget1.balance())))
+            self.assertEqual(
+                budget2.balance(),
+                V1_to_V2.convert_dollars_to_cents(float(budget1.balance())),
+            )
 
         for transaction1 in transactions1:
             Transaction2.objects.get(
                 amount=V1_to_V2.convert_dollars_to_cents(transaction1.amount),
                 description=transaction1.description,
                 budget=Budget2.objects.get(name=transaction1.budget.name),
-                date=transaction1.date
+                date=transaction1.date,
             )

@@ -15,8 +15,12 @@ class Printer:
             assert isinstance(x, Transaction)
 
         # generating header
-        header = "amount".ljust(col_width) + 'budget'.ljust(col_width) + "date".ljust(col_width)
-        divider = len(header) * '-'
+        header = (
+            "amount".ljust(col_width)
+            + "budget".ljust(col_width)
+            + "date".ljust(col_width)
+        )
+        divider = len(header) * "-"
 
         # printing  header
         print()
@@ -29,7 +33,7 @@ class Printer:
         # printing transactions
         for trans in transaction_list:
             print(
-                str("%s" % float(trans.amount)).ljust(col_width) +
-                str(trans.budget).ljust(col_width),
+                str("%s" % float(trans.amount)).ljust(col_width)
+                + str(trans.budget).ljust(col_width),
                 str(trans.date).ljust(col_width),
             )
