@@ -99,9 +99,7 @@ class CreateAccountView(APIView):
         if serializer.is_valid():
 
             # creating user
-            user, created = User.objects.get_or_create(
-                username=data.get("username"),
-            )
+            user, created = User.objects.get_or_create(username=data.get("username"))
             user.set_password(data.get("password"))
             user.save()
 

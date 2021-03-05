@@ -69,11 +69,7 @@ class Command(BaseCommand):
             )
             if save:
                 transaction2.save()
-            print(
-                budget.name,
-                transaction1.amount,
-                transaction2.amount,
-            )
+            print(budget.name, transaction1.amount, transaction2.amount)
 
     @staticmethod
     def convert_dollars_to_cents(amount):
