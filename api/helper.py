@@ -78,13 +78,7 @@ def generate_transactions(start_date, num_paycheques, income, save=False):
     :param save: if true we will save transactions, doesn't work in debug
     :return: list of transacitons
     """
-    if not DEBUG and save:
-        raise EnvironmentError("Will not generate transactions when DEBUG is True")
-
     number_of_days_between_paychecks = 14
-
-    # wont save unless we are in debug mode
-    save = save and DEBUG
 
     transactions = []
     for x in range(-num_paycheques, 0):

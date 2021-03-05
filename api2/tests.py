@@ -38,21 +38,15 @@ class TestV1toV2(TestCase):
                 date=date.today() - timezone.timedelta(days=x),
             )
 
-        with self.settings(DEBUG=True):
-            GenerateTransactions.generate_transactions(
-                start_date=date(2020, 9, 8), num_paycheques=100, income=1000, save=True
-            )
+        GenerateTransactions.generate_transactions(
+            start_date=date(2020, 9, 8), num_paycheques=100, income=1000, save=True
+        )
 
         self.user = User.objects.create(username="youknowwhoamirite")
 
-    def test_convertion(self):
+    def test_conversion(self):
         # dollars, cents
-        exchange_rates = [
-            (10, 10_00),
-            (10.123, 10_12),
-            (0.623, 62),
-            (0.629, 63),
-        ]
+        exchange_rates = [(10, 10_00), (10.123, 10_12), (0.623, 62), (0.629, 63)]
         for dollars, cents in exchange_rates:
             self.assertEqual(V1_to_V2.convert_dollars_to_cents(dollars), cents)
             self.assertEqual(
