@@ -31,8 +31,12 @@ class Transaction(models.Model):
     budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True)
     date = models.DateField()
 
-    income = models.BooleanField(default=False, help_text="Signifies that this is part of an income")
-    transfer = models.BooleanField(default=False, help_text="Signifies that this is part of a transfer")
+    income = models.BooleanField(
+        default=False, help_text="Signifies that this is part of an income"
+    )
+    transfer = models.BooleanField(
+        default=False, help_text="Signifies that this is part of a transfer"
+    )
 
     def pretty_amount(self):
         return str(self.amount)
