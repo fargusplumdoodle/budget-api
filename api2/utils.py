@@ -28,13 +28,13 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
     date = datetime.date.today() if date is None else date
     added_transactions = []
 
-    for budget in Budget.objects.filter(user=user):
+    for budget in Budget.objects.filter(user=user, percentage__gt=0):
         trans_amount = round(amount * (budget.percentage / 100))
         transaction = Transaction(
             amount=trans_amount,
             budget=budget,
             income=True,
-            description=f"income: {description}",
+            description=description,
             date=date,
         )
         if save:

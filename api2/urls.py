@@ -5,6 +5,7 @@ from rest_framework_nested import routers
 from api2.views import CreateAccountView
 from . import views
 
+app_name = 'api2'
 router = routers.DefaultRouter()
 router.register("budget", views.BudgetViewset, "budget")
 router.register("transaction", views.TransactionViewset, "transaction")
