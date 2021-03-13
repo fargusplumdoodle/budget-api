@@ -17,7 +17,7 @@ build-dev:
   image: docker:19.03.8
   stage: build-dev
   script:
-    - docker build -f build/Dockerfile-dev -t "$CI_REGISTRY:$DEV_VERSION" .
+    - docker build -t "$CI_REGISTRY:$DEV_VERSION" .
     - docker push "$CI_REGISTRY:$DEV_VERSION"
 
 test:
@@ -44,5 +44,5 @@ build-prod:
   only:
     - master
   script:
-    - docker build -f build/Dockerfile-prod -t "$CI_REGISTRY:latest" .
+    - docker build -t "$CI_REGISTRY:latest" .
     - docker push "$CI_REGISTRY:latest"
