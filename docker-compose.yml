@@ -9,6 +9,8 @@ services:
    - POSTGRES_PASSWORD=budget
   volumes:
    - ./flutter/postgres-data:/var/lib/postgresql
+  ports:
+   - "5432:5432"
  api:
   image: hub.sekhnet.ra/budget
   build:

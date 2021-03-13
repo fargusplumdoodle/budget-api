@@ -33,6 +33,7 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
         transaction = Transaction(
             amount=trans_amount,
             budget=budget,
+            income=True,
             description=f"income: {description}",
             date=date,
         )
