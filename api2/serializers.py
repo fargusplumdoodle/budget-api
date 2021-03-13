@@ -34,6 +34,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         many=False, queryset=Budget.objects.all()
     )
     date = serializers.DateField()
+    income = serializers.BooleanField(required=False, default=False)
+    transfer = serializers.BooleanField(required=False, default=False)
 
     class Meta:
         model = Transaction

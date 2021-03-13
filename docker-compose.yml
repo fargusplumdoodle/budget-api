@@ -12,10 +12,9 @@ services:
   ports:
    - "5432:5432"
  api:
-  image: hub.sekhnet.ra/budget
+  image: "hub.sekhnet.ra/budget-api:dev"
   build:
     context: .
-    dockerfile: ./build/Dockerfile-dev
   command: /venv/bin/python manage.py runserver 0.0.0.0:8000
   environment:
    - DB=postgres
