@@ -4,7 +4,7 @@ variables:
   DEBUG: "FALSE"
   SECRET_KEY: "SECRET_KEY"
   DEBIAN_FRONTEND: noninteractive
-  CI_REGISTRY: hub.sekhnet.ra/budget
+  CI_REGISTRY: hub.sekhnet.ra/budget-api
   CI: "TRUE"
 
 
