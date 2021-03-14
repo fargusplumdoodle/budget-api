@@ -74,4 +74,8 @@ class BudgetTestCase(APITestCase):
             "transfer": False,
         }
         defaults.update(kwargs)
+
+        if isinstance(defaults["date"], arrow.Arrow):
+            defaults["date"] = defaults["date"].datetime
+
         return Transaction.objects.create(**defaults)

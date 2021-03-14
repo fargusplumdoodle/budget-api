@@ -17,12 +17,12 @@ try:
 
     print("Read variables from environment file")
 except ImportError:
-    DEBUG = os.getenv("DEBUG") == "TRUE"
-    SECRET_KEY = os.getenv("SECRET_KEY")
-    DB_HOST = os.getenv("DB_HOST")
-    DB = os.getenv("DB")
-    DB_USER = os.getenv("DB_USER")
-    DB_PASS = os.getenv("DB_PASS")
+    DEBUG = os.getenv("DEBUG", "TRUE") == "TRUE"
+    SECRET_KEY = os.getenv("SECRET_KEY", "SECRET_KEY")
+    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB = os.getenv("DB", "postgres")
+    DB_USER = os.getenv("DB_USER", "budget")
+    DB_PASS = os.getenv("DB_PASS", "budget")
     print("Read variables from environment variables")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

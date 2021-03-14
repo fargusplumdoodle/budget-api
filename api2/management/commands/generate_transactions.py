@@ -20,8 +20,6 @@ class Command(BaseCommand):
 
     Usage: 'python3 manage.py generate_transactions'
 
-    Refuses to run when DEBUG is True
-
     Generates the last n paycheques, assuming you got payed every 2 weeks.
     creates for each user
 
