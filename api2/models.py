@@ -46,8 +46,8 @@ class Budget(models.Model):
             average_income_per_month = 0
             average_outcome_per_month = 0
 
-        self.income_per_month = average_income_per_month
-        self.outcome_per_month = average_outcome_per_month
+        self.income_per_month = round(average_income_per_month)
+        self.outcome_per_month = round(average_outcome_per_month)
 
         if save:
             self.save()
