@@ -16,11 +16,11 @@ class TestBudget(BudgetTestCase):
         """
         # included
         self.generate_transaction(budget=self.budget, amount=1, transfer=False),
+        self.generate_transaction(budget=self.budget, amount=1, transfer=True),
 
         # Not included
-        self.generate_transaction(budget=self.budget, amount=1, transfer=True),
         self.generate_transaction(budget=self.other_budget, amount=1, transfer=True),
         self.generate_transaction(budget=self.other_budget, amount=1, transfer=False)
 
         # 1 initial balance + 1 non transfer transaction
-        self.assertEqual(self.budget.balance(), 2)
+        self.assertEqual(self.budget.balance(), 3)

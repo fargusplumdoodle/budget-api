@@ -11,7 +11,7 @@ class Budget(models.Model):
     def balance(self):
         # the current balance is equal to the sum of all transactions plus the initial balance
         balance = self.initial_balance
-        for x in Transaction.objects.filter(budget=self, transfer=False):
+        for x in Transaction.objects.filter(budget=self):
             balance += x.amount
         return balance
 
@@ -24,12 +24,12 @@ class Budget(models.Model):
 
 class Transaction(models.Model):
     MAX_TRANSACTION_SUPPORTED = 100_000_00  # No greater than 100,000 dollars
-    MIN_TRANSACTION_SUPPORTED = -100_000_00  # No greater than 100,000 dollars
+    MIN_TRANSACTION_SUPPORTED = -100_000_00  # No less than 100,000 dollars
 
     amount = models.IntegerField()
     description = models.CharField(max_length=300)
     budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True)
-    date = models.DateField()
+    date = models.DateField(db_index=True)
 
     income = models.BooleanField(
         default=False, help_text="Signifies that this is part of an income"
