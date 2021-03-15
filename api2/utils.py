@@ -21,7 +21,7 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
     :returns list of transactions:
     """
     # ensuring budgets are balanced
-    assert budgets_sum_to_one()
+    assert budgets_sum_to_one(user=user)
     assert isinstance(amount, int)
 
     # defaults to today
@@ -45,7 +45,7 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
     return added_transactions
 
 
-def budgets_sum_to_one():
+def budgets_sum_to_one(user: User):
     """
     So due to the way these budgets are set, there isn't a whole lot of garentee the user (me)
     is going to ensure that all of the budgets percentage attributes add up to one hundred percent.
@@ -57,7 +57,7 @@ def budgets_sum_to_one():
     """
     total = 0
 
-    for budget in Budget.objects.all():
+    for budget in Budget.objects.filter(user=user):
         total += budget.percentage
 
     return total == 100
