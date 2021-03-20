@@ -70,3 +70,33 @@ class TestBudget(BudgetTestCase):
 
             self.assertEqual(budget.income_per_month, 1)
             self.assertEqual(budget.outcome_per_month, -2)
+
+    @patch("arrow.now", return_value=now)
+    def test_calculate_income_missing_transactions(self, _):
+        budget_only_income = self.generate_budget()
+        budget_only_outcome = self.generate_budget()
+
+        self.generate_transaction(
+            budget=budget_only_income,
+            date=now.shift(days=-1),
+            amount=10_00,
+            income=True,
+        )
+        self.generate_transaction(
+            budget=budget_only_outcome,
+            date=now.shift(days=-1),
+            amount=-10_00,
+            income=False,
+        )
+
+        budget_only_income.calculate_income_outcome(save=True)
+        budget_only_outcome.calculate_income_outcome(save=True)
+
+        budget_only_income.refresh_from_db()
+        budget_only_outcome.refresh_from_db()
+
+        self.assertEqual(budget_only_income.income_per_month, round(10_00 / 3))
+        self.assertEqual(budget_only_income.outcome_per_month, 0)
+
+        self.assertEqual(budget_only_outcome.income_per_month, 0)
+        self.assertEqual(budget_only_outcome.outcome_per_month, round(-10_00 / 3))

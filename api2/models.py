@@ -24,6 +24,12 @@ class Budget(models.Model):
         return str(self.percentage)
 
     def calculate_income_outcome(self, time_period=3, save=False):
+        def get_amount_per_month(total):
+            if total:
+                return round(total / time_period)
+            else:
+                return 0
+
         time_period_range = (
             arrow.now().shift(months=0 - time_period).datetime,
             arrow.now().datetime,
@@ -38,16 +44,8 @@ class Budget(models.Model):
             "amount__sum"
         ]
 
-        try:
-            average_income_per_month = total_income / time_period
-            average_outcome_per_month = total_outcome / time_period
-        except TypeError:
-            # If none are found total_*come will be null
-            average_income_per_month = 0
-            average_outcome_per_month = 0
-
-        self.income_per_month = round(average_income_per_month)
-        self.outcome_per_month = round(average_outcome_per_month)
+        self.income_per_month = get_amount_per_month(total_income)
+        self.outcome_per_month = get_amount_per_month(total_outcome)
 
         if save:
             self.save()
