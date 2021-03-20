@@ -30,7 +30,9 @@ class BudgetViewset(ModelViewSet):
     filterset_class = BudgetFilterset
 
     def get_queryset(self):
-        return Budget.objects.filter(user=self.request.user)
+        return Budget.objects.filter(user=self.request.user).order_by(
+            "-percentage"
+        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data={"user": request.user.pk, **request.data})
