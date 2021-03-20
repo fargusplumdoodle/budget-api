@@ -13,7 +13,9 @@ class BudgetSerializer(serializers.ModelSerializer):
     percentage = serializers.IntegerField(max_value=100)
     initial_balance = serializers.IntegerField(required=False)
     balance = serializers.SerializerMethodField(read_only=True)
-    user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all(), required=False)
+    user = serializers.PrimaryKeyRelatedField(
+        many=False, queryset=User.objects.all(), required=False
+    )
 
     class Meta:
         model = Budget
