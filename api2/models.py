@@ -23,7 +23,7 @@ class Budget(models.Model):
     def pretty_percentage(self):
         return str(self.percentage)
 
-    def calculate_income_outcome(self, time_period=3, save=False):
+    def calculate_income_outcome(self, time_period=6, save=False):
         def get_amount_per_month(total):
             if total:
                 return round(total / time_period)
@@ -40,7 +40,7 @@ class Budget(models.Model):
         total_income = transactions.filter(income=True).aggregate(Sum("amount"))[
             "amount__sum"
         ]
-        total_outcome = transactions.filter(amount__lt=0).aggregate(Sum("amount"))[
+        total_outcome = transactions.filter(income=False).aggregate(Sum("amount"))[
             "amount__sum"
         ]
 

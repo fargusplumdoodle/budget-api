@@ -48,11 +48,10 @@ class TestBudget(BudgetTestCase):
                 )
                 # outcome
                 self.generate_transaction(
-                    budget=budget, date=date, income=False, amount=-2
+                    budget=budget, date=date, income=False, amount=-4
                 )
-                # not counted
                 self.generate_transaction(
-                    budget=budget, date=date, income=False, amount=1
+                    budget=budget, date=date, income=False, amount=2
                 )
 
         for budget in Budget.objects.all():
