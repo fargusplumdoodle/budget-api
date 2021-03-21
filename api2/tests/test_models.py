@@ -95,8 +95,12 @@ class TestBudget(BudgetTestCase):
         budget_only_income.refresh_from_db()
         budget_only_outcome.refresh_from_db()
 
-        self.assertEqual(budget_only_income.income_per_month, round(10_00 / time_period))
+        self.assertEqual(
+            budget_only_income.income_per_month, round(10_00 / time_period)
+        )
         self.assertEqual(budget_only_income.outcome_per_month, 0)
 
         self.assertEqual(budget_only_outcome.income_per_month, 0)
-        self.assertEqual(budget_only_outcome.outcome_per_month, round(-10_00 / time_period))
+        self.assertEqual(
+            budget_only_outcome.outcome_per_month, round(-10_00 / time_period)
+        )
