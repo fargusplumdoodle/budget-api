@@ -74,6 +74,7 @@ class TestBudget(BudgetTestCase):
     def test_calculate_income_missing_transactions(self, _):
         budget_only_income = self.generate_budget()
         budget_only_outcome = self.generate_budget()
+        time_period = 6
 
         self.generate_transaction(
             budget=budget_only_income,
@@ -88,14 +89,14 @@ class TestBudget(BudgetTestCase):
             income=False,
         )
 
-        budget_only_income.calculate_income_outcome(save=True)
-        budget_only_outcome.calculate_income_outcome(save=True)
+        budget_only_income.calculate_income_outcome(time_period=time_period, save=True)
+        budget_only_outcome.calculate_income_outcome(time_period=time_period, save=True)
 
         budget_only_income.refresh_from_db()
         budget_only_outcome.refresh_from_db()
 
-        self.assertEqual(budget_only_income.income_per_month, round(10_00 / 3))
+        self.assertEqual(budget_only_income.income_per_month, round(10_00 / time_period))
         self.assertEqual(budget_only_income.outcome_per_month, 0)
 
         self.assertEqual(budget_only_outcome.income_per_month, 0)
-        self.assertEqual(budget_only_outcome.outcome_per_month, round(-10_00 / 3))
+        self.assertEqual(budget_only_outcome.outcome_per_month, round(-10_00 / time_period))
