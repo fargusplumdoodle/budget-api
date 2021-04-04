@@ -11,6 +11,7 @@ variables:
 stages:
   - build-dev
   - qa
+  - build-feature
   - build-prod
 
 build-dev:
@@ -37,6 +38,15 @@ flake8:
   image: "$CI_REGISTRY:$DEV_VERSION"
   script:
     - /venv/bin/flake8 --config .flake8 /code
+
+build-feature:
+  image: docker:19.03.8
+  stage: build-feature
+  only:
+    - /^.*feature$/
+  script:
+    - docker build -t "$CI_REGISTRY:$CI_COMMIT_REF_NAME" .
+    - docker push "$CI_REGISTRY:$CI_COMMIT_REF_NAME"
 
 build-prod:
   image: docker:19.03.8
