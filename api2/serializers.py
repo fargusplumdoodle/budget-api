@@ -2,7 +2,17 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from api2.models import Budget, Transaction
+from api2.models import Budget, Transaction, Tag
+
+
+class TagSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        many=False, queryset=User.objects.all(), write_only=True
+    )
+
+    class Meta:
+        model = Tag
+        fields = "__all__"
 
 
 class BudgetSerializer(serializers.ModelSerializer):
