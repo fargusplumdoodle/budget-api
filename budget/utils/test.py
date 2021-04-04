@@ -13,7 +13,9 @@ class BudgetTestCase(APITestCase):
     def setUpTestData(cls):
         cls.user = cls.generate_user()
 
-    def _make_request(self, method_name, endpoint, data, encoding="json", query=None, user=None):
+    def _make_request(
+        self, method_name, endpoint, data, encoding="json", query=None, user=None
+    ):
         """Make a generic http request using the test client"""
         http_method = getattr(self.client, method_name)
         token, _ = Token.objects.get_or_create(user=user or self.user)
