@@ -5,13 +5,16 @@ from django.db.models import Sum
 
 
 class Budget(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20)
     percentage = models.IntegerField(default=0)
     initial_balance = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     income_per_month = models.IntegerField(null=True)
     outcome_per_month = models.IntegerField(null=True)
+
+    class Meta:
+        unique_together = ("name", "user")
 
     def balance(self):
         # the current balance is equal to the sum of all transactions plus the initial balance
@@ -57,6 +60,9 @@ class Budget(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=30, db_index=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        unique_together = ("name", "user")
 
 
 class Transaction(models.Model):
