@@ -1,6 +1,7 @@
 import io
 
 from django.contrib.auth.models import User
+from django.db.models import Model
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -12,34 +13,43 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.authentication import TokenAuthentication
 
-from api2.models import Budget, Transaction
+from api2.models import Budget, Transaction, Tag
 from api2.serializers import (
     BudgetSerializer,
     TransactionSerializer,
     AddMoneySerializer,
     RegisterSerializer,
+    TagSerializer,
 )
-from api2.filters import BudgetFilterset, TransactionFilterset
+from api2.filters import BudgetFilterset, TransactionFilterset, TagFilterset
 from api2.utils import add_income
 
 
-class BudgetViewset(ModelViewSet):
-    serializer_class = BudgetSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    filterset_class = BudgetFilterset
-
-    def get_queryset(self):
-        return Budget.objects.filter(user=self.request.user).order_by("-percentage")
+class UserRelatedModelViewSet(ModelViewSet):
+    model: Model
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data={"user": request.user.pk, **request.data})
+        serializer = self.get_serializer(data={**request.data, "user": request.user.pk})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         headers = self.get_success_headers(serializer.data)
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user)
+
+
+class BudgetViewset(UserRelatedModelViewSet):
+    model = Budget
+    serializer_class = BudgetSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    filterset_class = BudgetFilterset
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("-percentage")
 
 
 class TransactionViewset(ModelViewSet):
@@ -77,6 +87,14 @@ class TransactionViewset(ModelViewSet):
         serializer = TransactionSerializer(transactions, many=True)
 
         return Response(serializer.data, status=201, content_type="application/json")
+
+
+class TagViewset(UserRelatedModelViewSet):
+    model = Tag
+    serializer_class = TagSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    filterset_class = TagFilterset
 
 
 class CreateAccountView(APIView):

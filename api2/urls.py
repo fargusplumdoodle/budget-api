@@ -9,6 +9,7 @@ app_name = "api2"
 router = routers.DefaultRouter()
 router.register("budget", views.BudgetViewset, "budget")
 router.register("transaction", views.TransactionViewset, "transaction")
+router.register("tag", views.TagViewset, "tag")
 
 urlpatterns = [
     path("user/register", CreateAccountView.as_view(), name="register-user"),

@@ -1,8 +1,15 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from api2.models import Budget, Transaction
+from api2.models import Budget, Transaction, Tag
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = "__all__"
 
 
 class BudgetSerializer(serializers.ModelSerializer):
@@ -25,6 +32,12 @@ class BudgetSerializer(serializers.ModelSerializer):
         return obj.balance()
 
 
+class TransactionTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["name"]
+
+
 class TransactionSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     amount = serializers.IntegerField(
@@ -38,10 +51,53 @@ class TransactionSerializer(serializers.ModelSerializer):
     date = serializers.DateField()
     income = serializers.BooleanField(required=False, default=False)
     transfer = serializers.BooleanField(required=False, default=False)
+    tags = TransactionTagSerializer(many=True)
 
     class Meta:
         model = Transaction
         fields = "__all__"
+
+    def validate(self, attrs):
+        budget = attrs.get("budget")
+        for tag in attrs["tags"]:
+            if (
+                not Tag.objects.filter(name=tag.get("name"), user=budget.user).count()
+                == 1
+            ):
+                raise ValidationError(
+                    f"Tag '{tag.get('name')}' does not exist for user {budget.user.username}"
+                )
+        return attrs
+
+    @staticmethod
+    def set_tags(instance, tags_json):
+        if not tags_json:
+            return
+
+        tags = [
+            Tag.objects.get(name=tag.get("name"), user=instance.budget.user)
+            for tag in tags_json
+        ]
+        instance.tags.set(tags)
+        return instance
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop("tags", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance = self.set_tags(instance, tags)
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        tag_names = validated_data.pop("tags", None)
+
+        trans = self.Meta.model.objects.create(**validated_data)
+
+        trans = self.set_tags(trans, tag_names)
+        trans.save()
+        return trans
 
 
 class AddMoneySerializer(serializers.Serializer):
