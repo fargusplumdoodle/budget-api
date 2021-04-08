@@ -29,7 +29,7 @@ class UserRelatedModelViewSet(ModelViewSet):
     model: Model
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data={"user": request.user.pk, **request.data})
+        serializer = self.get_serializer(data={**request.data, "user": request.user.pk})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         headers = self.get_success_headers(serializer.data)

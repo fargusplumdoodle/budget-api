@@ -92,12 +92,38 @@ class UserRelatedModelViewSetMixin:
         obj.delete()
 
         del data["id"]
-        # Not all serializers will have the user visible
-        if "user" in data:
-            del data["user"]
+        del data["user"]
 
         r = self.post(reverse(self.list_url), data, user=self.user).json()
         self.assertTrue(self.model.objects.filter(id=r["id"], user=self.user).exists())
+
+    def test_create_different_user_specified(self):
+        obj = self.user_objs[0]
+        data = self.serializer(obj).data
+        obj.delete()
+
+        del data["id"]
+        data["user"] = self.user1.id
+
+        r = self.post(reverse(self.list_url), data, user=self.user).json()
+        self.assertTrue(self.model.objects.filter(id=r["id"], user=self.user).exists())
+
+    def test_create_unique_name_and_user(self):
+        obj = self.user_objs[0]
+        data = self.serializer(obj).data
+        obj.delete()
+
+        del data["id"]
+        del data["user"]
+
+        r = self.post(reverse(self.list_url), data, user=self.user)
+        self.assertEqual(r.status_code, 201)
+        self.assertTrue(
+            self.model.objects.filter(id=r.json()["id"], user=self.user).exists()
+        )
+
+        r = self.post(reverse(self.list_url), data, user=self.user)
+        self.assertEqual(r.status_code, 400)
 
 
 class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):

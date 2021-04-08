@@ -66,9 +66,7 @@ class BudgetTestCase(APITestCase):
 
     @classmethod
     def generate_tag(cls, **kwargs):
-        defaults = {
-            "name": f"tag_{Tag.objects.count():07}",
-        }
+        defaults = {"name": f"tag_{Tag.objects.count():07}"}
         if "user" not in kwargs:
             defaults["user"] = cls.user  # type: ignore
 
@@ -82,7 +80,7 @@ class BudgetTestCase(APITestCase):
             "amount": num_transactions * 100,
             "description": f"trans: {num_transactions}",
             "budget": budget,
-            "date": arrow.now().datetime,
+            "date": arrow.now().date(),
             "income": False,
             "transfer": False,
         }
