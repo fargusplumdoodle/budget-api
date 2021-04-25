@@ -3,7 +3,6 @@ import io
 from django.contrib.auth.models import User
 from django.db.models import Model
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
@@ -29,20 +28,12 @@ class UserRelatedModelViewSet(ModelViewSet):
     model: Model
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data={**request.data, "user": request.user.pk})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        request.data.update({**request.data, "user": request.user.pk})
+        return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data={**request.data, "user": request.user.pk})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+        request.data.update({**request.data, "user": request.user.pk})
+        return super().update(request, *args, **kwargs)
 
     def get_queryset(self):
         return self.model.objects.filter(user=self.request.user)

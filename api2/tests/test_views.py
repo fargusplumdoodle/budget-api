@@ -107,6 +107,7 @@ class UserRelatedModelViewSetMixin:
         del data["id"]
         del data["user"]
         data["name"] = "certainly different"
+        before_count = self.model.objects.count()
 
         r = self.put(reverse(self.detail_url, (obj.id,)), data, user=self.user)
         self.assertEqual(r.status_code, 200)
@@ -116,6 +117,7 @@ class UserRelatedModelViewSetMixin:
                 id=response_data["id"], name=data["name"], user=self.user
             )
         )
+        self.assertEqual(before_count, self.model.objects.count())
 
     def test_create_different_user_specified(self):
         obj = self.user_objs[0]
