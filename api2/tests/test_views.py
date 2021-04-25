@@ -94,8 +94,28 @@ class UserRelatedModelViewSetMixin:
         del data["id"]
         del data["user"]
 
-        r = self.post(reverse(self.list_url), data, user=self.user).json()
-        self.assertTrue(self.model.objects.filter(id=r["id"], user=self.user).exists())
+        r = self.post(reverse(self.list_url), data, user=self.user)
+        self.assertEqual(r.status_code, 201)
+        self.assertTrue(
+            self.model.objects.filter(id=r.json()["id"], user=self.user).exists()
+        )
+
+    def test_update(self):
+        obj = self.user_objs[0]
+        data = self.serializer(obj).data
+
+        del data["id"]
+        del data["user"]
+        data["name"] = "certainly different"
+
+        r = self.put(reverse(self.detail_url, (obj.id,)), data, user=self.user)
+        self.assertEqual(r.status_code, 200)
+        response_data = r.json()
+        self.assertTrue(
+            self.model.objects.get(
+                id=response_data["id"], name=data["name"], user=self.user
+            )
+        )
 
     def test_create_different_user_specified(self):
         obj = self.user_objs[0]
