@@ -25,3 +25,8 @@ class TransactionFilterset(filters.FilterSet):
     date = filters.DateFilter(field_name="date")
     date__gte = filters.DateFilter(field_name="date", lookup_expr="gte")
     date__lte = filters.DateFilter(field_name="date", lookup_expr="lte")
+
+
+class TagFilterset(filters.FilterSet):
+    name = filters.CharFilter(field_name="name", lookup_expr="exact")
+    name__icontains = filters.CharFilter(field_name="name", lookup_expr="icontains")

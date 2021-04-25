@@ -1,4 +1,5 @@
 import random
+from unittest import skip
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -14,6 +15,7 @@ from api2.management.commands.migrate_v1_to_v2 import Command as V1_to_V2
 from datetime import date
 
 
+@skip("Too much annoying output, will never be reused")
 class TestV1toV2(TestCase):
     def setUp(self):
         """

@@ -5,13 +5,16 @@ from django.db.models import Sum
 
 
 class Budget(models.Model):
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20)
     percentage = models.IntegerField(default=0)
     initial_balance = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     income_per_month = models.IntegerField(null=True)
     outcome_per_month = models.IntegerField(null=True)
+
+    class Meta:
+        unique_together = ("name", "user")
 
     def balance(self):
         # the current balance is equal to the sum of all transactions plus the initial balance
@@ -54,6 +57,14 @@ class Budget(models.Model):
         return self.name
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=30, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        unique_together = ("name", "user")
+
+
 class Transaction(models.Model):
     MAX_TRANSACTION_SUPPORTED = 100_000_00  # No greater than 100,000 dollars
     MIN_TRANSACTION_SUPPORTED = -100_000_00  # No less than 100,000 dollars
@@ -62,6 +73,8 @@ class Transaction(models.Model):
     description = models.CharField(max_length=300)
     budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True)
     date = models.DateField(db_index=True)
+
+    tags = models.ManyToManyField(Tag, blank=True)
 
     income = models.BooleanField(
         default=False, help_text="Signifies that this is part of an income"
