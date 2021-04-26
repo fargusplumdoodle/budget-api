@@ -1,4 +1,24 @@
-from django_filters import rest_framework as filters
+from django_filters import rest_framework as filters, MultipleChoiceFilter
+from django import forms
+
+
+class CharListField(forms.MultipleChoiceField):
+    """Remove validation from native MultipleChoiceField"""
+
+    def validate(self, value):
+        pass
+
+
+class CharListFilter(MultipleChoiceFilter):
+    """
+    Accepts multiple values for the same key in the format ?n=v1&n=v2
+
+    Behaves exactly like the MultipleChoiceFilter, except the `choices`
+    parameter is no longer required. Forms the OR of the given values, unless
+    the `conjoined=True` argument is given in which case AND will be used.
+    """
+
+    field_class = CharListField
 
 
 class BudgetFilterset(filters.FilterSet):
@@ -25,6 +45,8 @@ class TransactionFilterset(filters.FilterSet):
     date = filters.DateFilter(field_name="date")
     date__gte = filters.DateFilter(field_name="date", lookup_expr="gte")
     date__lte = filters.DateFilter(field_name="date", lookup_expr="lte")
+
+    tags = CharListFilter(field_name="tags__name", lookup_expr="iexact")
 
 
 class TagFilterset(filters.FilterSet):
