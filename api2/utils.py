@@ -27,7 +27,7 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
     # defaults to today
     date = datetime.date.today() if date is None else date
     added_transactions = []
-    income_tag, _ = Tag.objects.get_or_create(name='income')
+    income_tag, _ = Tag.objects.get_or_create(name="income")
 
     for budget in Budget.objects.filter(user=user, percentage__gt=0):
         trans_amount = round(amount * (budget.percentage / 100))
