@@ -72,7 +72,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     @staticmethod
     def set_tags(instance, tags_json):
         if not tags_json:
-            return
+            return instance
 
         tags = [
             Tag.objects.get(name=tag.get("name"), user=instance.budget.user)

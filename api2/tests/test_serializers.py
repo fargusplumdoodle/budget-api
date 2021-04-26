@@ -43,3 +43,13 @@ class TransactionSerializerTestCase(BudgetTestCase):
         trans_data["tags"] = [{"name": tag_for_other_user.name}]
         serializer = TransactionSerializer(data=trans_data, many=False)
         self.assertFalse(serializer.is_valid())
+
+    def test_no_tags_on_transaction(self):
+        trans_data = TransactionSerializer(self.trans, many=False).data
+        trans_data["tags"] = []
+
+        serializer = TransactionSerializer(data=trans_data, many=False)
+        self.assertTrue(serializer.is_valid())
+        created_transaction = serializer.save()
+
+        self.assertEqual(created_transaction.tags.all().count(), 0)
