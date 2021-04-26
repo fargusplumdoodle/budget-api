@@ -41,6 +41,8 @@ class IncomeTestCase(BudgetTestCase):
             self.assertEqual(trans.description, data["description"])
             self.assertEqual(trans.income, True)
             self.assertEqual(trans.transfer, False)
+            self.assertEqual(trans.tags.count(), 1)
+            self.assertEqual(trans.tags.first().name, 'income')
 
 
 class UserRelatedModelViewSetMixin:

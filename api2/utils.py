@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib.auth.models import User
 
-from api2.models import Budget, Transaction
+from api2.models import Budget, Transaction, Tag
 
 
 def add_income(amount: int, user: User, save=False, date=None, description="income"):
@@ -27,6 +27,7 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
     # defaults to today
     date = datetime.date.today() if date is None else date
     added_transactions = []
+    income_tag, _ = Tag.objects.get_or_create(name='income')
 
     for budget in Budget.objects.filter(user=user, percentage__gt=0):
         trans_amount = round(amount * (budget.percentage / 100))
@@ -39,6 +40,7 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
         )
         if save:
             transaction.save()
+            transaction.tags.add(income_tag)
 
         added_transactions.append(transaction)
 
