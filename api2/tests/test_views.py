@@ -50,30 +50,29 @@ class IncomeTestCase(BudgetTestCase):
 class ReportTestCase(BudgetTestCase):
     url = reverse("api2:report-list")
 
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         super().setUpTestData()
-        cls.budget = cls.generate_budget()
-        cls.budget2 = cls.generate_budget()
+        self.budget = self.generate_budget()
+        self.budget2 = self.generate_budget()
 
-        cls.start = now.shift(weeks=-1)
-        cls.end = now
+        self.start = now.shift(weeks=-1)
+        self.end = now
 
         # out of range
-        cls.generate_transaction(
-            cls.budget, amount=-100, date=cls.start.shift(weeks=-1).datetime
+        self.generate_transaction(
+            self.budget, amount=-100, date=self.start.shift(weeks=-1).datetime
         )
 
-        cls.in_range = []
+        self.in_range = []
         for x in range(7):
-            cls.in_range.append(
-                cls.generate_transaction(
-                    cls.budget, date=cls.start.shift(days=x).datetime, amount=-100
+            self.in_range.append(
+                self.generate_transaction(
+                    self.budget, date=self.start.shift(days=x).datetime, amount=-100
                 )
             )
-        cls.in_range.append(
-            cls.generate_transaction(
-                cls.budget, amount=100, date=cls.start.shift(days=1), income=True
+        self.in_range.append(
+            self.generate_transaction(
+                self.budget, amount=100, date=self.start.shift(days=1), income=True
             )
         )
 
@@ -92,7 +91,9 @@ class ReportTestCase(BudgetTestCase):
 
         self.assertEqual(len(data["transactions"]), len(self.in_range))
         self.assertEqual(len(data["budgets"]), 1)
-        budget_stats = data["budgets"][str(self.budget.id)]
+        budget_stats = data["budgets"][0]
+        self.assertEqual(budget_stats["id"], self.budget.id)
+        self.assertEqual(budget_stats["name"], self.budget.name)
         self.assertEqual(
             budget_stats["initial_balance"],
             self.budget.balance(Q(date__lt=self.start.date())),
@@ -104,9 +105,42 @@ class ReportTestCase(BudgetTestCase):
         self.assertEqual(budget_stats["income"], 100)
         self.assertEqual(budget_stats["outcome"], -700)
         self.assertEqual(
-            budget_stats["difference"],
-            budget_stats["income"] - budget_stats["outcome"],
+            budget_stats["difference"], budget_stats["income"] - budget_stats["outcome"]
         )
+
+    def test_get_stats(self):
+        Transaction.objects.all().delete()
+        tag1 = self.generate_tag()
+        tag2 = self.generate_tag()
+        self.generate_tag()  # unused
+
+        tag1_trans = [
+            self.generate_transaction(self.budget, amount=-100),
+            self.generate_transaction(self.budget, amount=-100),
+        ]
+        tag2_trans = [self.generate_transaction(self.budget, amount=-100)]
+        both = self.generate_transaction(self.budget, amount=-100)
+        both.tags.set([tag1, tag2])
+        for trans in tag1_trans:
+            trans.tags.add(tag1)
+        for trans in tag2_trans:
+            trans.tags.add(tag2)
+
+        r = self.get(self.url)
+        self.assertEqual(r.status_code, 200, r.json())
+        data = r.json()["tags"]
+
+        self.assertEqual(len(data), 2)
+        for stat in data:
+            if stat["name"] == tag1.name:
+                self.assertEqual(stat["total"], -300)
+            elif stat["name"] == tag2.name:
+                self.assertEqual(stat["total"], -200)
+            else:
+                self.fail("tag should not be in response")
+
+        # ensuring that the list is ordered from most used tag to least
+        self.assertGreater(data[0]["total"], data[1]["total"])
 
 
 class UserRelatedModelViewSetMixin:

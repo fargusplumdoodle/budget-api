@@ -1,7 +1,8 @@
 import io
+import operator
 
 from django.contrib.auth.models import User
-from django.db.models import Model, Q, Sum
+from django.db.models import Model, Q, Sum, QuerySet
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -107,15 +108,19 @@ class ReportViewset(ModelViewSet):
         )
 
     @staticmethod
-    def get_budget_stats(qs):
+    def get_budget_stats(qs: QuerySet) -> list:
+        if len(qs) == 0:
+            return []
+
         budgets = Budget.objects.filter(id__in=set(qs.values_list("budget", flat=True)))
         start_date = qs.last().date
         end_date = qs.first().date
         date_range = (start_date, end_date)
 
-        stats = {}
+        stats = []
         for budget in budgets:
             budget_stats = {
+                "id": budget.id,
                 "name": budget.name,
                 "initial_balance": budget.balance(Q(date__lt=start_date)),
                 "final_balance": budget.balance(Q(date__lte=end_date)),
@@ -131,16 +136,34 @@ class ReportViewset(ModelViewSet):
             budget_stats["difference"] = (
                 budget_stats["income"] - budget_stats["outcome"]
             )
-            stats[budget.id] = budget_stats
+            stats.append(budget_stats)
 
         return stats
 
-    def list(self, request):
+    @staticmethod
+    def get_tag_stats(qs: QuerySet) -> list:
+        stats = []
+        if len(qs) == 0:
+            return stats
+
+        tags = Tag.objects.filter(user=qs.first().budget.user)
+        for tag in tags:
+            transactions_with_tag = qs.filter(tags=tag)
+            if len(transactions_with_tag) == 0:
+                continue
+            total = transactions_with_tag.aggregate(total=Sum("amount"))["total"]
+            stats.append({"name": tag.name, "total": total})
+
+        stats.sort(key=operator.itemgetter("total"), reverse=True)
+        return stats
+
+    def list(self, request, **kwargs):
         qs = self.filter_queryset(self.get_queryset())
 
         response = {
             "transactions": self.serializer_class(qs, many=True).data,
             "budgets": {},
+            "tags": self.get_tag_stats(qs),
         }
 
         if request.GET.get("date__gte") and request.GET.get("date__lte"):
