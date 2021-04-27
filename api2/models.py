@@ -1,7 +1,7 @@
 import arrow
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 
 class Budget(models.Model):
@@ -16,10 +16,16 @@ class Budget(models.Model):
     class Meta:
         unique_together = ("name", "user")
 
-    def balance(self):
+    def balance(self, date_range=None) -> int:
         # the current balance is equal to the sum of all transactions plus the initial balance
         balance = self.initial_balance
-        for x in Transaction.objects.filter(budget=self):
+        transactions = Transaction.objects.filter(budget=self)
+
+        if date_range:
+            assert isinstance(date_range, Q)
+            transactions = transactions.filter(date_range)
+
+        for x in transactions:
             balance += x.amount
         return balance
 
