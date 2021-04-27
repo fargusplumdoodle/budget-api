@@ -1,12 +1,14 @@
 import arrow
 from django.contrib.auth.models import User
 from django.core.serializers.base import Serializer
-from django.db.models import Model
+from django.db.models import Model, Q
 from rest_framework.reverse import reverse
 
 from api2.models import Transaction, Budget, Tag
 from api2.serializers import BudgetSerializer, TagSerializer
 from budget.utils.test import BudgetTestCase
+
+now = arrow.get(2021, 1, 1)
 
 
 class IncomeTestCase(BudgetTestCase):
@@ -43,6 +45,68 @@ class IncomeTestCase(BudgetTestCase):
             self.assertEqual(trans.transfer, False)
             self.assertEqual(trans.tags.count(), 1)
             self.assertEqual(trans.tags.first().name, "income")
+
+
+class ReportTestCase(BudgetTestCase):
+    url = reverse("api2:report-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.budget = cls.generate_budget()
+        cls.budget2 = cls.generate_budget()
+
+        cls.start = now.shift(weeks=-1)
+        cls.end = now
+
+        # out of range
+        cls.generate_transaction(
+            cls.budget, amount=-100, date=cls.start.shift(weeks=-1).datetime
+        )
+
+        cls.in_range = []
+        for x in range(7):
+            cls.in_range.append(
+                cls.generate_transaction(
+                    cls.budget, date=cls.start.shift(days=x).datetime, amount=-100
+                )
+            )
+        cls.in_range.append(
+            cls.generate_transaction(
+                cls.budget, amount=100, date=cls.start.shift(days=1), income=True
+            )
+        )
+
+    def test_missing_required_parameters(self):
+        r = self.get(self.url)
+        self.assertEqual(r.status_code, 200, r.json())
+        self.assertEqual(r.json()["budgets"], {})
+
+    def test_budget_stats(self):
+        r = self.get(
+            self.url,
+            query={"date__gte": self.start.date(), "date__lte": self.end.date()},
+        )
+        self.assertEqual(r.status_code, 200, r.json())
+        data = r.json()
+
+        self.assertEqual(len(data["transactions"]), len(self.in_range))
+        self.assertEqual(len(data["budgets"]), 1)
+        budget_stats = data["budgets"][str(self.budget.id)]
+        self.assertEqual(
+            budget_stats["initial_balance"],
+            self.budget.balance(Q(date__lt=self.start.date())),
+        )
+        self.assertEqual(
+            budget_stats["final_balance"],
+            self.budget.balance(Q(date__lte=self.end.date())),
+        )
+        self.assertEqual(budget_stats["income"], 100)
+        self.assertEqual(budget_stats["outcome"], -700)
+        self.assertEqual(
+            budget_stats["difference"],
+            budget_stats["income"] - budget_stats["outcome"],
+        )
 
 
 class UserRelatedModelViewSetMixin:

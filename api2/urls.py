@@ -10,6 +10,7 @@ router = routers.DefaultRouter()
 router.register("budget", views.BudgetViewset, "budget")
 router.register("transaction", views.TransactionViewset, "transaction")
 router.register("tag", views.TagViewset, "tag")
+router.register("report", views.ReportViewset, "report")
 
 urlpatterns = [
     path("user/register", CreateAccountView.as_view(), name="register-user"),

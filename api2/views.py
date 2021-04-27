@@ -1,7 +1,7 @@
 import io
 
 from django.contrib.auth.models import User
-from django.db.models import Model
+from django.db.models import Model, Q, Sum
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -93,6 +93,60 @@ class TagViewset(UserRelatedModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filterset_class = TagFilterset
+
+
+class ReportViewset(ModelViewSet):
+    serializer_class = TransactionSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    filterset_class = TransactionFilterset
+
+    def get_queryset(self):
+        return Transaction.objects.filter(budget__user=self.request.user).order_by(
+            "-date"
+        )
+
+    @staticmethod
+    def get_budget_stats(qs):
+        budgets = Budget.objects.filter(id__in=set(qs.values_list("budget", flat=True)))
+        start_date = qs.last().date
+        end_date = qs.first().date
+        date_range = (start_date, end_date)
+
+        stats = {}
+        for budget in budgets:
+            budget_stats = {
+                "name": budget.name,
+                "initial_balance": budget.balance(Q(date__lt=start_date)),
+                "final_balance": budget.balance(Q(date__lte=end_date)),
+                "income": Transaction.objects.filter(
+                    budget=budget, date__range=date_range, income=True
+                ).aggregate(total=Sum("amount"))["total"]
+                or 0,
+                "outcome": Transaction.objects.filter(
+                    budget=budget, date__range=date_range, income=False
+                ).aggregate(total=Sum("amount"))["total"]
+                or 0,
+            }
+            budget_stats["difference"] = (
+                budget_stats["income"] - budget_stats["outcome"]
+            )
+            stats[budget.id] = budget_stats
+
+        return stats
+
+    def list(self, request):
+        qs = self.filter_queryset(self.get_queryset())
+
+        response = {
+            "transactions": self.serializer_class(qs, many=True).data,
+            "budgets": {},
+        }
+
+        if request.GET.get("date__gte") and request.GET.get("date__lte"):
+            response["budgets"] = self.get_budget_stats(qs)
+
+        return Response(response)
 
 
 class CreateAccountView(APIView):
