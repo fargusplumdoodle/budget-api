@@ -105,7 +105,7 @@ class ReportTestCase(BudgetTestCase):
         self.assertEqual(budget_stats["income"], 100)
         self.assertEqual(budget_stats["outcome"], -700)
         self.assertEqual(
-            budget_stats["difference"], budget_stats["income"] - budget_stats["outcome"]
+            budget_stats["difference"], budget_stats["income"] + budget_stats["outcome"]
         )
 
     def test_get_stats(self):

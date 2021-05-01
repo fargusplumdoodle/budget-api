@@ -134,7 +134,7 @@ class ReportViewset(ModelViewSet):
                 or 0,
             }
             budget_stats["difference"] = (
-                budget_stats["income"] - budget_stats["outcome"]
+                budget_stats["income"] + budget_stats["outcome"]
             )
             stats.append(budget_stats)
 
