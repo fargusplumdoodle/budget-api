@@ -17,7 +17,7 @@ try:
 
     print("Read variables from environment file")
 except ImportError:
-    DEBUG = os.getenv("DEBUG", "TRUE") == "TRUE"
+    DEBUG = os.getenv("DEBUG", "FALSE") == "TRUE"
     SECRET_KEY = os.getenv("SECRET_KEY", "SECRET_KEY")
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB = os.getenv("DB", "postgres")
