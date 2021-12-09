@@ -32,16 +32,22 @@ ALLOWED_HOSTS = ["*"]
 # We use sqlite in CI
 CI = os.getenv("CI", "FALSE") == "TRUE"
 
+
+LOGIN_URL = "/admin/login/"
+STATIC_URL = "/static/"
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
+    "django.contrib.staticfiles",
     "django.contrib.messages",
     "rest_framework",
     "rest_framework.authtoken",
     "django_prometheus",
+    "drf_spectacular",
+    "oauth2_provider",
     "django_filters",
     "api2",
     "api",
@@ -115,13 +121,30 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    "SCOPES": {
+        "read": "Read scope",
+        "write": "Write scope",
+        "groups": "Access to your groups",
+    },
+    "OAUTH2_BACKEND_CLASS": "oauth2_provider.oauth2_backends.JSONOAuthLibCore",
+}
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.BasicAuthentication",
+        "oauth2_provider.contrib.rest_framework.OAuth2Authentication",
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Budget",
+    "DESCRIPTION": "Keeping track of finances",
+    "VERSION": "2.0.0",
 }
 
 # Internationalization
