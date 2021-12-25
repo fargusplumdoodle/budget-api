@@ -43,7 +43,6 @@ class UserRelatedModelViewSet(ModelViewSet):
 class BudgetViewset(UserRelatedModelViewSet):
     model = Budget
     serializer_class = BudgetSerializer
-    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filterset_class = BudgetFilterset
 

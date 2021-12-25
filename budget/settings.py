@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "oauth2_provider",
     "django_filters",
     "api2",
-    "api",
 ]
 
 MIDDLEWARE = [
@@ -66,6 +65,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "budget.urls"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 TEMPLATES = [
     {
