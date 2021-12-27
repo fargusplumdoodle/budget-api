@@ -132,6 +132,8 @@ OAUTH2_PROVIDER = {
 }
 
 REST_FRAMEWORK = {
+    "PAGE_SIZE": 25,
+    "DEFAULT_PAGINATION_CLASS": "budget.pagination.VariablePageSizePagination",
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.BasicAuthentication",

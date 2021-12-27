@@ -49,7 +49,7 @@ class Command(BaseCommand):
             user=User.objects.get(username=self.USERNAME),
             client_type=Application.CLIENT_PUBLIC,
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
-            redirect_uris="http://127.0.0.1:3000/auth/callback",
+            redirect_uris="http://127.0.0.1:3000/auth/callback http://127.0.0.1:8000/auth/callback",
         )
 
     def _load_budgets(self):
