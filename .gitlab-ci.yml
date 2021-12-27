@@ -1,57 +1,76 @@
-image: docker:19.03.8
-
-variables:
-  DEBUG: "FALSE"
-  SECRET_KEY: "SECRET_KEY"
-  DEBIAN_FRONTEND: noninteractive
-  CI_REGISTRY: hub.sekhnet.ra/budget-api
-  CI: "TRUE"
-
-
 stages:
-  - build-dev
   - qa
   - build
 
-build-dev:
-  image: docker:19.03.8
-  stage: build-dev
-  script:
-    - docker build -t "$CI_REGISTRY:$DEV_VERSION" -f Dockerfile-dev .
-    - docker push "$CI_REGISTRY:$DEV_VERSION"
+variables:
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  DEBUG: "FALSE"
+  SECRET_KEY: "SECRET_KEY"
+  DEBIAN_FRONTEND: noninteractive
+  IMAGE: hub.sekhnet.ra/budget-api
+  CI: "TRUE"
+
+
+default:
+  image: python:3.9-slim
+  services:
+    - "postgres:latest"
+  cache:
+    paths:
+      - ./venv/
+  before_script:
+    - ./scripts/install-ci.sh --dev
+
 
 test:
   stage: qa
-  image: "$CI_REGISTRY:$DEV_VERSION"
+  variables:
+    DB: postgres
+    DB_HOST: postgres
+    DB_USER: postgres
+    DB_PASS: postgres
   script:
-    - /venv/bin/python manage.py test
+    - ./venv/bin/python manage.py test
+
+migrations_check:
+  stage: qa
+  script:
+    - ./venv/bin/python manage.py makemigrations --check
 
 format:
   stage: qa
-  image: "$CI_REGISTRY:$DEV_VERSION"
   script:
-    - /venv/bin/black --check /code
+    - ./venv/bin/black --check .
 
 flake8:
   stage: qa
-  image: "$CI_REGISTRY:$DEV_VERSION"
   script:
-    - /venv/bin/flake8 --config .flake8 /code
+    - ./venv/bin/flake8 --config .flake8 .
 
-build-feature:
+type_check:
+  stage: qa
+  script:
+    - ./venv/bin/mypy --config-file .mypy .
+
+
+build-dev:
   image: docker:19.03.8
   stage: build
   only:
-    - /^.*feature$/
+    - dev
+  before_script: []
   script:
-    - docker build -t "$CI_REGISTRY:$CI_COMMIT_REF_NAME" .
-    - docker push "$CI_REGISTRY:$CI_COMMIT_REF_NAME"
+    - docker build -t "$IMAGE:dev" .
+    - docker push "$IMAGE:dev"
 
 build-prod:
   image: docker:19.03.8
   stage: build
+  before_script: []
   only:
-    - master
+    - main
   script:
-    - docker build -t "$CI_REGISTRY:latest" .
-    - docker push "$CI_REGISTRY:latest"
+    - docker build -t "$IMAGE:latest" .
+    - docker push "$IMAGE:latest"

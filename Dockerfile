@@ -3,6 +3,7 @@ FROM python:3.9-slim
 RUN set -ex \
     && RUN_DEPS=" \
         postgresql-client \
+ 	build-essential \
     " \
     && apt-get update \
     && apt-get install -y --no-install-recommends $RUN_DEPS \
