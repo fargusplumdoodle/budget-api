@@ -1,4 +1,5 @@
 stages:
+  - test-ci
   - qa
   - build
 
@@ -11,6 +12,7 @@ variables:
   DEBIAN_FRONTEND: noninteractive
   IMAGE: hub.sekhnet.ra/budget-api
   CI: "TRUE"
+  NAMESPACE: budget
 
 
 default:
@@ -23,6 +25,16 @@ default:
   before_script:
     - ./scripts/install-ci.sh --dev
 
+test-ci:
+  stage: test-ci
+  before_script: []
+  services: []
+  image: dtzar/helm-kubectl
+  script:
+    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
+    - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA
+    - helm upgrade -n $NAMESPACE-staging $NAMESPACE-staging ./budget-helm
+    
 
 test:
   stage: qa
@@ -61,6 +73,7 @@ build-dev:
   only:
     - dev
   before_script: []
+  services: []
   script:
     - docker build -t "$IMAGE:dev" .
     - docker push "$IMAGE:dev"
@@ -69,6 +82,7 @@ build-prod:
   image: docker:19.03.8
   stage: build
   before_script: []
+  services: []
   only:
     - main
   script:

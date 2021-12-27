@@ -146,6 +146,7 @@ class ReportTestCase(BudgetTestCase):
 class UserRelatedModelViewSetMixin:
     model: Model
     serializer: Serializer
+    paginated_response: bool
 
     @classmethod
     def setUpTestData(cls):
@@ -172,6 +173,7 @@ class UserRelatedModelViewSetMixin:
 
     def test_get_list(self):
         r = self.get(reverse(self.list_url), user=self.user).json()
+        r = r if not self.paginated_response else r['results']
         self.assertEqual(len(r), len(self.user_objs))
 
         for obj in r:
@@ -251,8 +253,10 @@ class UserRelatedModelViewSetMixin:
 class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = BudgetSerializer
     model = Budget
+    paginated_response = False
 
 
 class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = TagSerializer
     model = Tag
+    paginated_response = True
