@@ -1,7 +1,7 @@
 stages:
-  - test-ci
   - qa
   - build
+  - deploy
 
 variables:
   POSTGRES_DB: postgres
@@ -22,19 +22,10 @@ default:
   cache:
     paths:
       - ./venv/
+      - /etc/apt/sources.list
+      - /etc/apt/sources.list.d/
   before_script:
     - ./scripts/install-ci.sh --dev
-
-test-ci:
-  stage: test-ci
-  before_script: []
-  services: []
-  image: dtzar/helm-kubectl
-  script:
-    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
-    - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA
-    - helm upgrade -n $NAMESPACE-staging $NAMESPACE-staging ./budget-helm
-    
 
 test:
   stage: qa
@@ -59,32 +50,59 @@ format:
 flake8:
   stage: qa
   script:
-    - ./venv/bin/flake8 --config .flake8 .
+    - ./venv/bin/flake8 --config .flake8 ./api2 ./budget
 
-type_check:
-  stage: qa
-  script:
-    - ./venv/bin/mypy --config-file .mypy .
+# Not implmented
+#type_check:
+  #stage: qa
+  #script:
+    #- ./venv/bin/mypy --config-file .mypy .
 
 
 build-dev:
-  image: docker:19.03.8
+  image: docker:latest
   stage: build
   only:
     - dev
   before_script: []
   services: []
   script:
-    - docker build -t "$IMAGE:dev" .
-    - docker push "$IMAGE:dev"
+    - docker pull $IMAGE:latest || true
+    - docker build -t "$IMAGE:dev" -t "$IMAGE:$CI_COMMIT_SHA" --cache-from $IMAGE:latest . 
+    - docker image push --all-tags "$IMAGE"
 
 build-prod:
-  image: docker:19.03.8
+  image: docker:latest
   stage: build
   before_script: []
   services: []
   only:
     - main
   script:
-    - docker build -t "$IMAGE:latest" .
-    - docker push "$IMAGE:latest"
+    - docker pull $IMAGE:latest || true
+    - docker build -t "$IMAGE:latest" -t "$IMAGE:$CI_COMMIT_SHA" --cache-from $IMAGE:latest . 
+    - docker image push --all-tags "$IMAGE"
+
+deploy-staging:
+  stage: deploy
+  before_script: []
+  services: []
+  image: dtzar/helm-kubectl
+  only:
+    - dev
+  script:
+    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
+    - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA
+    - helm upgrade -n $NAMESPACE-staging $NAMESPACE-staging ./budget-helm -f $STAGING_HELM_VARS --set=api.image.tag="$IMAGE:$CI_COMMIT_SHA"
+
+deploy-prod:
+  stage: deploy
+  before_script: []
+  services: []
+  image: dtzar/helm-kubectl
+  only:
+    - main
+  script:
+    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
+    - ./budget-helm/scripts/setup-ci-service-account.sh $PROD_TOKEN $CA
+    - helm upgrade -n $NAMESPACE $NAMESPACE ./budget-helm  -f $PROD_HELM_VARS --set=api.image.tag="$IMAGE:$CI_COMMIT_SHA"

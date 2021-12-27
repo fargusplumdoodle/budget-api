@@ -12,7 +12,5 @@ class TestGenerateDevData(BudgetTestCase):
         for budget in Budget.objects.all():
             self.assertEqual(
                 Transaction.objects.filter(budget=budget).count(),
-                GenDevDataCommand.EXPECTED_TRANSACTIONS
+                GenDevDataCommand.EXPECTED_TRANSACTIONS,
             )
-
-

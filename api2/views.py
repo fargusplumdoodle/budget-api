@@ -11,7 +11,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.authentication import TokenAuthentication
 
 from api2.models import Budget, Transaction, Tag
 from api2.serializers import (
@@ -44,6 +43,7 @@ class BudgetViewset(UserRelatedModelViewSet):
     model = Budget
     serializer_class = BudgetSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
     filterset_class = BudgetFilterset
 
     def get_queryset(self):
@@ -52,7 +52,6 @@ class BudgetViewset(UserRelatedModelViewSet):
 
 class TransactionViewset(ModelViewSet):
     serializer_class = TransactionSerializer
-    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filterset_class = TransactionFilterset
 
@@ -90,14 +89,12 @@ class TransactionViewset(ModelViewSet):
 class TagViewset(UserRelatedModelViewSet):
     model = Tag
     serializer_class = TagSerializer
-    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filterset_class = TagFilterset
 
 
 class ReportViewset(ModelViewSet):
     serializer_class = TransactionSerializer
-    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filterset_class = TransactionFilterset
 

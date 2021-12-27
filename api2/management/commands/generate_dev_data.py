@@ -7,7 +7,6 @@ from oauth2_provider.models import Application
 
 from api2.models import User, Budget, Transaction
 from budget.utils.test import BudgetTestCase
-from .calculate_income_outcome import Command as CalculateIncomeOutcome
 
 
 class Command(BaseCommand):
@@ -44,7 +43,9 @@ class Command(BaseCommand):
             client_id="web-client",
             name="web-client",
             client_secret=(
-                "8obfUZIyyTcwHjCcl2Fv51P1OilFsgvp8TxHsBXyTawDi0Lozr2kAIhy6Z4bjJchP32SqUzezv1N0BxO0cZ02JMK2jsNZMG6jCd8sp9ejYDvUqVW2XePshD3COCPlv"
+                "8obfUZIyyTcwHjCcl2Fv51P1OilFsgvp8TxHs"
+                "BXyTawDi0Lozr2kAIhy6Z4bjJchP32SqUzezv1"
+                "N0BxO0cZ02JMK2jsNZMG6jCd8sp9ejYDvUqVW2XePshD3COCPlv"
             ),
             user=User.objects.get(username=self.USERNAME),
             client_type=Application.CLIENT_PUBLIC,
@@ -78,7 +79,7 @@ class Command(BaseCommand):
                     budget=budget,
                     date=now.shift(days=0 - x),
                     amount=amount + 400 if income else 0 - amount,
-                    income=income
+                    income=income,
                 )
 
     @staticmethod

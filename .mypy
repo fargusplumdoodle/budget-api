@@ -1,0 +1,18 @@
+[mypy]
+warn_unused_configs = True
+allow_redefinition = True
+plugins = mypy_django_plugin.main, mypy_drf_plugin.main
+mypy_path = mypy_stubs
+
+[mypy.plugins.django-stubs]
+django_settings_module = budget.settings
+
+[mypy-*.migrations.*]
+ignore_errors = True
+
+[mypy-psycopg2.errors]
+ignore_missing_imports = True
+[mypy-django_filters]
+ignore_missing_imports = True
+[mypy-rest_framework_nested]
+ignore_missing_imports = True

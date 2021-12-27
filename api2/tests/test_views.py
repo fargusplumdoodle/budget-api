@@ -173,7 +173,7 @@ class UserRelatedModelViewSetMixin:
 
     def test_get_list(self):
         r = self.get(reverse(self.list_url), user=self.user).json()
-        r = r if not self.paginated_response else r['results']
+        r = r if not self.paginated_response else r["results"]
         self.assertEqual(len(r), len(self.user_objs))
 
         for obj in r:
