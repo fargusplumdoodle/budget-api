@@ -8,6 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -22,6 +23,12 @@ from api2.serializers import (
 )
 from api2.filters import BudgetFilterset, TransactionFilterset, TagFilterset
 from api2.utils import add_income
+
+
+class HealthCheck(APIView):
+    @staticmethod
+    def get(request: Request):
+        return Response(status=200)
 
 
 class UserRelatedModelViewSet(ModelViewSet):

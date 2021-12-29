@@ -260,3 +260,9 @@ class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = TagSerializer
     model = Tag
     paginated_response = True
+
+
+class HealthCheck(BudgetTestCase):
+    def test(self):
+        r = self.get("/api/v2/health", user=None)
+        self.assertEqual(r.status_code, 200)
