@@ -15,5 +15,6 @@ router.register("report", views.ReportViewset, "report")
 urlpatterns = [
     path("user/register", CreateAccountView.as_view(), name="register-user"),
     path("user/login", ObtainAuthToken.as_view(), name="login"),
+    path("health", views.HealthCheck.as_view()),
 ]
 urlpatterns += router.urls
