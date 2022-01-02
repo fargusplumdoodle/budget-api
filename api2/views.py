@@ -99,6 +99,9 @@ class TagViewset(UserRelatedModelViewSet):
     permission_classes = [IsAuthenticated]
     filterset_class = TagFilterset
 
+    def get_queryset(self):
+        return Tag.objects.filter(user=self.request.user).order_by("-name")
+
 
 class ReportViewset(ModelViewSet):
     serializer_class = TransactionSerializer

@@ -11,7 +11,7 @@ from budget.utils.test import BudgetTestCase
 now = arrow.get(2021, 1, 1)
 
 
-class IncomeTestCase(BudgetTestCase):
+class TransactionViewTestCase(BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -45,6 +45,28 @@ class IncomeTestCase(BudgetTestCase):
             self.assertEqual(trans.transfer, False)
             self.assertEqual(trans.tags.count(), 1)
             self.assertEqual(trans.tags.first().name, "income")
+
+    def test_pagination_list(self):
+        self.generate_transaction(budget=self.budgets_with_percentage[0])
+        r = self.get(reverse("api2:transaction-list"))
+        self.assertEqual(r.status_code, 200)
+        paginated_response = r.json()
+        self.assertIn("count", paginated_response)
+        self.assertIn("next", paginated_response)
+        self.assertIn("previous", paginated_response)
+        self.assertIn("results", paginated_response)
+        self.assertEqual(len(paginated_response["results"]), 1)
+
+    def test_no_pagination_list(self):
+        self.generate_transaction(budget=self.budgets_with_percentage[0])
+        r = self.get(reverse("api2:transaction-list"), query={"no_pagination": "true"})
+        self.assertEqual(r.status_code, 200)
+        list_response = r.json()
+        self.assertNotIn("count", list_response)
+        self.assertNotIn("next", list_response)
+        self.assertNotIn("previous", list_response)
+        self.assertNotIn("results", list_response)
+        self.assertEqual(len(list_response), 1)
 
 
 class ReportTestCase(BudgetTestCase):
