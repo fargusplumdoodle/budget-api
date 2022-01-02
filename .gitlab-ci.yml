@@ -90,6 +90,7 @@ deploy-staging:
   image: dtzar/helm-kubectl
   only:
     - dev
+    - main
   script:
     - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
     - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA
