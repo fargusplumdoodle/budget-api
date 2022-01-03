@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from oauth2_provider.models import Application
 
-from api2.models import User, Budget, Transaction
+from api2.models import User, Budget, Transaction, Tag
 from budget.utils.test import BudgetTestCase
 
 
@@ -26,6 +26,53 @@ class Command(BaseCommand):
         {"name": "clothing", "percentage": 1},
         {"name": "charity", "percentage": 1},
     ]
+    TAGS = [
+        "car",
+        "bike",
+        "gas",
+        "restaurant",
+        "groceries",
+        "bouldering",
+        "income",
+        "transfer",
+        "laundry",
+        "rent",
+        "alcohol",
+        "weed",
+        "utilities",
+        "student loan",
+        "streaming services",
+        "music",
+        "organ",
+        "guitar",
+        "phone bill",
+        "government cheques",
+        "internet",
+        "power",
+        "household supplies",
+        "GDrive",
+        "isaacthiessen.ca",
+        "Backpacking",
+        "gift",
+        "ICBC",
+        "trips",
+        "parking",
+        "tutoring",
+        "video games",
+        "garden",
+        "bank",
+        "mtg",
+        "books",
+        "donation",
+        "social",
+        "health",
+        "credit card fees",
+        "tools",
+        "circuitry",
+        "dental",
+        "plane",
+        "aws",
+    ]
     USERNAME = "dev"
 
     def _load_users(self):
@@ -39,7 +86,8 @@ class Command(BaseCommand):
         )
 
     def _load_client(self):
-        Application.objects.get_or_create(
+        Application.objects.filter(client_id="web-client").delete()
+        Application.objects.create(
             client_id="web-client",
             name="web-client",
             client_secret=(
@@ -50,13 +98,23 @@ class Command(BaseCommand):
             user=User.objects.get(username=self.USERNAME),
             client_type=Application.CLIENT_PUBLIC,
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
-            redirect_uris="http://127.0.0.1:3000/auth/callback http://127.0.0.1:8000/auth/callback",
+            redirect_uris=(
+                "http://127.0.0.1:3000/auth/callback "
+                "http://localhost:3000/auth/callback "
+                "http://127.0.0.1:8000/auth/callback "
+            ),
         )
 
     def _load_budgets(self):
         for budget in self.BUDGETS:
             Budget.objects.get_or_create(
                 user=User.objects.get(username=self.USERNAME), **budget
+            )
+
+    def _load_tags(self):
+        for tag in self.TAGS:
+            Tag.objects.get_or_create(
+                user=User.objects.get(username=self.USERNAME), name=tag
             )
 
     @classmethod
@@ -97,6 +155,7 @@ class Command(BaseCommand):
         self._load_users()
         self._load_client()
         self._load_budgets()
+        self._load_tags()
         self._load_transactions()
         self._calculate_income_outcome()
 
