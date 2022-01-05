@@ -1,9 +1,9 @@
-FROM python:3.10-slim
+FROM python:3.9-slim
 
 RUN set -ex \
     && RUN_DEPS=" \
         postgresql-client \
- 	build-essential \
+ 	    build-essential \
     " \
     && apt-get update \
     && apt-get install -y --no-install-recommends $RUN_DEPS \
@@ -11,19 +11,20 @@ RUN set -ex \
 
 RUN mkdir /code/
 WORKDIR /code/
-ADD . /code/
+ADD ./Pipfile /code/
+ADD ./Pipfile.lock /code/
 
 RUN set -ex \
-    && python3.10 -m venv /venv \
-    && /venv/bin/pip install -U pip pipenv  \
-    && /venv/bin/pipenv lock \
+    && pip install -U pip pipenv  \
+    && pipenv lock \
 	--keep-outdated \
 	--requirements > /requirements.txt \
-    && /venv/bin/pip install -U pip install -r /requirements.txt \
+    && pip install -U pip install -r /requirements.txt \
     && apt-get -y auto-remove \
     && rm -rf /var/lib/apt/lists/*
 
 
+ADD . /code/
 EXPOSE 8000
 
 ENV DJANGO_SETTINGS_MODULE=budget.settings

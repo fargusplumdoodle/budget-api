@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-/venv/bin/python manage.py makemigrations --noinput
-/venv/bin/python manage.py migrate --noinput
+python manage.py makemigrations --noinput
+python manage.py migrate --noinput
 
 exec "$@"

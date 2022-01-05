@@ -16,7 +16,7 @@ variables:
 
 
 default:
-  image: python:3.10-slim
+  image: python:3.9-slim
   services:
     - "postgres:latest"
   cache:
