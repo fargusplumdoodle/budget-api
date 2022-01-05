@@ -2,7 +2,7 @@
 set -ex
 apt update && apt install build-essential -y 
 
-python3.9 -m venv ./venv
+python3.10 -m venv ./venv
 ./venv/bin/pip install -U pip pipenv
 ./venv/bin/pipenv lock \
 	--dev \

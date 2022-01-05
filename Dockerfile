@@ -14,7 +14,7 @@ WORKDIR /code/
 ADD . /code/
 
 RUN set -ex \
-    && python3.9 -m venv /venv \
+    && python3.10 -m venv /venv \
     && /venv/bin/pip install -U pip pipenv  \
     && /venv/bin/pipenv lock \
 	--keep-outdated \
