@@ -283,6 +283,20 @@ class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     model = Tag
     paginated_response = True
 
+    def test_list_returns_tags_in_order_most_frequent_to_least_frequent(self):
+        Tag.objects.all().delete()
+        expected_id_order = [
+            self.generate_tag(rank=10).id,
+            self.generate_tag(rank=2, name="a").id,
+            self.generate_tag(rank=2, name="b").id,
+        ]
+
+        r = self.get(reverse(self.list_url), user=self.user)
+        self.assertEqual(r.status_code, 200)
+
+        id_order = [tag["id"] for tag in r.json()["results"]]
+        self.assertEqual(id_order, expected_id_order)
+
 
 class HealthCheck(BudgetTestCase):
     def test(self):

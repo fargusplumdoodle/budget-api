@@ -9,7 +9,7 @@ from api2.models import Budget, Transaction, Tag
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = "__all__"
+        exclude = ("rank",)
 
 
 class BudgetSerializer(serializers.ModelSerializer):

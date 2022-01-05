@@ -1,4 +1,5 @@
 stages:
+  - setup
   - qa
   - build
   - deploy
@@ -17,46 +18,53 @@ variables:
 
 default:
   image: python:3.9-slim
-  services:
-    - "postgres:latest"
   cache:
     paths:
-      - ./venv/
+      - /usr/local/lib/
       - /etc/apt/sources.list
       - /etc/apt/sources.list.d/
   before_script:
-    - ./scripts/install-ci.sh --dev
+    - ./scripts/install-ci.sh
+
+setup-ci:
+  stage: setup
+  script:
+    - ''
 
 test:
   stage: qa
+  services:
+    - "postgres:latest"
   variables:
     DB: postgres
     DB_HOST: postgres
     DB_USER: postgres
     DB_PASS: postgres
   script:
-    - ./venv/bin/python manage.py test
+    - python manage.py test
 
 migrations_check:
   stage: qa
+  services:
+    - "postgres:latest"
   script:
-    - ./venv/bin/python manage.py makemigrations --check
+    - python manage.py makemigrations --check
 
 format:
   stage: qa
   script:
-    - ./venv/bin/black --check .
+    - black --check .
 
 flake8:
   stage: qa
   script:
-    - ./venv/bin/flake8 --config .flake8 ./api2 ./budget
+    - flake8 --config .flake8 ./api2 ./budget
 
 # Not implmented
 #type_check:
   #stage: qa
   #script:
-    #- ./venv/bin/mypy --config-file .mypy .
+    #- mypy --config-file .mypy .
 
 
 build-dev:
@@ -90,6 +98,7 @@ deploy-staging:
   image: dtzar/helm-kubectl
   only:
     - dev
+    - main
   script:
     - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
     - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA

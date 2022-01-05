@@ -12,6 +12,7 @@ class BudgetTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = cls.generate_user()
+        cls.now = arrow.now()
 
     def _make_request(
         self, method_name, endpoint, data, encoding="json", query=None, user=None
@@ -66,7 +67,7 @@ class BudgetTestCase(APITestCase):
 
     @classmethod
     def generate_tag(cls, **kwargs):
-        defaults = {"name": f"tag_{Tag.objects.count():07}"}
+        defaults = {"name": f"tag_{Tag.objects.count():07}", "rank": 0}
         if "user" not in kwargs:
             defaults["user"] = cls.user  # type: ignore
 
@@ -89,4 +90,13 @@ class BudgetTestCase(APITestCase):
         if isinstance(defaults["date"], arrow.Arrow):
             defaults["date"] = defaults["date"].datetime
 
-        return Transaction.objects.create(**defaults)
+        tags = defaults.get("tags")
+        if tags:
+            del defaults["tags"]
+
+        trans = Transaction.objects.create(**defaults)
+
+        if tags:
+            trans.tags.set(tags)
+
+        return trans

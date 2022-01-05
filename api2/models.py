@@ -66,9 +66,13 @@ class Budget(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=30, db_index=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    rank = models.IntegerField(
+        default=0, help_text="Notates how frequent this tag has been used"
+    )
 
     class Meta:
         unique_together = ("name", "user")
+        ordering = ["-rank", "name"]
 
 
 class Transaction(models.Model):
