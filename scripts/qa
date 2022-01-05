@@ -4,7 +4,6 @@ commands=(
 	'flake8 --config .flake8 .' 
 #	'mypy --config .mypy .' 
 	'python manage.py makemigrations --check' 
-	'python manage.py test --parallel 16' 
 )
 pids=()
 
