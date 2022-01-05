@@ -17,19 +17,23 @@ variables:
 
 
 default:
-  image: python:3.9-slim
+  image: $IMAGE:ci
   cache:
     paths:
-      - /usr/local/lib/
-      - /etc/apt/sources.list
-      - /etc/apt/sources.list.d/
+       - ./venv/
   before_script:
     - ./scripts/install-ci.sh
 
 setup-ci:
+  image: docker:latest
   stage: setup
+  cache:
+  before_script: []
+  services: []
   script:
-    - ''
+    - docker pull $IMAGE:ci || true
+    - docker build -f ./ci/Dockerfile -t "$IMAGE:ci" --cache-from $IMAGE:ci . 
+    - docker image push "$IMAGE:ci"
 
 test:
   stage: qa
