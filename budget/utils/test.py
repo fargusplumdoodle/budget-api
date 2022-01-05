@@ -66,7 +66,7 @@ class BudgetTestCase(APITestCase):
 
     @classmethod
     def generate_tag(cls, **kwargs):
-        defaults = {"name": f"tag_{Tag.objects.count():07}"}
+        defaults = {"name": f"tag_{Tag.objects.count():07}", "rank": Tag.objects.count()}
         if "user" not in kwargs:
             defaults["user"] = cls.user  # type: ignore
 
