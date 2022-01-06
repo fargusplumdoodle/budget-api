@@ -17,19 +17,23 @@ variables:
 
 
 default:
-  image: python:3.9-slim
+  image: $IMAGE:ci
   cache:
     paths:
-      - /usr/local/lib/
-      - /etc/apt/sources.list
-      - /etc/apt/sources.list.d/
+       - ./venv/
   before_script:
     - ./scripts/install-ci.sh
 
 setup-ci:
+  image: docker:latest
   stage: setup
+  cache:
+  before_script: []
+  services: []
   script:
-    - ''
+    - docker pull $IMAGE:ci || true
+    - docker build -f ./ci/Dockerfile -t "$IMAGE:ci" --cache-from $IMAGE:ci . 
+    - docker image push "$IMAGE:ci"
 
 test:
   stage: qa
@@ -41,30 +45,30 @@ test:
     DB_USER: postgres
     DB_PASS: postgres
   script:
-    - python manage.py test
+    - ./venv/bin/python manage.py test
 
 migrations_check:
   stage: qa
   services:
     - "postgres:latest"
   script:
-    - python manage.py makemigrations --check
+    - ./venv/bin/python manage.py makemigrations --check
 
 format:
   stage: qa
   script:
-    - black --check .
+    - ./venv/bin/black --check .
 
 flake8:
   stage: qa
   script:
-    - flake8 --config .flake8 ./api2 ./budget
+    - ./venv/bin/flake8 --config .flake8 ./api2 ./budget
 
 # Not implmented
 #type_check:
   #stage: qa
   #script:
-    #- mypy --config-file .mypy .
+    #- ./venv/bin/mypy --config-file .mypy .
 
 
 build-dev:
@@ -100,7 +104,7 @@ deploy-staging:
     - dev
     - main
   script:
-    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
+    - git clone --branch dev http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
     - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA
     - helm upgrade -n $NAMESPACE-staging $NAMESPACE-staging ./budget-helm --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
 
@@ -112,6 +116,6 @@ deploy-prod:
   only:
     - main
   script:
-    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
+    - git clone --branch main http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
     - ./budget-helm/scripts/setup-ci-service-account.sh $PROD_TOKEN $CA
     - helm upgrade -n $NAMESPACE $NAMESPACE ./budget-helm --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
