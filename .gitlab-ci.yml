@@ -104,7 +104,7 @@ deploy-staging:
     - dev
     - main
   script:
-    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
+    - git clone --branch dev http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
     - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA
     - helm upgrade -n $NAMESPACE-staging $NAMESPACE-staging ./budget-helm --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
 
@@ -116,6 +116,6 @@ deploy-prod:
   only:
     - main
   script:
-    - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
+    - git clone --branch main http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
     - ./budget-helm/scripts/setup-ci-service-account.sh $PROD_TOKEN $CA
     - helm upgrade -n $NAMESPACE $NAMESPACE ./budget-helm --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
