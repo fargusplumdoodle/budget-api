@@ -43,7 +43,7 @@ class CronJobRunner:
             for entry in dir(module):
                 job = getattr(module, entry)
                 try:
-                    if issubclass(job, CronJob) and not job.skip:
+                    if issubclass(job, CronJob) and not job.skip and not job == CronJob:
                         cron_jobs.append(job())
                 except TypeError:
                     pass

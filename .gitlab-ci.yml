@@ -45,30 +45,30 @@ test:
     DB_USER: postgres
     DB_PASS: postgres
   script:
-    - python manage.py test
+    - ./venv/bin/python manage.py test
 
 migrations_check:
   stage: qa
   services:
     - "postgres:latest"
   script:
-    - python manage.py makemigrations --check
+    - ./venv/bin/python manage.py makemigrations --check
 
 format:
   stage: qa
   script:
-    - black --check .
+    - ./venv/bin/black --check .
 
 flake8:
   stage: qa
   script:
-    - flake8 --config .flake8 ./api2 ./budget
+    - ./venv/bin/flake8 --config .flake8 ./api2 ./budget
 
 # Not implmented
 #type_check:
   #stage: qa
   #script:
-    #- mypy --config-file .mypy .
+    #- ./venv/bin/mypy --config-file .mypy .
 
 
 build-dev:
