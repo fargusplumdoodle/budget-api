@@ -7,6 +7,7 @@ from oauth2_provider.models import Application
 
 from api2.models import User, Budget, Transaction, Tag
 from budget.utils.test import BudgetTestCase
+from cron.jobs.update_tag_rankings import UpdateTagRankings
 
 
 class Command(BaseCommand):
@@ -120,6 +121,7 @@ class Command(BaseCommand):
     @classmethod
     def _load_transactions(cls):
         now = arrow.now()
+        tags = Tag.objects.all()
         for budget in Budget.objects.all():
             existing_transactions = Transaction.objects.filter(budget=budget).count()
 
@@ -133,17 +135,23 @@ class Command(BaseCommand):
             for x in range(expected_transactions):
                 income = random.choice([True, False, False, False])
                 amount = random.choice(list(range(100)))
+                tag = random.choice(tags)
                 BudgetTestCase.generate_transaction(
                     budget=budget,
                     date=now.shift(days=0 - x),
                     amount=amount + 400 if income else 0 - amount,
                     income=income,
+                    tags=[tag],
                 )
 
     @staticmethod
     def _calculate_income_outcome():
         for budget in Budget.objects.all():
             budget.calculate_income_outcome(save=True)
+
+    @staticmethod
+    def _update_tag_rankings():
+        UpdateTagRankings().run()
 
     def handle(self, *args, **options):
         if not settings.DEBUG:
@@ -158,5 +166,6 @@ class Command(BaseCommand):
         self._load_tags()
         self._load_transactions()
         self._calculate_income_outcome()
+        self._update_tag_rankings()
 
         self.stdout.write(self.style.SUCCESS("DONE"))

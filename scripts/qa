@@ -19,7 +19,7 @@ do
     command="${commands[$i]}"
 
     echo Running: ${command}
-    pipenv run $command &
+    $command &
     pids+="$! "
 done
 echo
