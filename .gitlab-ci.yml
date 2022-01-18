@@ -1,8 +1,8 @@
 stages:
-  - release
   - setup
   - qa
   - build
+  - release
   - deploy
 
 variables:
