@@ -1,0 +1,14 @@
+# vi: syntax=yaml
+branches:
+  - main
+  - '+([0-9])?(.{+([0-9]),x}).x'
+  - dev
+release:
+  branches:
+    - main
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - "@semantic-release/git"
+  - "@semantic-release/gitlab"
+
