@@ -1,4 +1,5 @@
 stages:
+  - release
   - setup
   - qa
   - build
@@ -94,6 +95,19 @@ build-prod:
     - docker pull $IMAGE:latest || true
     - docker build -t "$IMAGE:latest" -t "$IMAGE:$CI_COMMIT_SHA" --cache-from $IMAGE:latest . 
     - docker image push --all-tags "$IMAGE"
+
+release:
+  stage: release
+  image: node
+  before_script:
+    - npm install @semantic-release/gitlab @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/git
+  cache:
+    paths:
+     - ./node_modules/
+  script:
+    - npx semantic-release
+  only:
+    - main
 
 deploy-staging:
   stage: deploy
