@@ -1,3 +1,4 @@
+from typing import Sized
 from urllib.parse import urlencode
 
 import arrow
@@ -45,6 +46,9 @@ class BudgetTestCase(APITestCase):
 
     def patch(self, endpoint, data, encoding="json", query=None, user=None):
         return self._make_request("patch", endpoint, data, encoding, query, user)
+
+    def assertLengthEqual(self, first: Sized, second: int) -> None:
+        self.assertEqual(len(first), second)  # type: ignore
 
     @classmethod
     def generate_user(cls, **kwargs):

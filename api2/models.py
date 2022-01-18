@@ -12,9 +12,13 @@ class Budget(models.Model):
 
     income_per_month = models.IntegerField(null=True)
     outcome_per_month = models.IntegerField(null=True)
+    rank = models.IntegerField(
+        default=0, help_text="Notates how frequent this budget is used"
+    )
 
     class Meta:
         unique_together = ("name", "user")
+        ordering = ["-rank", "name"]
 
     def balance(self, date_range=None) -> int:
         # the current balance is equal to the sum of all transactions plus the initial balance
@@ -80,7 +84,7 @@ class Transaction(models.Model):
     MIN_TRANSACTION_SUPPORTED = -100_000_00  # No less than 100,000 dollars
 
     amount = models.IntegerField()
-    description = models.CharField(max_length=300)
+    description = models.CharField(max_length=300, blank=True)
     budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True)
     date = models.DateField(db_index=True)
 

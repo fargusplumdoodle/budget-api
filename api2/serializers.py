@@ -9,7 +9,7 @@ from api2.models import Budget, Transaction, Tag
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        exclude = ("rank",)
+        fields = "__all__"
 
 
 class BudgetSerializer(serializers.ModelSerializer):
@@ -33,9 +33,13 @@ class BudgetSerializer(serializers.ModelSerializer):
 
 
 class TransactionTagSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=30)
+    id = serializers.IntegerField(read_only=True)
+    rank = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Tag
-        fields = ["name"]
+        exclude = ("user",)
 
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -44,7 +48,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         max_value=Transaction.MAX_TRANSACTION_SUPPORTED,
         min_value=Transaction.MIN_TRANSACTION_SUPPORTED,
     )
-    description = serializers.CharField(max_length=300)
+    description = serializers.CharField(max_length=300, allow_blank=True)
     budget = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Budget.objects.all()
     )
