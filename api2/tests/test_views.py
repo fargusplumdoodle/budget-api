@@ -169,6 +169,7 @@ class UserRelatedModelViewSetMixin:
     model: Model
     serializer: Serializer
     paginated_response: bool
+    user: User
 
     @classmethod
     def setUpTestData(cls):
@@ -189,9 +190,9 @@ class UserRelatedModelViewSetMixin:
             self.user1_objs.append(self.generate_obj(self.user1))
 
     @classmethod
-    def generate_obj(cls, user: User):
+    def generate_obj(cls, user: User, **kwargs):
         generator = getattr(cls, f"generate_{cls.model.__name__.lower()}")
-        return generator(user=user)
+        return generator(user=user, **kwargs)
 
     def test_get_list(self):
         r = self.get(reverse(self.list_url), user=self.user).json()
@@ -271,6 +272,26 @@ class UserRelatedModelViewSetMixin:
         r = self.post(reverse(self.list_url), data, user=self.user)
         self.assertEqual(r.status_code, 400)
 
+    def test_list_returns_object_in_order_most_frequent_to_least_frequent(self):
+        if not (hasattr(self.model, "rank")):
+            return
+
+        self.model.objects.all().delete()
+
+        expected_id_order = [
+            self.generate_obj(self.user, rank=10).id,
+            self.generate_obj(self.user, rank=2, name="a").id,
+            self.generate_obj(self.user, rank=2, name="b").id,
+        ]
+
+        r = self.get(reverse(self.list_url), user=self.user)
+        self.assertEqual(r.status_code, 200)
+
+        data = r.json()
+        object_list = data["results"] if self.paginated_response else data
+        id_order = [obj["id"] for obj in object_list]
+        self.assertEqual(id_order, expected_id_order)
+
 
 class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = BudgetSerializer
@@ -282,20 +303,6 @@ class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = TagSerializer
     model = Tag
     paginated_response = True
-
-    def test_list_returns_tags_in_order_most_frequent_to_least_frequent(self):
-        Tag.objects.all().delete()
-        expected_id_order = [
-            self.generate_tag(rank=10).id,
-            self.generate_tag(rank=2, name="a").id,
-            self.generate_tag(rank=2, name="b").id,
-        ]
-
-        r = self.get(reverse(self.list_url), user=self.user)
-        self.assertEqual(r.status_code, 200)
-
-        id_order = [tag["id"] for tag in r.json()["results"]]
-        self.assertEqual(id_order, expected_id_order)
 
 
 class HealthCheck(BudgetTestCase):

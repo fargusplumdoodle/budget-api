@@ -12,9 +12,13 @@ class Budget(models.Model):
 
     income_per_month = models.IntegerField(null=True)
     outcome_per_month = models.IntegerField(null=True)
+    rank = models.IntegerField(
+        default=0, help_text="Notates how frequent this budget is used"
+    )
 
     class Meta:
         unique_together = ("name", "user")
+        ordering = ["-rank", "name"]
 
     def balance(self, date_range=None) -> int:
         # the current balance is equal to the sum of all transactions plus the initial balance
