@@ -1,15 +1,11 @@
 # Sekhnet Budget
 [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
-_v2.1_
-
 Very simple budgeting software I wrote
 to keep track of my budgets
 
 Sekhnet Budget is a Django based REST API that I deploy
 on my local network at home using Kubernetes.
-
-_Client repo can be found here: [Sekhnet Budget Client](https://github.com/fargusplumdoodle/sekhnet-budget-client)_
 
 ### How it works
 Each budget is issued a percentage that represents
