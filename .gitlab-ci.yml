@@ -1,5 +1,4 @@
 stages:
-  - setup
   - qa
   - build
   - release
@@ -18,23 +17,10 @@ variables:
 
 
 default:
-  image: $IMAGE:ci
+  image: hub.sekhnet.ra/python39-ci:latest
   cache:
     paths:
        - ./venv/
-  before_script:
-    - ./scripts/install-ci.sh
-
-setup-ci:
-  image: docker:latest
-  stage: setup
-  cache:
-  before_script: []
-  services: []
-  script:
-    - docker pull $IMAGE:ci || true
-    - docker build -f ./ci/Dockerfile -t "$IMAGE:ci" --cache-from $IMAGE:ci . 
-    - docker image push "$IMAGE:ci"
 
 test:
   stage: qa
@@ -81,7 +67,7 @@ build-dev:
   services: []
   script:
     - docker pull $IMAGE:latest || true
-    - docker build -t "$IMAGE:dev" -t "$IMAGE:$CI_COMMIT_SHA" --cache-from $IMAGE:latest . 
+    - docker build -t "$IMAGE:dev" -t "$IMAGE:$CI_COMMIT_SHA" --cache-from $IMAGE:latest .
     - docker image push --all-tags "$IMAGE"
 
 build-prod:
@@ -93,7 +79,7 @@ build-prod:
     - main
   script:
     - docker pull $IMAGE:latest || true
-    - docker build -t "$IMAGE:latest" -t "$IMAGE:$CI_COMMIT_SHA" --cache-from $IMAGE:latest . 
+    - docker build -t "$IMAGE:latest" -t "$IMAGE:$CI_COMMIT_SHA" --cache-from $IMAGE:latest .
     - docker image push --all-tags "$IMAGE"
 
 release:
@@ -113,22 +99,22 @@ deploy-staging:
   stage: deploy
   before_script: []
   services: []
-  image: dtzar/helm-kubectl
+  image: hub.sekhnet.ra/helm:latest
   only:
     - dev
   script:
     - git clone --branch dev http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
-    - ./budget-helm/scripts/setup-ci-service-account.sh $STAGING_TOKEN $CA
-    - helm upgrade -n $NAMESPACE-staging $NAMESPACE-staging ./budget-helm --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
+    - ./budget-helm/ci/setup-ci-service-account.sh $STAGING_TOKEN $CA
+    - helm upgrade -n $NAMESPACE-staging $NAMESPACE-staging ./budget-helm/budget --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
 
 deploy-prod:
   stage: deploy
   before_script: []
   services: []
-  image: dtzar/helm-kubectl
+  image: hub.sekhnet.ra/helm:latest
   only:
     - main
   script:
     - git clone --branch main http://gitlab-ci-token:${CI_JOB_TOKEN}@git.sekhnet.ra/sekhnet/applications/budget/budget-helm.git
-    - ./budget-helm/scripts/setup-ci-service-account.sh $PROD_TOKEN $CA
-    - helm upgrade -n $NAMESPACE $NAMESPACE ./budget-helm --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
+    - ./budget-helm/ci/setup-ci-service-account.sh $PROD_TOKEN $CA
+    - helm upgrade -n $NAMESPACE $NAMESPACE ./budget-helm/budget --set=api.image.tag="$CI_COMMIT_SHA" --reuse-values --atomic
