@@ -21,8 +21,6 @@ default:
   cache:
     paths:
        - ./venv/
-  before_script:
-    - ./scripts/install-ci.sh
 
 test:
   stage: qa

@@ -1,28 +1,28 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 RUN set -ex \
     && RUN_DEPS=" \
         postgresql-client \
- 	    build-essential \
+ 	build-essential \
     " \
     && apt-get update \
     && apt-get install -y --no-install-recommends $RUN_DEPS \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get -y auto-remove
+
 
 RUN mkdir /code/
 WORKDIR /code/
-ADD ./Pipfile /code/
-ADD ./Pipfile.lock /code/
+ADD ./pyproject.toml /code/
+ADD ./poetry.lock /code/
+
+ENV PATH=/code/.venv/bin:${PATH} \
+    PIP_NO_CACHE_DIR=true
 
 RUN set -ex \
-    && pip install -U pip pipenv  \
-    && pipenv lock \
-	--keep-outdated \
-	--requirements > /requirements.txt \
-    && pip install -U pip install -r /requirements.txt \
-    && apt-get -y auto-remove \
-    && rm -rf /var/lib/apt/lists/*
-
+    && pip install -U "poetry==1.1.12"  \
+    && poetry config virtualenvs.in-project true \
+    && poetry install --no-root --no-dev
 
 ADD . /code/
 EXPOSE 8000
