@@ -7,3 +7,4 @@ python -m venv ./venv
 	--keep-outdated \
 	--requirements > /requirements.txt 
 
+./venv/bin/pip install -r  /requirements.txt
