@@ -20,7 +20,7 @@ default:
   image: hub.sekhnet.ra/python39-ci:latest
   cache:
     paths:
-       - ./venv/
+      - ./venv/
 
 test:
   stage: qa
@@ -84,12 +84,7 @@ build-prod:
 
 release:
   stage: release
-  image: node
-  before_script:
-    - npm install @semantic-release/gitlab @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/git
-  cache:
-    paths:
-     - ./node_modules/
+  image: hub.sekhnet.ra/semantic_release:latest
   script:
     - npx semantic-release
   only:
