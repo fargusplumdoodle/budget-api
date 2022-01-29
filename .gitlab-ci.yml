@@ -86,7 +86,7 @@ release:
   stage: release
   image: hub.sekhnet.ra/semantic_release:latest
   script:
-    - npx semantic-release
+    - GITLAB_TOKEN=$CI_JOB_TOKEN npx semantic-release
   only:
     - main
 
