@@ -1,7 +1,7 @@
 stages:
+  - release
   - qa
   - build
-  - release
   - deploy
 
 variables:
