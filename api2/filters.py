@@ -28,25 +28,40 @@ class BudgetFilterset(filters.FilterSet):
 
 
 class TransactionFilterset(filters.FilterSet):
-    amount__eq = filters.NumberFilter(field_name="amount")
+    amount = filters.NumberFilter(field_name="amount")
     amount__gt = filters.NumberFilter(field_name="amount", lookup_expr="gt")
     amount__lt = filters.NumberFilter(field_name="amount", lookup_expr="lt")
+    amount__gte = filters.NumberFilter(field_name="amount", lookup_expr="gte")
+    amount__lte = filters.NumberFilter(field_name="amount", lookup_expr="lte")
 
     budget = filters.CharFilter(field_name="budget__id", lookup_expr="exact")
-    budget__name = filters.CharFilter(field_name="budget__name", lookup_expr="exact")
+    budget__includes = CharListFilter(
+        field_name="budget__id", lookup_expr="exact"
+    )  # LEGACY
+    budget__name__iexact = filters.CharFilter(
+        field_name="budget__name", lookup_expr="iexact"
+    )
+    budget__name__icontains = filters.CharFilter(
+        field_name="budget__name", lookup_expr="icontains"
+    )
 
-    description__exact = filters.CharFilter(
-        field_name="description", lookup_expr="exact"
+    description__iexact = filters.CharFilter(
+        field_name="description", lookup_expr="iexact"
     )
     description__icontains = filters.CharFilter(
         field_name="description", lookup_expr="icontains"
     )
 
     date = filters.DateFilter(field_name="date")
+    date__gt = filters.DateFilter(field_name="date", lookup_expr="gt")
     date__gte = filters.DateFilter(field_name="date", lookup_expr="gte")
+    date__lt = filters.DateFilter(field_name="date", lookup_expr="lt")
     date__lte = filters.DateFilter(field_name="date", lookup_expr="lte")
 
-    tags = CharListFilter(field_name="tags__name", lookup_expr="iexact")
+    tags = CharListFilter(field_name="tags__name", lookup_expr="iexact")  # LEGACY
+    tags__includes = CharListFilter(
+        field_name="tags__name", lookup_expr="iexact"
+    )  # LEGACY
 
 
 class TagFilterset(filters.FilterSet):
