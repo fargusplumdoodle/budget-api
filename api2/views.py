@@ -178,34 +178,4 @@ class ReportViewset(ModelViewSet):
         return Response(response)
 
 
-class CreateAccountView(APIView):
-    @csrf_exempt
-    def post(self, request):
-        """
-        For creating accounts
-        - Will be replaced by OAuth
-        - does not validate login info such as password complexity
 
-        Returns token for user
-
-        """
-        # Loading data
-        stream = io.BytesIO(request.body)
-        data = JSONParser().parse(stream)
-
-        serializer = RegisterSerializer(data=data)
-
-        if serializer.is_valid():
-
-            # creating user
-            user, created = User.objects.get_or_create(username=data.get("username"))
-            user.set_password(data.get("password"))
-            user.save()
-
-            # creating token
-            token, _ = Token.objects.get_or_create(user=user)
-
-            # returning id to user
-            return Response({"token": token.key}, status=201)
-        else:
-            return Response(serializer.errors, status=400)
