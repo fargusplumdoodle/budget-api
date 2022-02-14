@@ -4,7 +4,7 @@ from django.core.serializers.base import Serializer
 from django.db.models import Model, Q
 from rest_framework.reverse import reverse
 
-from api2.models import Transaction, Budget, Tag
+from api2.models import Transaction, Budget, Tag, UserInfo
 from api2.serializers import BudgetSerializer, TagSerializer
 from budget.utils.test import BudgetTestCase
 
@@ -305,3 +305,30 @@ class HealthCheck(BudgetTestCase):
     def test(self):
         r = self.get("/api/v2/health", user=None)
         self.assertEqual(r.status_code, 200)
+
+
+class UserInfoTestCase(BudgetTestCase):
+    def test_get(self):
+        r = self.get(reverse("api2:info"))
+        self.assertEqual(r.status_code, 200)
+
+        data = r.json()
+        self.assertEqual(data["expected_monthly_net_income"], 0)
+
+    def test_put(self):
+        new_info = {"expected_monthly_net_income": 100}
+        r = self.put(reverse("api2:info"), data=new_info)
+        self.assertEqual(r.status_code, 201)
+
+        data = r.json()
+        self.assertEqual(data, new_info)
+        self.assertTrue(
+            UserInfo.objects.filter(
+                user=self.user, expected_monthly_net_income=100
+            ).exists()
+        )
+
+    def test_put_invalid(self):
+        new_info = {"expected_monthly_net_income": "bad data"}
+        r = self.put(reverse("api2:info"), data=new_info)
+        self.assertEqual(r.status_code, 400)

@@ -1,6 +1,7 @@
 # Sekhnet Budget
 [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
+
 Very simple budgeting software I wrote
 to keep track of my budgets
 

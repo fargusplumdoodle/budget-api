@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from api2.models import Budget, Transaction, Tag
+from api2.models import Budget, Transaction, Tag, UserInfo
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -112,3 +112,8 @@ class AddMoneySerializer(serializers.Serializer):
     description = serializers.CharField(max_length=300)
     date = serializers.DateField()
 
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        exclude = ["id", "user"]
