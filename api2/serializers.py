@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
-from api2.models import Budget, Transaction, Tag
+from api2.models import Budget, Transaction, Tag, UserInfo
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -113,15 +113,7 @@ class AddMoneySerializer(serializers.Serializer):
     date = serializers.DateField()
 
 
-class RegisterSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=20, min_length=3, required=True)
-    password = serializers.CharField(max_length=20, min_length=3, required=True)
-
+class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["username", "password"]
-
-    def validate_username(self, value):
-        # we shouldn't create duplicate users with this
-        if len(User.objects.filter(username=value)) != 0:
-            raise serializers.ValidationError("user already exists")
+        model = UserInfo
+        exclude = ["id", "user"]

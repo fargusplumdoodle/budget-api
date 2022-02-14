@@ -1,10 +1,7 @@
 import io
 import operator
 
-from django.contrib.auth.models import User
 from django.db.models import Model, Q, Sum, QuerySet
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
@@ -13,13 +10,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from api2.models import Budget, Transaction, Tag
+from api2.models import Budget, Transaction, Tag, UserInfo
 from api2.serializers import (
     BudgetSerializer,
     TransactionSerializer,
     AddMoneySerializer,
-    RegisterSerializer,
     TagSerializer,
+    UserInfoSerializer,
 )
 from api2.filters import BudgetFilterset, TransactionFilterset, TagFilterset
 from api2.utils import add_income
@@ -178,34 +175,22 @@ class ReportViewset(ModelViewSet):
         return Response(response)
 
 
-class CreateAccountView(APIView):
-    @csrf_exempt
-    def post(self, request):
-        """
-        For creating accounts
-        - Will be replaced by OAuth
-        - does not validate login info such as password complexity
+class UserInfoView(APIView):
+    model = UserInfo
+    serializer_class = TagSerializer
 
-        Returns token for user
+    def get(self, request: Request):
+        info, _ = self.model.objects.get_or_create(user=request.user)
+        return Response(data=UserInfoSerializer(info).data, status=200)
 
-        """
-        # Loading data
+    def put(self, request: Request):
+        info, _ = self.model.objects.get_or_create(user=request.user)
+
         stream = io.BytesIO(request.body)
         data = JSONParser().parse(stream)
 
-        serializer = RegisterSerializer(data=data)
+        serializer = UserInfoSerializer(info, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        if serializer.is_valid():
-
-            # creating user
-            user, created = User.objects.get_or_create(username=data.get("username"))
-            user.set_password(data.get("password"))
-            user.save()
-
-            # creating token
-            token, _ = Token.objects.get_or_create(user=user)
-
-            # returning id to user
-            return Response({"token": token.key}, status=201)
-        else:
-            return Response(serializer.errors, status=400)
+        return Response(data=serializer.data, status=201)

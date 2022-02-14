@@ -102,3 +102,8 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.budget.name}_{self.date}_{self.amount}"
+
+
+class UserInfo(models.Model):
+    user = models.ForeignKey(User, unique=True, on_delete=models.SET_NULL, null=True)
+    expected_monthly_net_income = models.IntegerField(default=0)
