@@ -1,4 +1,4 @@
-from typing import Sized
+from typing import Sized, List
 from urllib.parse import urlencode
 
 import arrow
@@ -94,7 +94,7 @@ class BudgetTestCase(APITestCase):
         if isinstance(defaults["date"], arrow.Arrow):
             defaults["date"] = defaults["date"].datetime
 
-        tags = defaults.get("tags")
+        tags: List[Tag] = defaults.get("tags")  # type: ignore
         if tags:
             del defaults["tags"]
 

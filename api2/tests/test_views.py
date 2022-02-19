@@ -1,8 +1,11 @@
+from typing import Type, Union
+
 import arrow
 from django.contrib.auth.models import User
 from django.core.serializers.base import Serializer
 from django.db.models import Model, Q
 from rest_framework.reverse import reverse
+from rest_framework.serializers import ModelSerializer
 
 from api2.models import Transaction, Budget, Tag, UserInfo
 from api2.serializers import BudgetSerializer, TagSerializer
@@ -166,8 +169,8 @@ class ReportTestCase(BudgetTestCase):
 
 
 class UserRelatedModelViewSetMixin:
-    model: Model
-    serializer: Serializer
+    model: Type[Model]
+    serializer: Type[Union[Serializer, ModelSerializer]]
     paginated_response: bool
     user: User
 

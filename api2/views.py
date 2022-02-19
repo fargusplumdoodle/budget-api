@@ -1,5 +1,6 @@
 import io
 import operator
+from typing import Type, List, Dict
 
 from django.db.models import Model, Q, Sum, QuerySet
 from rest_framework.decorators import action
@@ -29,7 +30,7 @@ class HealthCheck(APIView):
 
 
 class UserRelatedModelViewSet(ModelViewSet):
-    model: Model
+    model: Type[Model]
 
     def create(self, request, *args, **kwargs):
         request.data.update({**request.data, "user": request.user.pk})
@@ -111,13 +112,16 @@ class ReportViewset(ModelViewSet):
         )
 
     @staticmethod
-    def get_budget_stats(qs: QuerySet) -> list:
+    def get_budget_stats(qs: QuerySet[Transaction]) -> list:
         if len(qs) == 0:
             return []
 
         budgets = Budget.objects.filter(id__in=set(qs.values_list("budget", flat=True)))
-        start_date = qs.last().date
-        end_date = qs.first().date
+        first_trans = qs.first()
+        last_trans = qs.last()
+        assert first_trans and last_trans
+        start_date = last_trans.date
+        end_date = first_trans.date
         date_range = (start_date, end_date)
 
         stats = []
@@ -137,7 +141,7 @@ class ReportViewset(ModelViewSet):
                 or 0,
             }
             budget_stats["difference"] = (
-                budget_stats["income"] + budget_stats["outcome"]
+                budget_stats["income"] + budget_stats["outcome"]  # type: ignore
             )
             stats.append(budget_stats)
 
@@ -145,11 +149,12 @@ class ReportViewset(ModelViewSet):
 
     @staticmethod
     def get_tag_stats(qs: QuerySet) -> list:
-        stats = []
+        stats: List[Dict[str, str]] = []
         if len(qs) == 0:
             return stats
-
-        tags = Tag.objects.filter(user=qs.first().budget.user)
+        first_trans = qs.first()
+        assert first_trans
+        tags = Tag.objects.filter(user=first_trans.budget.user)
         for tag in tags:
             transactions_with_tag = qs.filter(tags=tag)
             if len(transactions_with_tag) == 0:
