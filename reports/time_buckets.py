@@ -11,7 +11,7 @@ from .types import TimeRange, TimeBucketSizeOption
 
 def get_time_range(transactions: QuerySet[Transaction]) -> Optional[TimeRange]:
     if transactions.count() == 0:
-        return
+        return None
 
     transactions = transactions.order_by("date")
     first_transaction = transactions.first()

@@ -14,7 +14,7 @@ class TestTimeBuckets(BudgetTestCase):
         for start, end in ranges:
             self.assertEqual(start, end)
 
-        self.assertLengthEqual(ranges, 31)
+        self.assertLengthEqual(ranges, 32)
 
     def test_time_frame_less_than_delta(self):
         # difference of 31 days
