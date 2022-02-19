@@ -29,4 +29,4 @@ class ReportType(ChoiceEnum):
 
 
 TimeRange = Tuple[arrow.Arrow, arrow.Arrow]
-ReportGenerator = Callable[[QuerySet[Transaction, str]], List[int]]
+ReportGenerator = Callable[[QuerySet[Transaction], TimeRange], List[int]]
