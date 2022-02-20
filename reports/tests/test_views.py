@@ -4,8 +4,7 @@ from rest_framework.reverse import reverse
 from api2.models import Transaction, Budget
 from budget.utils.test import BudgetTestCase
 from reports.time_buckets import get_time_buckets, get_report_dates
-from reports.types import TimeBucketSizeOption
-
+from reports.types import TimeBucketSizeOption, TimeRange
 
 """
 Dear Isaac:
@@ -16,11 +15,23 @@ Dear Isaac:
 
 class TestReportViewMixin:
     url: str
+    time_range: TimeRange
+    time_bucket_size: str
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.budget = cls.generate_budget()
+        cls.time_bucket_size = TimeBucketSizeOption.ONE_MONTH.value
+        cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
+
+    def get_query_params(self, **kwargs):
+        return {
+            "date__gte": str(self.time_range[0].date()),
+            "date__lte": str(self.time_range[1].date()),
+            "time_bucket_size": self.time_bucket_size,
+            **kwargs,
+        }
 
     def test_missing_time_bucket_size_query_param(self):
         r = self.get(self.url)
@@ -29,10 +40,25 @@ class TestReportViewMixin:
         self.assertIn(b"time_bucket_size", r.content)
 
     def test_invalid_time_bucket_size_query_param(self):
-        r = self.get(self.url, query={"time_bucket_size": "invalid"})
+        qs = self.get_query_params(time_bucket_size="invalid")
+        r = self.get(self.url, query=qs)
         self.assertEqual(r.status_code, 400)
         self.assertIn(b"Invalid", r.content)
         self.assertIn(b"time_bucket_size", r.content)
+
+    def test_invalid_date_gte_query_param(self):
+        qs = self.get_query_params(date__gte="invalid")
+        r = self.get(self.url, query=qs)
+        self.assertEqual(r.status_code, 400)
+        self.assertIn(b"valid", r.content)
+        self.assertIn(b"date__gte", r.content)
+
+    def test_invalid_date_lte_query_param(self):
+        qs = self.get_query_params(date__lte="invalid")
+        r = self.get(self.url, query=qs)
+        self.assertEqual(r.status_code, 400)
+        self.assertIn(b"valid", r.content)
+        self.assertIn(b"date__lte", r.content)
 
 
 class TestTransactionCounts(TestReportViewMixin, BudgetTestCase):
@@ -49,7 +75,7 @@ class TestTransactionCounts(TestReportViewMixin, BudgetTestCase):
             cls.generate_transaction(cls.budget, amount=0, date=bucket[0])
 
     def test_transaction_counts_one_day(self):
-        qp = {"time_bucket_size": TimeBucketSizeOption.ONE_DAY.value}
+        qp = self.get_query_params()
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -64,8 +90,9 @@ class TestTransactionCounts(TestReportViewMixin, BudgetTestCase):
             self.assertEqual(value, 1)
 
     def test_transaction_counts_six_months(self):
-        qp = {"time_bucket_size": TimeBucketSizeOption.SIX_MONTHS.value}
-
+        qp = self.get_query_params(
+            time_bucket_size=TimeBucketSizeOption.SIX_MONTHS.value
+        )
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
         data = r.json()
@@ -78,7 +105,7 @@ class TestTransactionCounts(TestReportViewMixin, BudgetTestCase):
         self.assertEqual(data, expected_data)
 
     def test_transaction_counts_one(self):
-        qp = {"time_bucket_size": TimeBucketSizeOption.ONE.value}
+        qp = self.get_query_params(time_bucket_size=TimeBucketSizeOption.ONE.value)
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -110,7 +137,7 @@ class TestBudgetDelta(TestReportViewMixin, BudgetTestCase):
                 cls.generate_transaction(budget, date=bucket[0].date(), amount=50)
 
     def test(self):
-        qp = {"time_bucket_size": self.time_bucket_size}
+        qp = self.get_query_params()
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -119,7 +146,7 @@ class TestBudgetDelta(TestReportViewMixin, BudgetTestCase):
 
         for value in data:
             for budget in self.budgets:
-                self.assertEqual(value[budget.name], -50)
+                self.assertEqual(value[str(budget.id)], -50)
 
 
 class TestTagDelta(TestReportViewMixin, BudgetTestCase):
@@ -143,7 +170,7 @@ class TestTagDelta(TestReportViewMixin, BudgetTestCase):
                 )
 
     def test(self):
-        qp = {"time_bucket_size": self.time_bucket_size}
+        qp = self.get_query_params()
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -152,7 +179,7 @@ class TestTagDelta(TestReportViewMixin, BudgetTestCase):
 
         for value in data:
             for tag in self.tags:
-                self.assertEqual(value[tag.name], -50)
+                self.assertEqual(value[str(tag.id)], -50)
 
 
 class TestIncome(TestReportViewMixin, BudgetTestCase):
@@ -161,6 +188,7 @@ class TestIncome(TestReportViewMixin, BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.time_bucket_size = TimeBucketSizeOption.ONE.value
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
 
         cls.generate_transaction(
@@ -174,7 +202,7 @@ class TestIncome(TestReportViewMixin, BudgetTestCase):
         )
 
     def test(self):
-        qp = {"time_bucket_size": TimeBucketSizeOption.ONE.value}
+        qp = self.get_query_params()
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -190,6 +218,7 @@ class TestTransfer(TestReportViewMixin, BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.time_bucket_size = TimeBucketSizeOption.ONE.value
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
 
         cls.generate_transaction(
@@ -203,7 +232,7 @@ class TestTransfer(TestReportViewMixin, BudgetTestCase):
         )
 
     def test(self):
-        qp = {"time_bucket_size": TimeBucketSizeOption.ONE.value}
+        qp = self.get_query_params()
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -219,6 +248,7 @@ class TestOutcomeReport(TestReportViewMixin, BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.time_bucket_size = TimeBucketSizeOption.ONE.value
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
 
         cls.generate_transaction(cls.budget, date=arrow.get(2022, 1, 1), amount=-100)
@@ -231,7 +261,7 @@ class TestOutcomeReport(TestReportViewMixin, BudgetTestCase):
         )
 
     def test(self):
-        qp = {"time_bucket_size": TimeBucketSizeOption.ONE.value}
+        qp = self.get_query_params()
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -270,12 +300,7 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
                 cls.generate_transaction(budget, date=bucket[0], amount=-50)
 
     def test(self):
-        qp = {
-            "time_bucket_size": self.time_bucket_size,
-            "date__gte": self.time_range[0].date(),
-            "date__lte": self.time_range[1].date(),
-        }
-
+        qp = self.get_query_params()
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
         data = r.json()["data"]
@@ -290,7 +315,7 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
                 self.assertEqual(balance, expected_balance)
 
             self.assertEqual(
-                set(value.keys()), {budget.name for budget in self.budgets}
+                set(value.keys()), {str(budget.id) for budget in self.budgets}
             )
 
 
@@ -325,11 +350,7 @@ class TestTagBalanceReport(TestReportViewMixin, BudgetTestCase):
                 )
 
     def test(self):
-        qp = {
-            "time_bucket_size": self.time_bucket_size,
-            "date__gte": self.time_range[0].date(),
-            "date__lte": self.time_range[1].date(),
-        }
+        qp = self.get_query_params()
 
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
@@ -344,4 +365,4 @@ class TestTagBalanceReport(TestReportViewMixin, BudgetTestCase):
             for balance in value.values():
                 self.assertEqual(balance, expected_balance)
 
-            self.assertEqual(set(value.keys()), {tag.name for tag in self.tags})
+            self.assertEqual(set(value.keys()), {str(tag.id) for tag in self.tags})
