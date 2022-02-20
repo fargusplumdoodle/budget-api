@@ -1,4 +1,5 @@
 import abc
+from typing import Type
 from unittest.mock import patch
 
 from budget.utils.test import BudgetTestCase
@@ -6,7 +7,7 @@ from cron.cron import CronJob, CronJobRunner
 
 
 class CronJobTest(BudgetTestCase, abc.ABC):
-    job: CronJob
+    job: Type[CronJob]
 
     def start(self):
         jobs = [self.job()]
