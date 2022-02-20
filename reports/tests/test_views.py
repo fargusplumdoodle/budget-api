@@ -144,9 +144,8 @@ class TestBudgetDelta(TestReportViewMixin, BudgetTestCase):
         data = r.json()["data"]
         self.assertLengthEqual(data, 6)
 
-        for value in data:
-            for budget in self.budgets:
-                self.assertEqual(value[str(budget.id)], -50)
+        for budget in self.budgets:
+            self.assertEqual(data[str(budget.id)], [-50, -50, -50, -50, -50, -50])
 
 
 class TestTagDelta(TestReportViewMixin, BudgetTestCase):
@@ -175,11 +174,9 @@ class TestTagDelta(TestReportViewMixin, BudgetTestCase):
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
         data = r.json()["data"]
-        self.assertLengthEqual(data, 6)
 
-        for value in data:
-            for tag in self.tags:
-                self.assertEqual(value[str(tag.id)], -50)
+        for tag in self.tags:
+            self.assertEqual(data[str(tag.id)], [-50, -50, -50, -50, -50, -50])
 
 
 class TestIncome(TestReportViewMixin, BudgetTestCase):
@@ -306,17 +303,8 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
         data = r.json()["data"]
         self.assertLengthEqual(data, 6)
 
-        expected_balance = 600
-        for value in data:
-            # We lose 50 per time period
-            expected_balance -= 50
-
-            for balance in value.values():
-                self.assertEqual(balance, expected_balance)
-
-            self.assertEqual(
-                set(value.keys()), {str(budget.id) for budget in self.budgets}
-            )
+        for budget in self.budgets:
+            self.assertEqual(data[str(budget.id)], [550, 500, 450, 400, 350, 300])
 
 
 class TestTagBalanceReport(TestReportViewMixin, BudgetTestCase):
@@ -355,14 +343,6 @@ class TestTagBalanceReport(TestReportViewMixin, BudgetTestCase):
         r = self.get(self.url, query=qp)
         self.assertEqual(r.status_code, 200)
         data = r.json()["data"]
-        self.assertLengthEqual(data, 6)
 
-        expected_balance = 600
-        for value in data:
-            # We lose 50 per time period
-            expected_balance -= 50
-
-            for balance in value.values():
-                self.assertEqual(balance, expected_balance)
-
-            self.assertEqual(set(value.keys()), {str(tag.id) for tag in self.tags})
+        for tag in self.tags:
+            self.assertEqual(data[str(tag.id)], [550, 500, 450, 400, 350, 300])

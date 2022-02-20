@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 import arrow
 from django.db.models import QuerySet, Sum, Q
@@ -13,11 +13,10 @@ from api2.filters import TransactionFilterset
 from api2.models import Transaction, Budget, Tag
 from reports.time_buckets import (
     get_time_buckets,
-    get_time_range,
     get_date_range,
     get_report_dates,
 )
-from reports.types import TimeBucketSizeOption, ReportGenerator
+from reports.types import TimeBucketSizeOption, ReportGenerator, TimeRange
 
 
 class ReportViewSet(ListModelMixin, GenericViewSet):
@@ -56,12 +55,24 @@ class ReportViewSet(ListModelMixin, GenericViewSet):
         return date
 
     @staticmethod
-    def generate_report(transactions: QuerySet[Transaction]) -> Any:
+    def generate_report_bucket(
+        transactions: QuerySet[Transaction], time_bucket: TimeRange
+    ):
         raise NotImplementedError()
 
     @staticmethod
-    def sum_transactions(transactions: QuerySet[Transaction], query: Q):
-        return transactions.filter(query).aggregate(Sum("amount"))["amount__sum"]
+    def sum_transactions(transactions: QuerySet[Transaction], query: Q) -> int:
+        return transactions.filter(query).aggregate(Sum("amount"))["amount__sum"] or 0
+
+    def get_report_data(
+        self, queryset: QuerySet[Transaction], time_buckets: List[TimeRange]
+    ):
+        return [
+            self.generate_report_bucket(
+                queryset.filter(date__range=get_date_range(time_range)), time_range
+            )
+            for time_range in time_buckets
+        ]
 
     def list(self, request: Request, *args, **kwargs) -> Response:
         self.validate(request.GET)
@@ -73,101 +84,112 @@ class ReportViewSet(ListModelMixin, GenericViewSet):
         )
         time_buckets = get_time_buckets(time_range, time_bucket_size)
 
-        report_data = [
-            self.generate_report(
-                queryset.filter(date__range=get_date_range(time_range))
-            )
-            for time_range in time_buckets
-        ]
-
         return Response(
             {
                 "dates": get_report_dates(time_buckets),
-                "data": report_data,
+                "data": self.get_report_data(queryset, time_buckets),
             }
         )
 
 
+class MultiValuedReport(ReportViewSet):
+    @classmethod
+    def generate_report_bucket(cls, transactions, time_bucket) -> Any:
+        return cls.sum_transactions(transactions, Q())
+
+    def filter_queryset(self, queryset) -> QuerySet[Transaction]:
+        return queryset
+
+
 class TransactionCountReport(ReportViewSet):
     @staticmethod
-    def generate_report(transactions: QuerySet[Transaction]) -> Any:
+    def generate_report_bucket(transactions: QuerySet[Transaction], time_bucket) -> Any:
         return transactions.count()
 
 
 class IncomeReport(ReportViewSet):
     @classmethod
-    def generate_report(cls, transactions: QuerySet[Transaction]) -> Any:
+    def generate_report_bucket(cls, transactions, time_bucket) -> Any:
         return cls.sum_transactions(transactions, Q(income=True))
 
 
 class TransferReport(ReportViewSet):
     @classmethod
-    def generate_report(cls, transactions: QuerySet[Transaction]) -> Any:
+    def generate_report_bucket(cls, transactions, time_bucket) -> Any:
         return cls.sum_transactions(transactions, Q(transfer=True))
 
 
 class OutcomeReport(ReportViewSet):
     @classmethod
-    def generate_report(cls, transactions: QuerySet[Transaction]) -> Any:
+    def generate_report_bucket(cls, transactions, time_bucket) -> Any:
         return cls.sum_transactions(transactions, Q(transfer=False, income=False))
 
 
-class BudgetDeltaReport(ReportViewSet):
-    @classmethod
-    def generate_report(cls, transactions: QuerySet[Transaction]) -> Any:
+class BudgetDeltaReport(MultiValuedReport):
+    def get_report_data(
+        self, queryset: QuerySet[Transaction], time_buckets: List[TimeRange]
+    ):
         budgets = Budget.objects.all()
         return {
-            budget.id: cls.sum_transactions(transactions, Q(budget=budget))
+            budget.id: [
+                self.generate_report_bucket(
+                    queryset.filter(
+                        budget=budget, date__range=get_date_range(time_range)
+                    ),
+                    time_range,
+                )
+                for time_range in time_buckets
+            ]
             for budget in budgets
         }
 
 
-class TagDeltaReport(ReportViewSet):
-    @classmethod
-    def generate_report(cls, transactions: QuerySet[Transaction]) -> Any:
+class TagDeltaReport(MultiValuedReport):
+    def get_report_data(
+        self, queryset: QuerySet[Transaction], time_buckets: List[TimeRange]
+    ):
         tags = Tag.objects.all()
-        return {tag.id: cls.sum_transactions(transactions, Q(tags=tag)) for tag in tags}
-
-
-class BudgetBalanceReport(ReportViewSet):
-    """
-    WARNING: THIS WILL NOT WORK IF PROVIDED FILTERS OTHER THAN BUDGET
-    """
-
-    @classmethod
-    def generate_report(cls, transactions: QuerySet[Transaction]) -> Any:
-        budgets = Budget.objects.all()
-        time_range = get_time_range(transactions)
-
-        if not time_range:
-            return {budget.id: 0 for budget in budgets}
-
         return {
-            budget.id: cls.sum_transactions(
-                Transaction.objects.all(),
-                Q(budget=budget, date__lte=time_range[1].datetime),
-            )
+            tag.id: [
+                self.generate_report_bucket(
+                    queryset.filter(tags=tag, date__range=get_date_range(time_range)),
+                    time_range,
+                )
+                for time_range in time_buckets
+            ]
+            for tag in tags
+        }
+
+
+class BudgetBalanceReport(MultiValuedReport):
+    def get_report_data(
+        self, queryset: QuerySet[Transaction], time_buckets: List[TimeRange]
+    ):
+        budgets = Budget.objects.all()
+        return {
+            budget.id: [
+                self.generate_report_bucket(
+                    queryset.filter(budget=budget, date__lte=time_range[1].datetime),
+                    time_range,
+                )
+                for time_range in time_buckets
+            ]
             for budget in budgets
         }
 
 
-class TagBalanceReport(ReportViewSet):
-    """
-    WARNING: THIS WILL NOT WORK IF PROVIDED FILTERS OTHER THAN TAGS
-    """
-
-    @classmethod
-    def generate_report(cls, transactions: QuerySet[Transaction]) -> Any:
+class TagBalanceReport(MultiValuedReport):
+    def get_report_data(
+        self, queryset: QuerySet[Transaction], time_buckets: List[TimeRange]
+    ):
         tags = Tag.objects.all()
-        time_range = get_time_range(transactions)
-
-        if not time_range:
-            return {tag.id: 0 for tag in tags}
-
         return {
-            tag.id: cls.sum_transactions(
-                Transaction.objects.all(),
-                Q(tags=tag, date__lte=time_range[1].datetime),
-            )
+            tag.id: [
+                self.generate_report_bucket(
+                    queryset.filter(tags=tag, date__lte=time_range[1].datetime),
+                    time_range,
+                )
+                for time_range in time_buckets
+            ]
             for tag in tags
         }

@@ -86,6 +86,7 @@ build-prod:
 release:
   stage: release
   image: hub.sekhnet.ra/semantic_release:latest
+  before_script: []
   script:
     - npx semantic-release
   only:
