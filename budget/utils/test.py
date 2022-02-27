@@ -95,7 +95,7 @@ class BudgetTestCase(APITestCase):
             defaults["date"] = defaults["date"].datetime
 
         tags: List[Tag] = defaults.get("tags")  # type: ignore
-        if tags:
+        if tags is not None:
             del defaults["tags"]
 
         trans = Transaction.objects.create(**defaults)
