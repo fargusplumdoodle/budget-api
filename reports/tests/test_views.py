@@ -284,6 +284,7 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
         cls.time_bucket_size = TimeBucketSizeOption.ONE_MONTH.value
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
         cls.buckets = get_time_buckets(cls.time_range, cls.time_bucket_size)
+        cls.expected_bucket_values = [550, 500, 450, 400, 350, 300]
 
         cls.budgets = Budget.objects.all()
         for bucket in cls.buckets:
@@ -304,7 +305,16 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
         self.assertLengthEqual(data, 6)
 
         for budget in self.budgets:
-            self.assertEqual(data[str(budget.id)], [550, 500, 450, 400, 350, 300])
+            self.assertEqual(data[str(budget.id)], self.expected_bucket_values)
+
+    def test_only_show_some_budgets(self):
+        qp = self.get_query_params(budget__includes=self.budget.id)
+        r = self.get(self.url, query=qp)
+        self.assertEqual(r.status_code, 200)
+        data = r.json()["data"]
+
+        self.assertLengthEqual(data, 1)
+        self.assertEqual(data[str(self.budget.id)], self.expected_bucket_values)
 
 
 class TestTagBalanceReport(TestReportViewMixin, BudgetTestCase):
