@@ -10,6 +10,7 @@ router.register(
 router.register("income", views.IncomeReport, "income")
 router.register("transfer", views.TransferReport, "transfer")
 router.register("outcome", views.OutcomeReport, "outcome")
+router.register("balance", views.BalanceReport, "balance")
 router.register(
     "budget_delta",
     views.BudgetDeltaReport,

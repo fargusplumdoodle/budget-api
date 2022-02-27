@@ -125,6 +125,17 @@ class IncomeReport(ReportViewSet):
         return cls.sum_transactions(transactions, Q(income=True))
 
 
+class BalanceReport(ReportViewSet):
+    def filter_queryset(self, queryset) -> QuerySet[Transaction]:
+        return queryset
+
+    @classmethod
+    def generate_report_bucket(cls, _, time_bucket) -> Any:
+        return cls.sum_transactions(
+            Transaction.objects.all(), Q(date__lte=time_bucket[1].datetime)
+        )
+
+
 class TransferReport(ReportViewSet):
     @classmethod
     def generate_report_bucket(cls, transactions, time_bucket) -> Any:
