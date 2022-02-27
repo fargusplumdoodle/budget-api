@@ -71,6 +71,37 @@ class TransactionViewTestCase(BudgetTestCase):
         self.assertNotIn("results", list_response)
         self.assertEqual(len(list_response), 1)
 
+    def test_excludes_filter(self):
+        exclude_budget = self.budgets_with_percentage[0]
+
+        for budget in Budget.objects.all():
+            self.generate_transaction(budget=budget)
+
+        r = self.get(
+            reverse("api2:transaction-list"),
+            query={"budget__excludes": exclude_budget.id},
+        )
+
+        self.assertEqual(r.status_code, 200)
+        data = r.json()
+        for transaction in data["results"]:
+            self.assertNotEqual(transaction["budget"], exclude_budget.id)
+
+    def test_no_tags_filter(self):
+        include = self.generate_transaction(self.budgets_with_percentage[0], tags=[])
+        self.generate_transaction(
+            self.budgets_with_percentage[0], tags=[self.generate_tag()]
+        )
+        r = self.get(
+            reverse("api2:transaction-list"),
+            query={"tags__none": True},
+        )
+        self.assertEqual(r.status_code, 200)
+        data = r.json()
+        self.assertLengthEqual(data["results"], 1)
+
+        self.assertEqual(data["results"][0]["id"], include.id)
+
 
 class ReportTestCase(BudgetTestCase):
     url = reverse("api2:report-list")

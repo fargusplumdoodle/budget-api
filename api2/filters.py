@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django_filters import rest_framework as filters, MultipleChoiceFilter
 from django import forms
 
@@ -35,9 +36,10 @@ class TransactionFilterset(filters.FilterSet):
     amount__lte = filters.NumberFilter(field_name="amount", lookup_expr="lte")
 
     budget = filters.CharFilter(field_name="budget__id", lookup_expr="exact")
-    budget__includes = CharListFilter(
-        field_name="budget__id", lookup_expr="exact"
-    )  # LEGACY
+    budget__includes = CharListFilter(field_name="budget__id", lookup_expr="exact")
+    budget__excludes = CharListFilter(
+        field_name="budget__id", lookup_expr="exact", method="excludes"
+    )
     budget__name__iexact = filters.CharFilter(
         field_name="budget__name", lookup_expr="iexact"
     )
@@ -58,10 +60,24 @@ class TransactionFilterset(filters.FilterSet):
     date__lt = filters.DateFilter(field_name="date", lookup_expr="lt")
     date__lte = filters.DateFilter(field_name="date", lookup_expr="lte")
 
-    tags = CharListFilter(field_name="tags__name", lookup_expr="iexact")  # LEGACY
-    tags__includes = CharListFilter(
-        field_name="tags__name", lookup_expr="iexact"
-    )  # LEGACY
+    tags = CharListFilter(field_name="tags__name", lookup_expr="iexact")
+    tags__includes = CharListFilter(field_name="tags__name", lookup_expr="iexact")
+    tags__excludes = CharListFilter(
+        field_name="tags__name", lookup_expr="exact", method="excludes"
+    )
+    tags__none = CharListFilter(
+        field_name="tags", lookup_expr="exact", method="tags_none"
+    )
+
+    @staticmethod
+    def excludes(queryset, name, value):
+        return queryset.exclude(**{f"{name}__in": value})
+
+    @staticmethod
+    def tags_none(queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.annotate(tag_count=Count("tags")).filter(tag_count=0)
 
 
 class TagFilterset(filters.FilterSet):
