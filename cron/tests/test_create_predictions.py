@@ -1,4 +1,6 @@
 from unittest.mock import patch
+
+import arrow
 from cron.jobs.create_predictions import CreatePredictions
 from cron.tests import CronJobTest
 
@@ -19,6 +21,10 @@ class TestCreatePredictions(CronJobTest):
         user_info.prediction_state_hash = user_info.calculate_prediction_state_hash()
 
         self.assertFalse(self.job()._needs_predictions_created(user_info))
+
+        user_info.analyze_start = arrow.get(2019, 11, 3).date()
+
+        self.assertTrue(self.job()._needs_predictions_created(user_info))
 
     def test_start(self):
         with (
