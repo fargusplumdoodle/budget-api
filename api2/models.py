@@ -108,5 +108,5 @@ class Transaction(models.Model):
 
 
 class UserInfo(models.Model):
-    user = models.ForeignKey(User, unique=True, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
     expected_monthly_net_income = models.IntegerField(default=0)
