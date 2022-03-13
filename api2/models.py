@@ -78,6 +78,9 @@ class Tag(models.Model):
         unique_together = ("name", "user")
         ordering = ["-rank", "name"]
 
+    def __str__(self) -> str:
+        return f"<Tag: {self.name}>"
+
 
 class Transaction(models.Model):
     MAX_TRANSACTION_SUPPORTED = 100_000_00  # No greater than 100,000 dollars

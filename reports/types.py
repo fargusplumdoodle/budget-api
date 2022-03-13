@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Tuple, Callable, List
 
 import arrow
@@ -18,4 +19,5 @@ class TimeBucketSizeOption(ChoiceEnum):
 
 
 TimeRange = Tuple[arrow.Arrow, arrow.Arrow]
+NativeTimeRange = Tuple[date, date]
 ReportGenerator = Callable[[QuerySet[Transaction], TimeRange], List[int]]
