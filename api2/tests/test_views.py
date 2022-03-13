@@ -342,6 +342,9 @@ class HealthCheck(BudgetTestCase):
 
 
 class UserInfoTestCase(BudgetTestCase):
+    def setUp(self) -> None:
+        UserInfo.objects.all().delete()
+
     def test_get(self):
         r = self.get(reverse("api2:info"))
         self.assertEqual(r.status_code, 200)
@@ -350,7 +353,15 @@ class UserInfoTestCase(BudgetTestCase):
         self.assertEqual(data["expected_monthly_net_income"], 0)
 
     def test_put(self):
-        new_info = {"expected_monthly_net_income": 100}
+        new_info = {
+            "expected_monthly_net_income": 100,
+            "income_frequency_days": 13,
+            "analyze_start": str(self.now.shift(months=3).date()),
+            "analyze_end": str(self.now.shift(months=1).date()),
+            "predict_start": str(self.now.date()),
+            "predict_end": str(self.now.shift(months=4).date()),
+            "currently_calculating_predictions": False,
+        }
         r = self.put(reverse("api2:info"), data=new_info)
         self.assertEqual(r.status_code, 201)
 
