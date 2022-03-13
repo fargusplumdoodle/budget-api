@@ -6,14 +6,20 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from api2.models import Budget, Transaction, Tag
+from api2.models import Budget, Transaction, Tag, UserInfo
+from budget.utils.dates import nativify_dates
 
 
 class BudgetTestCase(APITestCase):
+    user: User
+    user_info: UserInfo
+    now: arrow.Arrow
+
     @classmethod
     def setUpTestData(cls):
         cls.user = cls.generate_user()
         cls.now = arrow.now()
+        cls.user_info = cls.generate_user_info()
 
     def _make_request(
         self, method_name, endpoint, data, encoding="json", query=None, user=None
@@ -70,6 +76,22 @@ class BudgetTestCase(APITestCase):
         return Budget.objects.create(**defaults)
 
     @classmethod
+    def generate_user_info(cls, **kwargs):
+        defaults = {
+            "user": cls.user,
+            "expected_monthly_net_income": 300,
+            "income_frequency_days": 14,
+            "analyze_start": cls.now.shift(months=-3),
+            "analyze_end": cls.now,
+            "predict_start": cls.now,
+            "predict_end": cls.now.shift(months=3),
+            "currently_calculating_predictions": False,
+        }
+        defaults.update(kwargs)
+        defaults = nativify_dates(defaults)
+        return UserInfo.objects.create(**defaults)
+
+    @classmethod
     def generate_tag(cls, **kwargs):
         defaults = {"name": f"tag_{Tag.objects.count():07}", "rank": 0}
         if "user" not in kwargs:
@@ -90,9 +112,7 @@ class BudgetTestCase(APITestCase):
             "transfer": False,
         }
         defaults.update(kwargs)
-
-        if isinstance(defaults["date"], arrow.Arrow):
-            defaults["date"] = defaults["date"].datetime
+        defaults = nativify_dates(defaults)
 
         tags: List[Tag] = defaults.get("tags")  # type: ignore
         if tags is not None:

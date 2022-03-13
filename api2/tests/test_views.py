@@ -25,6 +25,11 @@ class TransactionViewTestCase(BudgetTestCase):
             cls.generate_budget(percentage=25),
         ]
         cls.budget_without_percentage = (cls.generate_budget(percentage=0),)
+        cls.generate_transaction(
+            cls.budgets_with_percentage[0],
+            description="Will not show up anywhere",
+            prediction=True,
+        )
 
     def test_add_income(self):
         data = {
@@ -35,7 +40,7 @@ class TransactionViewTestCase(BudgetTestCase):
         r = self.post(reverse("api2:transaction-income"), data=data)
         response = r.json()
 
-        transactions = Transaction.objects.all()
+        transactions = Transaction.objects.filter(prediction=False)
         self.assertEqual(transactions.count(), 4)
 
         for trans_json in response:
@@ -342,6 +347,9 @@ class HealthCheck(BudgetTestCase):
 
 
 class UserInfoTestCase(BudgetTestCase):
+    def setUp(self) -> None:
+        UserInfo.objects.all().delete()
+
     def test_get(self):
         r = self.get(reverse("api2:info"))
         self.assertEqual(r.status_code, 200)
@@ -350,7 +358,15 @@ class UserInfoTestCase(BudgetTestCase):
         self.assertEqual(data["expected_monthly_net_income"], 0)
 
     def test_put(self):
-        new_info = {"expected_monthly_net_income": 100}
+        new_info = {
+            "expected_monthly_net_income": 100,
+            "income_frequency_days": 13,
+            "analyze_start": str(self.now.shift(months=3).date()),
+            "analyze_end": str(self.now.shift(months=1).date()),
+            "predict_start": str(self.now.date()),
+            "predict_end": str(self.now.shift(months=4).date()),
+            "currently_calculating_predictions": False,
+        }
         r = self.put(reverse("api2:info"), data=new_info)
         self.assertEqual(r.status_code, 201)
 

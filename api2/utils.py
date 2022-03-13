@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from api2.models import Budget, Transaction, Tag
 
 
-def add_income(amount: int, user: User, save=False, date=None, description="income"):
+def add_income(amount: int, user: User, save=False, date=None, **kwargs):
     """
     For adding/subtracting money to all budgets based on their percentage attribute.
 
@@ -32,11 +32,7 @@ def add_income(amount: int, user: User, save=False, date=None, description="inco
     for budget in Budget.objects.filter(user=user, percentage__gt=0):
         trans_amount = round(amount * (budget.percentage / 100))
         transaction = Transaction(
-            amount=trans_amount,
-            budget=budget,
-            income=True,
-            description=description,
-            date=date,
+            amount=trans_amount, budget=budget, income=True, date=date, **kwargs
         )
         if save:
             transaction.save()

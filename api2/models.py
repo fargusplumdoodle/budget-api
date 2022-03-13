@@ -1,3 +1,5 @@
+import hashlib
+from typing import List
 import arrow
 from django.contrib.auth.models import User
 from django.db import models
@@ -23,7 +25,7 @@ class Budget(models.Model):
     def balance(self, date_range=None) -> int:
         # the current balance is equal to the sum of all transactions plus the initial balance
         balance = self.initial_balance
-        transactions = Transaction.objects.filter(budget=self)
+        transactions = Transaction.objects.filter(budget=self, prediction=False)
 
         if date_range:
             assert isinstance(date_range, Q)
@@ -48,7 +50,7 @@ class Budget(models.Model):
             arrow.now().datetime,
         )
         transactions = Transaction.objects.filter(
-            date__range=time_period_range, budget=self
+            date__range=time_period_range, budget=self, prediction=False
         )
         total_income = transactions.filter(income=True).aggregate(Sum("amount"))[
             "amount__sum"
@@ -99,6 +101,10 @@ class Transaction(models.Model):
     transfer = models.BooleanField(
         default=False, help_text="Signifies that this is part of a transfer"
     )
+    prediction = models.BooleanField(
+        default=False,
+        help_text="Signifies this transaction is only an estimate and that it actually does not exist",
+    )
 
     def pretty_amount(self):
         return str(self.amount)
@@ -108,5 +114,39 @@ class Transaction(models.Model):
 
 
 class UserInfo(models.Model):
-    user = models.ForeignKey(User, unique=True, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
     expected_monthly_net_income = models.IntegerField(default=0)
+
+    # Prediction info
+    #   Fields:
+    income_frequency_days = models.IntegerField(
+        default=14, help_text="How many days to expect for each income"
+    )
+    analyze_start = models.DateField(null=True)
+    analyze_end = models.DateField(null=True)
+    predict_start = models.DateField(null=True)
+    predict_end = models.DateField(null=True)
+    #   Metadata:
+    currently_calculating_predictions = models.BooleanField(default=False)
+    prediction_state_hash = models.BinaryField(
+        null=True, max_length=40, help_text="Sha1sum of prediction input fields"
+    )
+
+    def calculate_prediction_state_hash(self) -> bytes:
+        date_fields = [
+            self.analyze_start,
+            self.analyze_end,
+            self.predict_start,
+            self.predict_end,
+        ]
+        prediction_settings_fields: List[str] = [
+            *[str(d) for d in date_fields],
+            str(self.income_frequency_days),
+            str(self.expected_monthly_net_income),
+        ]
+        hash = hashlib.sha1()
+
+        for field in prediction_settings_fields:
+            hash.update(field.encode())
+
+        return hash.digest()

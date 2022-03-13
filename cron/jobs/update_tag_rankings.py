@@ -12,6 +12,6 @@ class UpdateTagRankings(CronJob):
 
         for tag in Tag.objects.all():
             tag.rank = Transaction.objects.filter(
-                tags=tag, date__gte=last_6_months
+                tags=tag, date__gte=last_6_months, prediction=False
             ).count()
             tag.save()
