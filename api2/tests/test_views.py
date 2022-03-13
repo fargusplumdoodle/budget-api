@@ -25,6 +25,11 @@ class TransactionViewTestCase(BudgetTestCase):
             cls.generate_budget(percentage=25),
         ]
         cls.budget_without_percentage = (cls.generate_budget(percentage=0),)
+        cls.generate_transaction(
+            cls.budgets_with_percentage[0],
+            description="Will not show up anywhere",
+            prediction=True,
+        )
 
     def test_add_income(self):
         data = {
@@ -35,7 +40,7 @@ class TransactionViewTestCase(BudgetTestCase):
         r = self.post(reverse("api2:transaction-income"), data=data)
         response = r.json()
 
-        transactions = Transaction.objects.all()
+        transactions = Transaction.objects.filter(prediction=False)
         self.assertEqual(transactions.count(), 4)
 
         for trans_json in response:

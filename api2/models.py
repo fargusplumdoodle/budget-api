@@ -25,7 +25,7 @@ class Budget(models.Model):
     def balance(self, date_range=None) -> int:
         # the current balance is equal to the sum of all transactions plus the initial balance
         balance = self.initial_balance
-        transactions = Transaction.objects.filter(budget=self)
+        transactions = Transaction.objects.filter(budget=self, prediction=False)
 
         if date_range:
             assert isinstance(date_range, Q)
@@ -50,7 +50,7 @@ class Budget(models.Model):
             arrow.now().datetime,
         )
         transactions = Transaction.objects.filter(
-            date__range=time_period_range, budget=self
+            date__range=time_period_range, budget=self, prediction=False
         )
         total_income = transactions.filter(income=True).aggregate(Sum("amount"))[
             "amount__sum"

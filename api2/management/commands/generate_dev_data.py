@@ -123,7 +123,9 @@ class Command(BaseCommand):
         now = arrow.now()
         tags = Tag.objects.all()
         for budget in Budget.objects.all():
-            existing_transactions = Transaction.objects.filter(budget=budget).count()
+            existing_transactions = Transaction.objects.filter(
+                budget=budget, prediction=False
+            ).count()
 
             if existing_transactions < cls.EXPECTED_TRANSACTIONS:
                 expected_transactions = (

@@ -61,9 +61,9 @@ class TransactionViewset(ModelViewSet):
     filterset_class = TransactionFilterset
 
     def get_queryset(self):
-        return Transaction.objects.filter(budget__user=self.request.user).order_by(
-            "-date"
-        )
+        return Transaction.objects.filter(
+            budget__user=self.request.user, prediction=False
+        ).order_by("-date")
 
     @action(detail=False, methods=["post"])
     def income(self, request):
@@ -107,9 +107,9 @@ class ReportViewset(ModelViewSet):
     filterset_class = TransactionFilterset
 
     def get_queryset(self):
-        return Transaction.objects.filter(budget__user=self.request.user).order_by(
-            "-date"
-        )
+        return Transaction.objects.filter(
+            budget__user=self.request.user, prediction=False
+        ).order_by("-date")
 
     @staticmethod
     def get_budget_stats(qs: QuerySet[Transaction]) -> list:

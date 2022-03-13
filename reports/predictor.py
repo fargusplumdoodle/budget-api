@@ -40,7 +40,9 @@ class Predictor:
         self.analysis_range = analyze_range
         self.prediction_range = prediction_range
         all_transactions = Transaction.objects.filter(
-            budget__user=user, date__range=toNativeTimeRange(analyze_range)
+            budget__user=user,
+            date__range=toNativeTimeRange(analyze_range),
+            prediction=False,
         )
 
         self.analyze_transactions = all_transactions.filter(income=False)

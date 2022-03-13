@@ -12,6 +12,6 @@ class UpdateBudgetRankings(CronJob):
 
         for budget in Budget.objects.all():
             budget.rank = Transaction.objects.filter(
-                budget=budget, date__gte=last_6_months
+                prediction=False, budget=budget, date__gte=last_6_months
             ).count()
             budget.save()
