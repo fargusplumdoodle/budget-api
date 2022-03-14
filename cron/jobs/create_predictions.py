@@ -1,6 +1,6 @@
 import logging
 import arrow
-from api2.models import UserInfo
+from api2.models import Transaction, UserInfo
 from cron.cron import CronJob
 from reports.predictor import Predictor
 
@@ -19,6 +19,9 @@ class CreatePredictions(CronJob):
                     'User "%s" does not need predictions created', user.username
                 )
                 continue
+
+            logger.info('Deleting all predictions for "%s"')
+            Transaction.objects.filter(prediction=True, budget__user=user).delete()
 
             logger.info(
                 'Analysing trans for "%s" in range (%s, %s)',
