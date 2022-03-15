@@ -1,5 +1,4 @@
 import hashlib
-from typing import List
 import arrow
 from django.contrib.auth.models import User
 from django.db import models
@@ -122,31 +121,23 @@ class UserInfo(models.Model):
     income_frequency_days = models.IntegerField(
         default=14, help_text="How many days to expect for each income"
     )
-    analyze_start = models.DateField(null=True)
-    analyze_end = models.DateField(null=True)
-    predict_start = models.DateField(null=True)
-    predict_end = models.DateField(null=True)
-    #   Metadata:
-    currently_calculating_predictions = models.BooleanField(default=False)
-    prediction_state_hash = models.BinaryField(
-        null=True, max_length=40, help_text="Sha1sum of prediction input fields"
+    analyze_start = models.DateField(
+        null=True, help_text="Date to start analyzing transaction behaviour from"
+    )
+    predict_end = models.DateField(
+        null=True, help_text="Date to stop predicting transactions for"
     )
 
     def calculate_prediction_state_hash(self) -> bytes:
-        date_fields = [
+        prediction_settings_fields = [
             self.analyze_start,
-            self.analyze_end,
-            self.predict_start,
             self.predict_end,
-        ]
-        prediction_settings_fields: List[str] = [
-            *[str(d) for d in date_fields],
-            str(self.income_frequency_days),
-            str(self.expected_monthly_net_income),
+            self.income_frequency_days,
+            self.expected_monthly_net_income,
         ]
         hash = hashlib.sha1()
 
         for field in prediction_settings_fields:
-            hash.update(field.encode())
+            hash.update(str(field).encode())
 
         return hash.digest()
