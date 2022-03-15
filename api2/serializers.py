@@ -116,4 +116,4 @@ class AddMoneySerializer(serializers.Serializer):
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInfo
-        exclude = ["id", "user", "prediction_state_hash"]
+        exclude = ["id", "user"]

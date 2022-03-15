@@ -82,10 +82,7 @@ class BudgetTestCase(APITestCase):
             "expected_monthly_net_income": 300,
             "income_frequency_days": 14,
             "analyze_start": cls.now.shift(months=-3),
-            "analyze_end": cls.now,
-            "predict_start": cls.now,
             "predict_end": cls.now.shift(months=3),
-            "currently_calculating_predictions": False,
         }
         defaults.update(kwargs)
         defaults = nativify_dates(defaults)

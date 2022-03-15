@@ -13,31 +13,23 @@ class CreatePredictions(CronJob):
     def run(self, *args, **kwargs):
         for user_info in UserInfo.objects.all():
             user = user_info.user
-
-            if not self._needs_predictions_created(user_info):
-                logger.info(
-                    'User "%s" does not need predictions created', user.username
-                )
-                continue
-
-            logger.info('Deleting all predictions for "%s"')
+            logger.info('Deleting all predictions for "%s"', user.username)
             Transaction.objects.filter(prediction=True, budget__user=user).delete()
 
             logger.info(
-                'Analysing trans for "%s" in range (%s, %s)',
+                'Analysing trans for "%s" from "%s" to now',
                 user.username,
                 user_info.analyze_start,
-                user_info.analyze_end,
             )
             user_info.currently_calculating_predictions = True
             user_info.save()
 
             analyze_range = (
                 arrow.get(user_info.analyze_start),
-                arrow.get(user_info.analyze_end),
+                arrow.now(),
             )
             predict_range = (
-                arrow.get(user_info.predict_start),
+                arrow.now().shift(days=1),
                 arrow.get(user_info.predict_end),
             )
 
@@ -45,20 +37,8 @@ class CreatePredictions(CronJob):
             created_predictions = predictor.run()
 
             logger.info(
-                'Created "%s" predicted transactions for "%s" in range (%s, %s)',
+                'Created "%s" predicted transactions for "%s" until "%s"',
                 created_predictions.count(),
                 user.username,
-                user_info.analyze_start,
-                user_info.analyze_end,
+                user_info.predict_end,
             )
-            user_info.prediction_state_hash = (
-                user_info.calculate_prediction_state_hash()
-            )
-            user_info.currently_calculating_predictions = False
-            user_info.save()
-
-    def _needs_predictions_created(self, user_info: UserInfo) -> bool:
-        return (
-            user_info.calculate_prediction_state_hash()
-            != user_info.prediction_state_hash
-        )
