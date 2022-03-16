@@ -55,14 +55,17 @@ Available from `/metrics`
 
 
 # Patch notes
-## v2.1
-Date: 2020-10-31
+## v1.0
+Date: Winter 2022
 
 Changes:
-- Added Prometheus metrics
-- Dates not match equal to
+- Cron jobs
+- Reporting
+- Predicting the future
+- Slowly moving from Flutter client to React Web based client
 
-## v2
+
+## v0.5
 Date: 2020-09-19
 
 Changes:
@@ -76,7 +79,7 @@ Changes:
 - Added docker-compose for easier development
 - Updated Postman collection for API calls
 
-## v1
+## v0
 Date: 2019-11-03
 
 Changes:
