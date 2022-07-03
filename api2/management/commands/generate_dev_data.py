@@ -7,7 +7,7 @@ from oauth2_provider.models import Application
 
 from api2.models import User, Budget, Transaction, Tag
 from budget.utils.test import BudgetTestCase
-from cron.jobs.update_tag_rankings import UpdateTagRankings
+from cron.jobs.update_tag_stats import UpdateTagStats
 
 
 class Command(BaseCommand):
@@ -153,7 +153,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def _update_tag_rankings():
-        UpdateTagRankings().run()
+        UpdateTagStats().run()
 
     def handle(self, *args, **options):
         if not settings.DEBUG:

@@ -71,9 +71,13 @@ class Budget(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=30, db_index=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    # Stats
     rank = models.IntegerField(
         default=0, help_text="Notates how frequent this tag has been used"
     )
+    common_transaction_amount = models.IntegerField(null=True)
+    common_budget = models.ForeignKey(Budget, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         unique_together = ("name", "user")

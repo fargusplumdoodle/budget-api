@@ -183,6 +183,7 @@ class ReportViewset(ModelViewSet):
 class UserInfoView(APIView):
     model = UserInfo
     serializer_class = TagSerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request: Request):
         info, _ = self.model.objects.get_or_create(user=request.user)
