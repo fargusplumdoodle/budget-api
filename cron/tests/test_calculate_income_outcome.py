@@ -1,4 +1,4 @@
-from cron.jobs.daily import CalculateIncomeOutcome
+from cron.jobs.daily.calculate_income_outcome import CalculateIncomeOutcome
 from cron.tests import CronJobTest
 
 
@@ -10,7 +10,7 @@ class TestCalculateIncomeOutcome(CronJobTest):
         self.generate_transaction(budget, amount=-3000, income=False)
         self.generate_transaction(budget, amount=3000, income=True)
 
-        self.start_daily()
+        self.start()
 
         budget.refresh_from_db()
         self.assertEqual(budget.income_per_month, 1000)

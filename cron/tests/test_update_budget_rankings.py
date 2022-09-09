@@ -1,4 +1,4 @@
-from cron.jobs.daily import UpdateBudgetRankings
+from cron.jobs.daily.update_budget_rankings import UpdateBudgetRankings
 from cron.tests import CronJobTest
 
 

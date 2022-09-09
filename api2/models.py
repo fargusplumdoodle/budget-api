@@ -7,7 +7,6 @@ from django.db.models import Sum, Q
 
 class Budget(models.Model):
     name = models.CharField(max_length=20)
-    percentage = models.IntegerField(default=0)
     monthly_allocation = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 

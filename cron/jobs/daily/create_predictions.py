@@ -12,6 +12,13 @@ class CreatePredictions(CronJob):
 
     def run(self, *args, **kwargs):
         for user_info in UserInfo.objects.all():
+            if not user_info.analyze_start:
+                logger.info(
+                    'Skipping creating predictions for "%s". User missing analyze_start property.',
+                    user_info.user.username,
+                )
+                continue
+
             user = user_info.user
             logger.info('Deleting all predictions for "%s"', user.username)
             Transaction.objects.filter(prediction=True, budget__user=user).delete()

@@ -31,15 +31,19 @@ class CronJob(abc.ABC):
 
 class CronJobRunner:
     _extension = re.compile(r"\.py$")
+    batch_map = {
+        'daily': daily,
+        'monthly': monthly,
+    }
 
     @classmethod
-    def _discover_jobs(cls, mod) -> List[CronJob]:
+    def _discover_jobs(cls, batch, mod) -> List[CronJob]:
         cron_jobs: List[CronJob] = []
         for filename in listdir(dirname(mod.__file__)):
             module_name = re.sub(cls._extension, "", basename(filename))
             if module_name == "__init__":
                 continue
-            module = import_module(f"cron.jobs.daily.{module_name}")
+            module = import_module(f"cron.jobs.{batch}.{module_name}")
             for entry in dir(module):
                 job = getattr(module, entry)
                 try:
@@ -50,16 +54,9 @@ class CronJobRunner:
         return cron_jobs
 
     @classmethod
-    def execute_jobs(cls, mod):
-        for job in cls._discover_jobs(mod):
+    def execute_jobs(cls, batch="daily"):
+
+        for job in cls._discover_jobs(batch, cls.batch_map[batch]):
             logger.info("%s STARTING: %s", arrow.now().isoformat(), job.name)
             job.start()
             logger.info("%s COMPLETE: %s", arrow.now().isoformat(), job.name)
-
-    @classmethod
-    def execute_cron_daily_jobs(cls):
-        cls.execute_jobs(daily)
-
-    @classmethod
-    def execute_cron_monthly_jobs(cls):
-        cls.execute_jobs(monthly)

@@ -7,7 +7,7 @@ from cron.cron import CronJob
 
 class AddMonthlyIncome(CronJob):
 
-    name = "Income"
+    name = "Add Monthly Income"
 
     # Creates an income transaction for each user
 

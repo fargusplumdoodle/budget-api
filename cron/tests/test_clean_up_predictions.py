@@ -1,9 +1,9 @@
 from unittest.mock import patch
 from api2.models import Transaction
-from cron.jobs.daily import CleanUpPredictions
+from cron.jobs.daily.clean_up_predictions import CleanUpPredictions
 from cron.tests import CronJobTest
 
-MODULE = "cron.daily.clean_up_predictions"
+MODULE = "cron.jobs.daily.clean_up_predictions"
 
 
 class TestCleanUpPredictions(CronJobTest):
@@ -22,7 +22,7 @@ class TestCleanUpPredictions(CronJobTest):
         ]
 
         with patch(f"{MODULE}.arrow.now", return_value=self.now):
-            self.start_daily()
+            self.start()
 
         trans = Transaction.objects.all()
         self.assertLengthEqual(trans, len(unaffected_trans))
