@@ -15,7 +15,7 @@ class TestBudget(BudgetTestCase):
         super().setUpTestData()
 
         cls.user = cls.generate_user()
-        cls.budget = cls.generate_budget(user=cls.user, initial_balance=1)
+        cls.budget = cls.generate_budget(user=cls.user)
         cls.other_budget = cls.generate_budget(user=cls.user)
 
     def test_balance(self):
@@ -31,7 +31,7 @@ class TestBudget(BudgetTestCase):
         self.generate_transaction(budget=self.other_budget, amount=1, transfer=False)
 
         # 1 initial balance + 1 non transfer transaction
-        self.assertEqual(self.budget.balance(), 3)
+        self.assertEqual(self.budget.balance(), 2)
 
     @patch("arrow.now", return_value=now)
     def test_balance_range(self, _):
@@ -44,7 +44,7 @@ class TestBudget(BudgetTestCase):
         )
         self.assertEqual(
             self.budget.balance(Q(date__range=date_range)),
-            in_range.amount + self.budget.initial_balance,
+            in_range.amount,
         )
 
     @patch("arrow.now", return_value=now)

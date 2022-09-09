@@ -129,7 +129,6 @@ class ReportViewset(ModelViewSet):
             budget_stats = {
                 "id": budget.id,
                 "name": budget.name,
-                "initial_balance": budget.balance(Q(date__lt=start_date)),
                 "final_balance": budget.balance(Q(date__lte=end_date)),
                 "income": Transaction.objects.filter(
                     budget=budget, date__range=date_range, income=True

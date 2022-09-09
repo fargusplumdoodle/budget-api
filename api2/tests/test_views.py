@@ -156,10 +156,6 @@ class ReportTestCase(BudgetTestCase):
         self.assertEqual(budget_stats["id"], self.budget.id)
         self.assertEqual(budget_stats["name"], self.budget.name)
         self.assertEqual(
-            budget_stats["initial_balance"],
-            self.budget.balance(Q(date__lt=self.start.date())),
-        )
-        self.assertEqual(
             budget_stats["final_balance"],
             self.budget.balance(Q(date__lte=self.end.date())),
         )

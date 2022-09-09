@@ -8,7 +8,6 @@ from django.db.models import Sum, Q
 class Budget(models.Model):
     name = models.CharField(max_length=20)
     percentage = models.IntegerField(default=0)
-    initial_balance = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     income_per_month = models.IntegerField(null=True)
@@ -25,7 +24,7 @@ class Budget(models.Model):
 
     def balance(self, date_range=None) -> int:
         # the current balance is equal to the sum of all transactions plus the initial balance
-        balance = self.initial_balance
+        balance = 0
         transactions = Transaction.objects.filter(budget=self, prediction=False)
 
         if date_range:

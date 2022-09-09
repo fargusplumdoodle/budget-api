@@ -67,7 +67,6 @@ class BudgetTestCase(APITestCase):
         defaults = {
             "name": f"budget_{Budget.objects.count():07}",
             "percentage": 0,
-            "initial_balance": 0,
         }
         if "user" not in kwargs:
             defaults["user"] = cls.user  # type: ignore
