@@ -2,8 +2,11 @@ import random
 from typing import Dict, TYPE_CHECKING, List
 from typing_extensions import TypedDict
 from django.contrib.auth.models import User
+
+from api2.constants import ROOT_BUDGET_NAME, PAYCHEQUE_TAG_NAME
 from api2.models import Budget, Tag, Transaction, UserInfo
-from api2.utils import add_income
+from api2.utils.add_monthly_income import add_monthly_income
+from reports.constants import PREDICTION_TRANSACTION_DESCRIPTION
 from reports.types import TimeRange
 from django.db.models import Avg
 
@@ -61,7 +64,6 @@ class Predictor:
         self.transaction_probability_distrobution = (
             self._get_transaction_probability_distrobution()
         )
-        # TODO: BUILD INCOME TRANSACTIONS
 
     def run(self) -> "QuerySet[Transaction]":
         transactions: List[Transaction] = [
@@ -87,7 +89,7 @@ class Predictor:
 
                     predicted_transaction = Transaction.objects.create(
                         budget=budget,
-                        description="prediction",
+                        description=PREDICTION_TRANSACTION_DESCRIPTION,
                         amount=budget_prob["tags"][tag]["average_amount"],
                         date=self.prediction_start.shift(days=day_delta).datetime,
                         prediction=True,
@@ -100,25 +102,39 @@ class Predictor:
 
     def _generate_income_transactions(self) -> List[Transaction]:
         user_info = UserInfo.objects.get(user=self.user)
-        income_amount = round(
+        root_budget = Budget.objects.get(user=self.user, name=ROOT_BUDGET_NAME)
+        paycheque_tag, _ = Tag.objects.get_or_create(name=PAYCHEQUE_TAG_NAME, user=self.user)
+
+        paycheque_amount = round(
             (user_info.expected_monthly_net_income / 31)
             * user_info.income_frequency_days
         )
-        income_transactions: List[Transaction] = []
+        transactions = []
 
         for day_delta in range(
             0, self.days_in_prediction_period, user_info.income_frequency_days
         ):
             date = self.prediction_start.shift(days=day_delta)
-            income_transactions += add_income(
-                amount=income_amount,
-                user=self.user,
-                save=True,
-                date=date.datetime,
-                description="prediction",
+            paycheque = Transaction.objects.create(
                 prediction=True,
+                income=True,
+                transfer=False,
+                budget=root_budget,
+                amount=paycheque_amount,
+                date=date.date(),
+                description=PREDICTION_TRANSACTION_DESCRIPTION,
             )
-        return income_transactions
+            paycheque.tags.set([paycheque_tag])
+            transactions.append(paycheque)
+
+        for day_delta in range(
+            0, self.days_in_prediction_period, user_info.income_frequency_days * 2
+        ):
+            date = self.prediction_start.shift(days=day_delta)
+            income_trans = add_monthly_income(user=self.user, date=date, prediction=True)
+            transactions = [*transactions, *income_trans]
+
+        return transactions
 
     def _get_transactions_to_create_per_day(self) -> int:
         # There can be more than one transaction every day

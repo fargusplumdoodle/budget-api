@@ -2,6 +2,8 @@ from unittest.mock import patch
 import arrow
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
+
+from api2.constants import ROOT_BUDGET_NAME
 from api2.models import Budget, Tag, Transaction
 from budget.utils.test import BudgetTestCase
 from reports.predictor import Predictor
@@ -22,9 +24,17 @@ class TestPredictor(BudgetTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.housing = cls.generate_budget(name="housing", percentage=50)
-        cls.doritos = cls.generate_budget(name="doritos", percentage=25)
-        cls.food = cls.generate_budget(name="food", percentage=25)
+        cls.root = cls.generate_budget(name=ROOT_BUDGET_NAME)
+
+        cls.housing = cls.generate_budget(
+            name="housing", parent=cls.root, monthly_allocation=50
+        )
+        cls.doritos = cls.generate_budget(
+            name="doritos", parent=cls.root, monthly_allocation=25
+        )
+        cls.food = cls.generate_budget(
+            name="food", parent=cls.root, monthly_allocation=25
+        )
 
         cls.tag_rent = cls.generate_tag(name="rent")
         cls.tag_cool_ranch = cls.generate_tag(name="cool ranch")
@@ -86,7 +96,7 @@ class TestPredictor(BudgetTestCase):
         not_included = self.generate_budget()
         unique_budgets = self.predictor._get_unique_budgets()
 
-        expected_budgets = Budget.objects.exclude(pk=not_included.pk)
+        expected_budgets = Budget.objects.exclude(pk=not_included.pk).exclude(name=ROOT_BUDGET_NAME)
         self.assertLengthEqual(unique_budgets, len(expected_budgets))
         for budget in expected_budgets:
             self.assertIn(budget, unique_budgets)

@@ -5,7 +5,7 @@ from api2.utils.add_monthly_income import add_monthly_income
 from cron.cron import CronJob
 
 
-class AddIncome(CronJob):
+class AddMonthlyIncome(CronJob):
 
     name = "Income"
 
