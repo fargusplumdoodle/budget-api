@@ -65,31 +65,6 @@ class TransactionViewset(ModelViewSet):
             budget__user=self.request.user, prediction=False
         ).order_by("-date")
 
-    @action(detail=False, methods=["post"])
-    def income(self, request):
-        """
-        For adding money to all budgets
-
-        returns a list of transactions
-        """
-        stream = io.BytesIO(request.body)
-        data = JSONParser().parse(stream)
-
-        serializer = AddMoneySerializer(data=data, many=False)
-        serializer.is_valid(raise_exception=True)
-
-        transactions = add_income(
-            amount=serializer.validated_data["amount"],
-            description=serializer.validated_data["description"],
-            date=serializer.validated_data["date"],
-            user=request.user,
-            save=True,
-        )
-
-        serializer = TransactionSerializer(transactions, many=True)
-
-        return Response(serializer.data, status=201, content_type="application/json")
-
 
 class TagViewset(UserRelatedModelViewSet):
     model = Tag
