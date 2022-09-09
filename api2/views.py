@@ -20,7 +20,7 @@ from api2.serializers import (
     UserInfoSerializer,
 )
 from api2.filters import BudgetFilterset, TransactionFilterset, TagFilterset
-from api2.utils import add_income
+from api2.utils import add_monthly_income
 
 
 class HealthCheck(APIView):
@@ -52,7 +52,7 @@ class BudgetViewset(UserRelatedModelViewSet):
     filterset_class = BudgetFilterset
 
     def get_queryset(self):
-        return super().get_queryset().order_by("-percentage")
+        return super().get_queryset().order_by("-monthly_allocation")
 
 
 class TransactionViewset(ModelViewSet):

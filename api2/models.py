@@ -17,7 +17,7 @@ class Budget(models.Model):
         default=0, help_text="Notates how frequent this budget is used"
     )
 
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True)
 
     class Meta:
         unique_together = ("name", "user")
@@ -35,9 +35,6 @@ class Budget(models.Model):
         for x in transactions:
             balance += x.amount
         return balance
-
-    def pretty_percentage(self):
-        return str(self.percentage)
 
     def calculate_income_outcome(self, time_period=6, save=False):
         def get_amount_per_month(total):
@@ -99,6 +96,10 @@ class Transaction(models.Model):
     date = models.DateField(db_index=True)
 
     tags = models.ManyToManyField(Tag, blank=True)
+
+    # TODO: ADD THESE
+    # created = models.DateTimeField(auto_now_add=True)
+    # modified = models.DateTimeField(auto_now_add=True)
 
     income = models.BooleanField(
         default=False, help_text="Signifies that this is part of an income"

@@ -7,7 +7,7 @@ from api2.constants import INCOME_TAG_NAME, ROOT_BUDGET_NAME
 from api2.models import Budget, Transaction, Tag
 
 
-def add_income(user: User, date=None):
+def add_income(user: User, date=None, prediction=False):
     """
     Add allocated funds from Root to each budget
     """
@@ -24,7 +24,7 @@ def add_income(user: User, date=None):
             date=date.date(),
             income=True,
             transfer=False,
-            prediction=False,
+            prediction=prediction,
         )
         budget_income_trans.tags.set([income_tag])
 
@@ -35,7 +35,7 @@ def add_income(user: User, date=None):
             date=date.date(),
             income=True,
             transfer=False,
-            prediction=False,
+            prediction=prediction,
         )
         root_income_trans.tags.set([income_tag])
 

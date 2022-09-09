@@ -18,44 +18,20 @@ class TransactionViewTestCase(BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.budgets_with_percentage = [
-            cls.generate_budget(percentage=25),
-            cls.generate_budget(percentage=25),
-            cls.generate_budget(percentage=25),
-            cls.generate_budget(percentage=25),
+        cls.budgets = [
+            cls.generate_budget(),
+            cls.generate_budget(),
+            cls.generate_budget(),
+            cls.generate_budget(),
         ]
-        cls.budget_without_percentage = (cls.generate_budget(percentage=0),)
         cls.generate_transaction(
-            cls.budgets_with_percentage[0],
+            cls.budgets[0],
             description="Will not show up anywhere",
             prediction=True,
         )
 
-    def test_add_income(self):
-        data = {
-            "amount": 100_00,
-            "description": "income example",
-            "date": arrow.now().date(),
-        }
-        r = self.post(reverse("api2:transaction-income"), data=data)
-        response = r.json()
-
-        transactions = Transaction.objects.filter(prediction=False)
-        self.assertEqual(transactions.count(), 4)
-
-        for trans_json in response:
-            trans = Transaction.objects.get(id=trans_json["id"])
-            self.assertEqual(trans.amount, data["amount"] / 4)
-            self.assertIn(trans.budget, self.budgets_with_percentage)
-            self.assertEqual(arrow.get(trans.date).date(), data["date"])
-            self.assertEqual(trans.description, data["description"])
-            self.assertEqual(trans.income, True)
-            self.assertEqual(trans.transfer, False)
-            self.assertEqual(trans.tags.count(), 1)
-            self.assertEqual(trans.tags.first().name, "income")
-
     def test_pagination_list(self):
-        self.generate_transaction(budget=self.budgets_with_percentage[0])
+        self.generate_transaction(budget=self.budgets[0])
         r = self.get(reverse("api2:transaction-list"))
         self.assertEqual(r.status_code, 200)
         paginated_response = r.json()
@@ -66,7 +42,7 @@ class TransactionViewTestCase(BudgetTestCase):
         self.assertEqual(len(paginated_response["results"]), 1)
 
     def test_no_pagination_list(self):
-        self.generate_transaction(budget=self.budgets_with_percentage[0])
+        self.generate_transaction(budget=self.budgets[0])
         r = self.get(reverse("api2:transaction-list"), query={"no_pagination": "true"})
         self.assertEqual(r.status_code, 200)
         list_response = r.json()
@@ -77,7 +53,7 @@ class TransactionViewTestCase(BudgetTestCase):
         self.assertEqual(len(list_response), 1)
 
     def test_excludes_filter(self):
-        exclude_budget = self.budgets_with_percentage[0]
+        exclude_budget = self.budgets[0]
 
         for budget in Budget.objects.all():
             self.generate_transaction(budget=budget)
@@ -93,9 +69,9 @@ class TransactionViewTestCase(BudgetTestCase):
             self.assertNotEqual(transaction["budget"], exclude_budget.id)
 
     def test_no_tags_filter(self):
-        include = self.generate_transaction(self.budgets_with_percentage[0], tags=[])
+        include = self.generate_transaction(self.budgets[0], tags=[])
         self.generate_transaction(
-            self.budgets_with_percentage[0], tags=[self.generate_tag()]
+            self.budgets[0], tags=[self.generate_tag()]
         )
         r = self.get(
             reverse("api2:transaction-list"),
