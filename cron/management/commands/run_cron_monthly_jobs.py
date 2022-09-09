@@ -5,8 +5,8 @@ from cron.cron import CronJobRunner
 
 class Command(BaseCommand):
     help = """
-    Runs cron jobs
+    Runs cron daily
     """
 
     def handle(self, *args, **options):
-        CronJobRunner.execute_cron_jobs()
+        CronJobRunner.execute_cron_monthly_jobs()

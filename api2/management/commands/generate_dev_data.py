@@ -7,7 +7,7 @@ from oauth2_provider.models import Application
 
 from api2.models import User, Budget, Transaction, Tag
 from budget.utils.test import BudgetTestCase
-from cron.jobs.update_tag_stats import UpdateTagStats
+from cron.jobs.daily import UpdateTagStats
 
 
 class Command(BaseCommand):

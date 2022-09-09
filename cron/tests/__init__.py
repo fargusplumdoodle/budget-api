@@ -12,4 +12,4 @@ class CronJobTest(BudgetTestCase, abc.ABC):
     def start(self):
         jobs = [self.job()]
         with patch("cron.cron.CronJobRunner._discover_jobs", return_value=jobs):
-            CronJobRunner.execute_cron_jobs()
+            CronJobRunner.execute_cron_daily_jobs()

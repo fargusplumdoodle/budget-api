@@ -1,4 +1,4 @@
-from cron.jobs.update_tag_stats import UpdateTagStats
+from cron.jobs.daily import UpdateTagStats
 from cron.tests import CronJobTest
 
 

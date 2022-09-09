@@ -9,14 +9,14 @@ from typing import List
 import re
 
 import arrow
-from . import jobs
+from .jobs import daily, monthly
 
 logger = logging.getLogger(__name__)
 
 
 class CronJob(abc.ABC):
     """
-    Override to run cron jobs
+    Override to run cron daily
     """
 
     name: str
@@ -33,13 +33,13 @@ class CronJobRunner:
     _extension = re.compile(r"\.py$")
 
     @classmethod
-    def _discover_jobs(cls) -> List[CronJob]:
+    def _discover_jobs(cls, mod) -> List[CronJob]:
         cron_jobs: List[CronJob] = []
-        for filename in listdir(dirname(jobs.__file__)):
+        for filename in listdir(dirname(mod.__file__)):
             module_name = re.sub(cls._extension, "", basename(filename))
             if module_name == "__init__":
                 continue
-            module = import_module(f"cron.jobs.{module_name}")
+            module = import_module(f"cron.jobs.daily.{module_name}")
             for entry in dir(module):
                 job = getattr(module, entry)
                 try:
@@ -50,8 +50,16 @@ class CronJobRunner:
         return cron_jobs
 
     @classmethod
-    def execute_cron_jobs(cls):
-        for job in cls._discover_jobs():
+    def execute_jobs(cls, mod):
+        for job in cls._discover_jobs(mod):
             logger.info("%s STARTING: %s", arrow.now().isoformat(), job.name)
             job.start()
             logger.info("%s COMPLETE: %s", arrow.now().isoformat(), job.name)
+
+    @classmethod
+    def execute_cron_daily_jobs(cls):
+        cls.execute_jobs(daily)
+
+    @classmethod
+    def execute_cron_monthly_jobs(cls):
+        cls.execute_jobs(monthly)
