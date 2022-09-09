@@ -17,6 +17,8 @@ class Budget(models.Model):
         default=0, help_text="Notates how frequent this budget is used"
     )
 
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+
     class Meta:
         unique_together = ("name", "user")
         ordering = ["-rank", "name"]
@@ -121,7 +123,6 @@ class UserInfo(models.Model):
     expected_monthly_net_income = models.IntegerField(default=0)
 
     # Prediction info
-    #   Fields:
     income_frequency_days = models.IntegerField(
         default=14, help_text="How many days to expect for each income"
     )
