@@ -7,6 +7,7 @@ from django.db.models import Model, Q
 from rest_framework.reverse import reverse
 from rest_framework.serializers import ModelSerializer
 
+from api2.constants import DefaultTags, ROOT_BUDGET_NAME
 from api2.models import Transaction, Budget, Tag, UserInfo
 from api2.serializers import BudgetSerializer, TagSerializer
 from budget.utils.test import BudgetTestCase
@@ -286,11 +287,26 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     model = Budget
     paginated_response = False
 
+    def test_reject_updates_to_root_budget(self):
+        budget = Budget.objects.get(user=self.user, name=ROOT_BUDGET_NAME)
+        for request_method in [self.put, self.patch]:
+            data = {"name": "name to reject"}
+            r = request_method(reverse(self.detail_url, (budget.id,)), data, user=self.user)
+            self.assertEqual(r.status_code, 400)
 
 class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = TagSerializer
     model = Tag
     paginated_response = True
+
+    def test_reject_updates_to_default_tags(self):
+        for request_method in [self.put, self.patch]:
+            for default_tag in DefaultTags.values():
+                tag = Tag.objects.get(user=self.user, name=default_tag)
+                data = {"name": "name to reject"}
+                r = request_method(reverse(self.detail_url, (tag.id,)), data, user=self.user)
+                self.assertEqual(r.status_code, 400)
+
 
 
 class HealthCheck(BudgetTestCase):

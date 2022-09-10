@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
+from api2.constants import DefaultTags, ROOT_BUDGET_NAME
 from api2.models import Budget, Transaction, Tag, UserInfo
 
 
@@ -10,6 +11,12 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = "__all__"
+
+    def update(self, instance, validated_data):
+        if instance.name in DefaultTags.values():
+            raise ValidationError("You cannot update default tags")
+
+        return super().update(instance, validated_data)
 
 
 class BudgetSerializer(serializers.ModelSerializer):
@@ -28,6 +35,12 @@ class BudgetSerializer(serializers.ModelSerializer):
 
     def get_balance(self, obj):
         return obj.balance()
+
+    def update(self, instance, validated_data):
+        if instance.name == ROOT_BUDGET_NAME:
+            raise ValidationError("You cannot update root budget")
+
+        return super().update(instance, validated_data)
 
 
 class TransactionTagSerializer(serializers.ModelSerializer):
