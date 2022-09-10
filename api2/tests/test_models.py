@@ -4,7 +4,7 @@ import arrow
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from api2.constants import ROOT_BUDGET_NAME, INCOME_TAG_NAME, TRANSFER_TAG_NAME, PAYCHEQUE_TAG_NAME
+from api2.constants import ROOT_BUDGET_NAME, DefaultTags
 from api2.models import Budget, UserInfo, Tag
 from budget.utils.test import BudgetTestCase
 
@@ -154,7 +154,8 @@ class TestUser(BudgetTestCase):
         with self.assertLogs(SIGNAL_MODULE, "INFO"):
             user = self.generate_user()
 
-        self.assertTrue(Tag.objects.filter(user=user, name=INCOME_TAG_NAME).exists())
-        self.assertTrue(Tag.objects.filter(user=user, name=TRANSFER_TAG_NAME).exists())
-        self.assertTrue(Tag.objects.filter(user=user, name=PAYCHEQUE_TAG_NAME).exists())
+
+        self.assertTrue(Tag.objects.filter(name=DefaultTags.INCOME).exists())
+        self.assertTrue(Tag.objects.filter(user=user, name=DefaultTags.TRANSFER).exists())
+        self.assertTrue(Tag.objects.filter(user=user, name=DefaultTags.PAYCHEQUE).exists())
 

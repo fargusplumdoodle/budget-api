@@ -3,7 +3,7 @@ from typing import Dict, TYPE_CHECKING, List
 from typing_extensions import TypedDict
 from django.contrib.auth.models import User
 
-from api2.constants import ROOT_BUDGET_NAME, PAYCHEQUE_TAG_NAME
+from api2.constants import ROOT_BUDGET_NAME, DefaultTags
 from api2.models import Budget, Tag, Transaction, UserInfo
 from api2.utils.add_monthly_income import add_monthly_income
 from reports.constants import PREDICTION_TRANSACTION_DESCRIPTION
@@ -103,7 +103,7 @@ class Predictor:
     def _generate_income_transactions(self) -> List[Transaction]:
         user_info = UserInfo.objects.get(user=self.user)
         root_budget = Budget.objects.get(user=self.user, name=ROOT_BUDGET_NAME)
-        paycheque_tag, _ = Tag.objects.get_or_create(name=PAYCHEQUE_TAG_NAME, user=self.user)
+        paycheque_tag = Tag.objects.get(name=DefaultTags.PAYCHEQUE, user=self.user)
 
         paycheque_amount = round(
             (user_info.expected_monthly_net_income / 31)

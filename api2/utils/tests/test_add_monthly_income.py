@@ -1,6 +1,6 @@
 import arrow
 
-from api2.constants import ROOT_BUDGET_NAME, INCOME_TAG_NAME
+from api2.constants import ROOT_BUDGET_NAME, DefaultTags
 from api2.models import Budget, Tag, Transaction
 from budget.utils.test import BudgetTestCase
 from api2.utils.add_monthly_income import add_monthly_income
@@ -24,7 +24,7 @@ class AddIncomeTestCase(BudgetTestCase):
         user = self.generate_user()
         add_monthly_income(user)
 
-        self.assertTrue(Tag.objects.filter(user=user, name=INCOME_TAG_NAME).exists())
+        self.assertTrue(Tag.objects.filter(user=user, name=DefaultTags.INCOME).exists())
         self.assertEqual(Transaction.objects.filter(budget__user=user).count(), 0)
 
     def test_custom_date(self):
@@ -44,7 +44,7 @@ class AddIncomeTestCase(BudgetTestCase):
                 income=True,
                 transfer=False,
                 prediction=False,
-                tags__name=INCOME_TAG_NAME,
+                tags__name=DefaultTags.INCOME,
             ).exists()
         )
         self.assertTrue(
@@ -56,7 +56,7 @@ class AddIncomeTestCase(BudgetTestCase):
                 income=True,
                 transfer=False,
                 prediction=False,
-                tags__name=INCOME_TAG_NAME,
+                tags__name=DefaultTags.INCOME,
             ).exists()
         )
 

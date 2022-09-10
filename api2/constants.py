@@ -1,6 +1,17 @@
+from budget.utils.models import ChoiceEnum
+
 ROOT_BUDGET_NAME = "root"
 
-INCOME_TAG_NAME = "income"
-TRANSFER_TAG_NAME = "transfer"
-PAYCHEQUE_TAG_NAME = "paycheque"
 
+class DefaultTags:
+    INCOME = "income"
+    TRANSFER = "transfer"
+    PAYCHEQUE = "paycheque"
+
+    @classmethod
+    def values(cls):
+        return [
+            cls.__dict__[member]
+            for member in cls.__dict__
+            if (member[:2] != "__" and member != "values")
+        ]

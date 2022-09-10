@@ -280,29 +280,6 @@ class UserRelatedModelViewSetMixin:
         r = self.post(reverse(self.list_url), data, user=self.user)
         self.assertEqual(r.status_code, 400)
 
-    def test_list_returns_object_in_order_most_frequent_to_least_frequent(self):
-        if not (hasattr(self.model, "rank")):
-            return
-
-        # Creating a user without default budgets
-        user = self.generate_user()
-        Budget.objects.filter(user=user).delete()
-        Tag.objects.filter(user=user).delete()
-
-        expected_id_order = [
-            self.generate_obj(user, rank=10).id,
-            self.generate_obj(user, rank=2, name="a").id,
-            self.generate_obj(user, rank=2, name="b").id,
-        ]
-
-        r = self.get(reverse(self.list_url), user=user)
-        self.assertEqual(r.status_code, 200)
-
-        data = r.json()
-        object_list = data["results"] if self.paginated_response else data
-        id_order = [obj["id"] for obj in object_list]
-        self.assertEqual(id_order, expected_id_order)
-
 
 class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = BudgetSerializer

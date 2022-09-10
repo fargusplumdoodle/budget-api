@@ -21,6 +21,7 @@ class BudgetTestCase(APITestCase):
         cls.user = cls.generate_user()
         cls.now = arrow.now()
         cls.user_info = UserInfo.objects.get(user=cls.user)
+        cls.budget_root = Budget.objects.get(user=cls.user, name=ROOT_BUDGET_NAME)
 
     def _make_request(
         self, method_name, endpoint, data, encoding="json", query=None, user=None
@@ -65,19 +66,19 @@ class BudgetTestCase(APITestCase):
 
     @classmethod
     def generate_budget(cls, **kwargs):
+        if "user" not in kwargs:
+            kwargs["user"] = cls.user  # type: ignore
+
+        if "parent" not in kwargs:
+            kwargs["parent"] = Budget.objects.get(
+                user=kwargs["user"], name=ROOT_BUDGET_NAME
+            )
+
         defaults = {
             "name": f"budget_{Budget.objects.count():07}",
             "monthly_allocation": 0,
+            **kwargs
         }
-        if "user" not in kwargs:
-            defaults["user"] = cls.user  # type: ignore
-
-        if "parent" not in kwargs:
-            defaults["parent"] = Budget.objects.get(
-                user=defaults["user"], name=ROOT_BUDGET_NAME
-            )
-
-        defaults.update(kwargs)
         return Budget.objects.create(**defaults)
 
     @classmethod

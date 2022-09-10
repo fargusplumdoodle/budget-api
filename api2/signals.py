@@ -7,9 +7,7 @@ from django.dispatch import receiver
 
 from api2.constants import (
     ROOT_BUDGET_NAME,
-    PAYCHEQUE_TAG_NAME,
-    TRANSFER_TAG_NAME,
-    INCOME_TAG_NAME,
+DefaultTags
 )
 from api2.models import UserInfo, Budget, Tag
 
@@ -41,9 +39,7 @@ def ensure_default_tags(sender, instance: User, **kwargs):
     if not kwargs.get("created"):
         return
 
-    default_tags = [INCOME_TAG_NAME, TRANSFER_TAG_NAME, PAYCHEQUE_TAG_NAME]
-
-    for tag_name in default_tags:
+    for tag_name in DefaultTags.values():
         _, created = Tag.objects.get_or_create(user=instance, name=tag_name)
         if created:
             logger.info("Created %s tag for %s", tag_name, instance.username)
