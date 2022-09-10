@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from api2.constants import ROOT_BUDGET_NAME
 from api2.models import Budget, Transaction, Tag, UserInfo
 from budget.utils.dates import nativify_dates
 
@@ -19,7 +20,7 @@ class BudgetTestCase(APITestCase):
     def setUpTestData(cls):
         cls.user = cls.generate_user()
         cls.now = arrow.now()
-        cls.user_info = cls.generate_user_info()
+        cls.user_info = UserInfo.objects.get(user=cls.user)
 
     def _make_request(
         self, method_name, endpoint, data, encoding="json", query=None, user=None
@@ -70,6 +71,11 @@ class BudgetTestCase(APITestCase):
         }
         if "user" not in kwargs:
             defaults["user"] = cls.user  # type: ignore
+
+        if "parent" not in kwargs:
+            defaults["parent"] = Budget.objects.get(
+                user=defaults["user"], name=ROOT_BUDGET_NAME
+            )
 
         defaults.update(kwargs)
         return Budget.objects.create(**defaults)

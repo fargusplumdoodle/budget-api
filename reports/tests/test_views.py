@@ -125,7 +125,7 @@ class TestBudgetDelta(TestReportViewMixin, BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        [cls.generate_budget() for _ in range(5)]
+        [cls.generate_budget() for _ in range(4)]
         cls.time_bucket_size = TimeBucketSizeOption.ONE_MONTH.value
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
         cls.buckets = get_time_buckets(cls.time_range, cls.time_bucket_size)
@@ -280,7 +280,7 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        [cls.generate_budget() for _ in range(5)]
+        [cls.generate_budget() for _ in range(4)]
         cls.time_bucket_size = TimeBucketSizeOption.ONE_MONTH.value
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
         cls.buckets = get_time_buckets(cls.time_range, cls.time_bucket_size)

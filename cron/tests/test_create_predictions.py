@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import arrow
 from django.contrib.auth.models import User
 
 from api2.models import Transaction, UserInfo
@@ -16,6 +17,9 @@ class TestCreatePredictions(CronJobTest):
     def setUp(self) -> None:
         super().setUp()
         self.budget = self.generate_budget()
+        self.user_info.analyze_start = arrow.now().shift(months=-6).date()
+        self.user_info.predict_end= arrow.now().shift(months=-6).date()
+        self.user_info.save()
 
     def test_start(self):
         existing_prediction = self.generate_transaction(self.budget, prediction=True)
@@ -40,7 +44,7 @@ class TestCreatePredictions(CronJobTest):
         UserInfo.objects.all().delete()
 
         user= self.generate_user()
-        user_info = self.generate_user_info(user=user )
+        user_info = UserInfo.objects.get(user=user)
         user_info.analyze_start=None
         user_info.save()
 

@@ -70,9 +70,7 @@ class TransactionViewTestCase(BudgetTestCase):
 
     def test_no_tags_filter(self):
         include = self.generate_transaction(self.budgets[0], tags=[])
-        self.generate_transaction(
-            self.budgets[0], tags=[self.generate_tag()]
-        )
+        self.generate_transaction(self.budgets[0], tags=[self.generate_tag()])
         r = self.get(
             reverse("api2:transaction-list"),
             query={"tags__none": True},
@@ -186,6 +184,7 @@ class UserRelatedModelViewSetMixin:
     def setUpTestData(cls):
         super().setUpTestData()
         cls.user1 = cls.generate_user()
+        cls.number_of_default_objects = cls.model.objects.filter(user=cls.user1).count()
 
         reverse_url = "api2:" + cls.model.__name__.lower()
         cls.detail_url = reverse_url + "-detail"
@@ -206,7 +205,7 @@ class UserRelatedModelViewSetMixin:
 
         r = self.get(reverse(self.list_url), user=self.user).json()
         r = r if not self.paginated_response else r["results"]
-        self.assertEqual(len(r), len(objs))
+        self.assertEqual(len(r), len(objs) + self.number_of_default_objects)
 
         for obj in r:
             self.assertTrue(
@@ -285,13 +284,18 @@ class UserRelatedModelViewSetMixin:
         if not (hasattr(self.model, "rank")):
             return
 
+        # Creating a user without default budgets
+        user = self.generate_user()
+        Budget.objects.filter(user=user).delete()
+        Tag.objects.filter(user=user).delete()
+
         expected_id_order = [
-            self.generate_obj(self.user, rank=10).id,
-            self.generate_obj(self.user, rank=2, name="a").id,
-            self.generate_obj(self.user, rank=2, name="b").id,
+            self.generate_obj(user, rank=10).id,
+            self.generate_obj(user, rank=2, name="a").id,
+            self.generate_obj(user, rank=2, name="b").id,
         ]
 
-        r = self.get(reverse(self.list_url), user=self.user)
+        r = self.get(reverse(self.list_url), user=user)
         self.assertEqual(r.status_code, 200)
 
         data = r.json()

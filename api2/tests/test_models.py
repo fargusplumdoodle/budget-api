@@ -1,12 +1,16 @@
 from unittest.mock import patch
 
 import arrow
+from django.contrib.auth.models import User
 from django.db.models import Q
 
-from api2.models import Budget
+from api2.constants import ROOT_BUDGET_NAME, INCOME_TAG_NAME, TRANSFER_TAG_NAME, PAYCHEQUE_TAG_NAME
+from api2.models import Budget, UserInfo, Tag
 from budget.utils.test import BudgetTestCase
 
 now = arrow.get(2021, 1, 1)
+
+SIGNAL_MODULE = "api2.signals"
 
 
 class TestBudget(BudgetTestCase):
@@ -119,3 +123,38 @@ class TestBudget(BudgetTestCase):
         self.assertEqual(
             budget_only_outcome.outcome_per_month, round(-10_00 / time_period)
         )
+
+
+class TestUser(BudgetTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Dont start with any data
+        pass
+
+    def test_ensure_user_info_created_on_create_user(self):
+        with self.assertLogs(SIGNAL_MODULE, "INFO"):
+            user = self.generate_user()
+
+        self.assertTrue(UserInfo.objects.filter(user=user).exists())
+
+    def test_ensure_no_signals_log_on_update(self):
+        user = self.generate_user()
+
+        user.username = "something"
+        with self.assertNoLogs(SIGNAL_MODULE, "INFO"):
+            user.save()
+
+    def test_ensure_root_budget_created_on_create_user(self):
+        with self.assertLogs(SIGNAL_MODULE, "INFO"):
+            user = self.generate_user()
+
+        self.assertTrue(Budget.objects.filter(user=user, name=ROOT_BUDGET_NAME).exists())
+
+    def test_ensure_tags_created_on_create_user(self):
+        with self.assertLogs(SIGNAL_MODULE, "INFO"):
+            user = self.generate_user()
+
+        self.assertTrue(Tag.objects.filter(user=user, name=INCOME_TAG_NAME).exists())
+        self.assertTrue(Tag.objects.filter(user=user, name=TRANSFER_TAG_NAME).exists())
+        self.assertTrue(Tag.objects.filter(user=user, name=PAYCHEQUE_TAG_NAME).exists())
+

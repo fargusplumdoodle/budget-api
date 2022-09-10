@@ -14,7 +14,6 @@ class Command(BaseCommand):
     help = "Pre-populate the test database with some commonly used objects"
     EXPECTED_TRANSACTIONS = 50
     BUDGETS = [
-        {"name": "root", "monthly_allocation": 0},
         {"name": "housing", "monthly_allocation": 4100},
         {"name": "food", "monthly_allocation": 2200},
         {"name": "debt", "monthly_allocation": 1100},

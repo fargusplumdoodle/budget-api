@@ -24,8 +24,6 @@ class TestPredictor(BudgetTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.root = cls.generate_budget(name=ROOT_BUDGET_NAME)
-
         cls.housing = cls.generate_budget(
             name="housing", parent=cls.root, monthly_allocation=50
         )
