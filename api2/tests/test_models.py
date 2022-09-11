@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 import arrow
-from django.contrib.auth.models import User
 from django.db.models import Q
 
 from api2.constants import ROOT_BUDGET_NAME, DefaultTags

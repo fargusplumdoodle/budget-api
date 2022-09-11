@@ -12,7 +12,7 @@ from api2.models import Budget, Tag, Transaction
 from budget.utils.test import BudgetTestCase
 
 
-@skip
+@skip("Migrations dont need to be tested")
 class RemoveInitialBalanceTestCase(BudgetTestCase):
     migration = RemoveInitialBalance(app=None, db="default", testing=True)
 

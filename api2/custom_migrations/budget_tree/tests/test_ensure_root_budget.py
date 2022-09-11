@@ -6,7 +6,7 @@ from api2.models import Budget
 from budget.utils.test import BudgetTestCase
 
 
-@skip
+@skip("Migrations dont need to be tested")
 class EnsureRootBudgetTestCase(BudgetTestCase):
     @staticmethod
     def forward():

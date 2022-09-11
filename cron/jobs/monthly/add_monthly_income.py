@@ -1,4 +1,3 @@
-import arrow
 from django.contrib.auth.models import User
 
 from api2.utils.add_monthly_income import add_monthly_income

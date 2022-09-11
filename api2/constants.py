@@ -1,5 +1,3 @@
-from budget.utils.models import ChoiceEnum
-
 ROOT_BUDGET_NAME = "root"
 
 

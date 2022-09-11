@@ -3,7 +3,6 @@ import operator
 from typing import Type, List, Dict
 
 from django.db.models import Model, Q, Sum, QuerySet
-from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -15,12 +14,10 @@ from api2.models import Budget, Transaction, Tag, UserInfo
 from api2.serializers import (
     BudgetSerializer,
     TransactionSerializer,
-    AddMoneySerializer,
     TagSerializer,
     UserInfoSerializer,
 )
 from api2.filters import BudgetFilterset, TransactionFilterset, TagFilterset
-from api2.utils import add_monthly_income
 
 
 class HealthCheck(APIView):

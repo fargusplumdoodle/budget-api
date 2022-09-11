@@ -4,7 +4,7 @@ from api2.custom_migrations.budget_tree.SetMonthlyAllocation import SetMonthlyAl
 from budget.utils.test import BudgetTestCase
 
 
-@skip
+@skip("Migrations dont need to be tested")
 class SetMonthlyAllocationTestCase(BudgetTestCase):
     @staticmethod
     def forward():
