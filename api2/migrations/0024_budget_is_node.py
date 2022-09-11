@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api2', '0023_remove_budget_percentage'),
+        ("api2", "0023_remove_budget_percentage"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='budget',
-            name='is_node',
+            model_name="budget",
+            name="is_node",
             field=models.BooleanField(default=False),
         ),
     ]

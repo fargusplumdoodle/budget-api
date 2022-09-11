@@ -131,7 +131,9 @@ class Predictor:
             0, self.days_in_prediction_period, user_info.income_frequency_days * 2
         ):
             date = self.prediction_start.shift(days=day_delta)
-            income_trans = add_monthly_income(user=self.user, date=date, prediction=True)
+            income_trans = add_monthly_income(
+                user=self.user, date=date, prediction=True
+            )
             transactions = [*transactions, *income_trans]
 
         return transactions

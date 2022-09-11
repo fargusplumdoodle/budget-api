@@ -12,6 +12,4 @@ class Migration(migrations.Migration):
         ("api2", "0017_budget_parent"),
     ]
 
-    operations = [
-        EnsureRootBudget.get_operation()
-    ]
+    operations = [EnsureRootBudget.get_operation()]

@@ -125,8 +125,8 @@ class TestBudget(BudgetTestCase):
         )
 
     def test_calculate_is_node_on_save(self):
-        parent = self.generate_budget(name='parent', parent=self.budget_root)
-        child = self.generate_budget(parent=parent, name='child')
+        parent = self.generate_budget(name="parent", parent=self.budget_root)
+        child = self.generate_budget(parent=parent, name="child")
 
         self.budget_root.refresh_from_db()
         parent.refresh_from_db()
@@ -134,6 +134,7 @@ class TestBudget(BudgetTestCase):
         self.assertTrue(self.budget_root.is_node)
         self.assertTrue(parent.is_node)
         self.assertFalse(child.is_node)
+
 
 class TestUser(BudgetTestCase):
     @classmethod
@@ -159,7 +160,9 @@ class TestUser(BudgetTestCase):
             user = self.generate_user()
 
         self.assertTrue(
-            Budget.objects.filter(user=user, is_node=True, name=ROOT_BUDGET_NAME).exists()
+            Budget.objects.filter(
+                user=user, is_node=True, name=ROOT_BUDGET_NAME
+            ).exists()
         )
 
     def test_ensure_tags_created_on_create_user(self):

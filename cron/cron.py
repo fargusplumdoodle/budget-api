@@ -32,8 +32,8 @@ class CronJob(abc.ABC):
 class CronJobRunner:
     _extension = re.compile(r"\.py$")
     batch_map = {
-        'daily': daily,
-        'monthly': monthly,
+        "daily": daily,
+        "monthly": monthly,
     }
 
     @classmethod

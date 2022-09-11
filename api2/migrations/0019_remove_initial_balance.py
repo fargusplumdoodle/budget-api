@@ -9,6 +9,4 @@ class Migration(migrations.Migration):
         ("api2", "0018_budget_tree"),
     ]
 
-    operations = [
-        RemoveInitialBalance.get_operation()
-    ]
+    operations = [RemoveInitialBalance.get_operation()]

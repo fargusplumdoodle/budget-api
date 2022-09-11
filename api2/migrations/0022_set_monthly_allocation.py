@@ -8,9 +8,7 @@ from api2.custom_migrations.budget_tree.SetMonthlyAllocation import SetMonthlyAl
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api2', '0021_budget_monthly_allocation'),
+        ("api2", "0021_budget_monthly_allocation"),
     ]
 
-    operations = [
-        SetMonthlyAllocation.get_operation()
-    ]
+    operations = [SetMonthlyAllocation.get_operation()]

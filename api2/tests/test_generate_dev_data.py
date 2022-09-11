@@ -12,7 +12,10 @@ class TestGenerateDevData(BudgetTestCase):
 
         # +1 for root budget that is auto generated
         number_of_root_budgets = User.objects.count()
-        self.assertEqual(Budget.objects.count(), len(GenDevDataCommand.BUDGETS) + number_of_root_budgets)
+        self.assertEqual(
+            Budget.objects.count(),
+            len(GenDevDataCommand.BUDGETS) + number_of_root_budgets,
+        )
         for budget in Budget.objects.all():
             self.assertEqual(
                 Transaction.objects.filter(budget=budget, prediction=False).count(),

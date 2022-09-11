@@ -18,7 +18,7 @@ class TestCreatePredictions(CronJobTest):
         super().setUp()
         self.budget = self.generate_budget()
         self.user_info.analyze_start = arrow.now().shift(months=-6).date()
-        self.user_info.predict_end= arrow.now().shift(months=-6).date()
+        self.user_info.predict_end = arrow.now().shift(months=-6).date()
         self.user_info.save()
 
     def test_start(self):
@@ -43,17 +43,11 @@ class TestCreatePredictions(CronJobTest):
         User.objects.all().delete()
         UserInfo.objects.all().delete()
 
-        user= self.generate_user()
+        user = self.generate_user()
         user_info = UserInfo.objects.get(user=user)
-        user_info.analyze_start=None
+        user_info.analyze_start = None
         user_info.save()
 
         self.start()
 
-        self.assertEqual(
-            Transaction.objects.filter(prediction=True).count(), 0
-        )
-
-
-
-
+        self.assertEqual(Transaction.objects.filter(prediction=True).count(), 0)

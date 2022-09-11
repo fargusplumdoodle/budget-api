@@ -77,7 +77,7 @@ class BudgetTestCase(APITestCase):
         defaults = {
             "name": f"budget_{Budget.objects.count():07}",
             "monthly_allocation": 0,
-            **kwargs
+            **kwargs,
         }
         return Budget.objects.create(**defaults)
 

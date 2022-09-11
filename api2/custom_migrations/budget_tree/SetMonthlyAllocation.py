@@ -6,9 +6,10 @@ class SetMonthlyAllocation(CustomMigration):
         Budget = self.get_model("api2", "Budget")
 
         for budget in Budget.objects.using(self.db).all():
-            budget.monthly_allocation = abs(budget.outcome_per_month if budget.outcome_per_month else 0)
+            budget.monthly_allocation = abs(
+                budget.outcome_per_month if budget.outcome_per_month else 0
+            )
             budget.save()
 
     def reverse(self):
         pass
-

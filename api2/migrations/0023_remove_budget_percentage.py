@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api2', '0022_set_monthly_allocation'),
+        ("api2", "0022_set_monthly_allocation"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='budget',
-            name='percentage',
+            model_name="budget",
+            name="percentage",
         ),
     ]

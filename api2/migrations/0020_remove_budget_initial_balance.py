@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api2', '0019_remove_initial_balance'),
+        ("api2", "0019_remove_initial_balance"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='budget',
-            name='initial_balance',
+            model_name="budget",
+            name="initial_balance",
         ),
     ]
