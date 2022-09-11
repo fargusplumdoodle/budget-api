@@ -124,6 +124,16 @@ class TestBudget(BudgetTestCase):
             budget_only_outcome.outcome_per_month, round(-10_00 / time_period)
         )
 
+    def test_calculate_is_node_on_save(self):
+        parent = self.generate_budget(name='parent', parent=self.budget_root)
+        child = self.generate_budget(parent=parent, name='child')
+
+        self.budget_root.refresh_from_db()
+        parent.refresh_from_db()
+        child.refresh_from_db()
+        self.assertTrue(self.budget_root.is_node)
+        self.assertTrue(parent.is_node)
+        self.assertFalse(child.is_node)
 
 class TestUser(BudgetTestCase):
     @classmethod
@@ -148,14 +158,18 @@ class TestUser(BudgetTestCase):
         with self.assertLogs(SIGNAL_MODULE, "INFO"):
             user = self.generate_user()
 
-        self.assertTrue(Budget.objects.filter(user=user, name=ROOT_BUDGET_NAME).exists())
+        self.assertTrue(
+            Budget.objects.filter(user=user, is_node=True, name=ROOT_BUDGET_NAME).exists()
+        )
 
     def test_ensure_tags_created_on_create_user(self):
         with self.assertLogs(SIGNAL_MODULE, "INFO"):
             user = self.generate_user()
 
-
         self.assertTrue(Tag.objects.filter(name=DefaultTags.INCOME).exists())
-        self.assertTrue(Tag.objects.filter(user=user, name=DefaultTags.TRANSFER).exists())
-        self.assertTrue(Tag.objects.filter(user=user, name=DefaultTags.PAYCHEQUE).exists())
-
+        self.assertTrue(
+            Tag.objects.filter(user=user, name=DefaultTags.TRANSFER).exists()
+        )
+        self.assertTrue(
+            Tag.objects.filter(user=user, name=DefaultTags.PAYCHEQUE).exists()
+        )

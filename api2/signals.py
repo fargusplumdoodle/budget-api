@@ -5,10 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 
-from api2.constants import (
-    ROOT_BUDGET_NAME,
-DefaultTags
-)
+from api2.constants import ROOT_BUDGET_NAME, DefaultTags
 from api2.models import UserInfo, Budget, Tag
 
 logger = logging.getLogger(__name__)
@@ -29,7 +26,9 @@ def ensure_root_budget(sender, instance: User, **kwargs):
     if not kwargs.get("created"):
         return
 
-    _, created = Budget.objects.get_or_create(user=instance, name=ROOT_BUDGET_NAME)
+    _, created = Budget.objects.get_or_create(
+        user=instance, name=ROOT_BUDGET_NAME, is_node=True
+    )
     if created:
         logger.info("Created root budget for %s", instance.username)
 
@@ -43,3 +42,11 @@ def ensure_default_tags(sender, instance: User, **kwargs):
         _, created = Tag.objects.get_or_create(user=instance, name=tag_name)
         if created:
             logger.info("Created %s tag for %s", tag_name, instance.username)
+
+
+@receiver(post_save, sender=Budget)
+def set_is_node(sender, instance: Budget, **kwargs):
+    budget = instance
+    if budget.parent and not budget.parent.is_node:
+        budget.parent.is_node = True
+        budget.parent.save(update_fields=["is_node"])

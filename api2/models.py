@@ -17,6 +17,7 @@ class Budget(models.Model):
     )
 
     parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True)
+    is_node = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("name", "user")
