@@ -82,6 +82,10 @@ class TransactionSerializer(serializers.ModelSerializer):
                 raise ValidationError(
                     f"Tag '{tag.get('name')}' does not exist for user {budget.user.username}"
                 )
+
+        if budget.is_node:
+            raise ValidationError("You cannot assign a transaction to a node budget")
+
         return attrs
 
     @staticmethod

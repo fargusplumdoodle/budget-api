@@ -9,7 +9,7 @@ from rest_framework.serializers import ModelSerializer
 
 from api2.constants import DefaultTags, ROOT_BUDGET_NAME
 from api2.models import Transaction, Budget, Tag, UserInfo
-from api2.serializers import BudgetSerializer, TagSerializer
+from api2.serializers import BudgetSerializer, TagSerializer, TransactionSerializer
 from budget.utils.test import BudgetTestCase
 
 now = arrow.get(2021, 1, 1)
@@ -81,6 +81,15 @@ class TransactionViewTestCase(BudgetTestCase):
         self.assertLengthEqual(data["results"], 1)
 
         self.assertEqual(data["results"][0]["id"], include.id)
+
+    def test_no_transactions_on_node_budgets(self):
+        trans = self.generate_transaction(budget=self.budget_root)
+        data = TransactionSerializer(trans).data
+        r = self.post(
+            reverse("api2:transaction-list"),
+            data,
+        )
+        self.assertEqual(r.status_code, 400)
 
 
 class ReportTestCase(BudgetTestCase):
@@ -291,8 +300,11 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
         budget = Budget.objects.get(user=self.user, name=ROOT_BUDGET_NAME)
         for request_method in [self.put, self.patch]:
             data = {"name": "name to reject"}
-            r = request_method(reverse(self.detail_url, (budget.id,)), data, user=self.user)
+            r = request_method(
+                reverse(self.detail_url, (budget.id,)), data, user=self.user
+            )
             self.assertEqual(r.status_code, 400)
+
 
 class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = TagSerializer
@@ -304,9 +316,10 @@ class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
             for default_tag in DefaultTags.values():
                 tag = Tag.objects.get(user=self.user, name=default_tag)
                 data = {"name": "name to reject"}
-                r = request_method(reverse(self.detail_url, (tag.id,)), data, user=self.user)
+                r = request_method(
+                    reverse(self.detail_url, (tag.id,)), data, user=self.user
+                )
                 self.assertEqual(r.status_code, 400)
-
 
 
 class HealthCheck(BudgetTestCase):
