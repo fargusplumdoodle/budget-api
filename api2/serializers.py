@@ -12,9 +12,22 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = "__all__"
 
+    @staticmethod
+    def validate_non_duplicate_name(validated_data):
+        if Tag.objects.filter(name__iexact=validated_data["name"]).exists():
+            raise ValidationError(
+                f"Tag with name {validated_data['name']} already exists"
+            )
+
+    def create(self, validated_data):
+        self.validate_non_duplicate_name(validated_data)
+        return super().create(validated_data)
+
     def update(self, instance, validated_data):
         if instance.name in DefaultTags.values():
             raise ValidationError("You cannot update default tags")
+
+        self.validate_non_duplicate_name(validated_data)
 
         return super().update(instance, validated_data)
 

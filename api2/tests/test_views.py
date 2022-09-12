@@ -321,6 +321,27 @@ class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
                 )
                 self.assertEqual(r.status_code, 400)
 
+    def test_tag_names_are_case_insensitive_on_create(self):
+        existing_tag = self.generate_tag()
+
+        r = self.post(
+            reverse(self.list_url), {"name": existing_tag.name.upper()}, user=self.user
+        )
+
+        self.assertEqual(r.status_code, 400)
+
+    def test_tag_names_are_case_insensitive_on_update(self):
+        existing_tag = self.generate_tag()
+        tag_to_update = self.generate_tag()
+
+        r = self.put(
+            reverse(self.detail_url, (tag_to_update.id,)),
+            {"name": existing_tag.name.upper()},
+            user=self.user,
+        )
+
+        self.assertEqual(r.status_code, 400)
+
 
 class HealthCheck(BudgetTestCase):
     def test(self):
