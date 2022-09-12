@@ -38,6 +38,7 @@ class BudgetSerializer(serializers.ModelSerializer):
         max_length=20, validators=[UniqueValidator(queryset=Budget.objects.all())]
     )
     balance = serializers.SerializerMethodField(read_only=True)
+    is_node = serializers.BooleanField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(
         many=False, queryset=User.objects.all(), required=False
     )

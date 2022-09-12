@@ -65,7 +65,7 @@ class BudgetTestCase(APITestCase):
         return User.objects.create(**defaults)
 
     @classmethod
-    def generate_budget(cls, **kwargs):
+    def generate_budget(cls, **kwargs) -> Budget:
         if "user" not in kwargs:
             kwargs["user"] = cls.user  # type: ignore
 

@@ -305,6 +305,17 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
             )
             self.assertEqual(r.status_code, 400)
 
+    def test_is_node_field_is_ignored(self):
+        node = self.generate_budget()
+        self.generate_budget(parent=node)
+
+        r = self.patch(
+            reverse(self.detail_url, (node.id,)), {"is_node": False}, user=self.user
+        )
+        self.assertEqual(r.status_code, 200)
+        node.refresh_from_db()
+        self.assertTrue(node.is_node)
+
 
 class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = TagSerializer
