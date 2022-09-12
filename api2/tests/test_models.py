@@ -156,6 +156,18 @@ class TestBudget(BudgetTestCase):
         self.assertFalse(child.is_node)
 
 
+class TestTransaction(BudgetTestCase):
+    def test_modified_timestamp(self):
+        trans = self.generate_transaction(self.budget_root)
+
+        with patch("arrow.now", return_value=now):
+            trans.amount = 2
+            trans.save()
+
+        trans.refresh_from_db()
+        self.assertEqual(trans.modified, now.datetime)
+
+
 class TestUser(BudgetTestCase):
     @classmethod
     def setUpTestData(cls):

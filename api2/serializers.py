@@ -78,6 +78,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         many=False, queryset=Budget.objects.all()
     )
     date = serializers.DateField()
+    created = serializers.DateTimeField(read_only=True)
+    modified = serializers.DateTimeField(read_only=True)
     income = serializers.BooleanField(required=False, default=False)
     transfer = serializers.BooleanField(required=False, default=False)
     tags = TransactionTagSerializer(many=True)
@@ -86,7 +88,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Transaction
         fields = "__all__"
 
-    def validate(self, attrs):
+    @staticmethod
+    def validate(attrs):
         budget = attrs.get("budget")
         for tag in attrs["tags"]:
             if (

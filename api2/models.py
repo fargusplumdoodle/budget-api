@@ -101,9 +101,8 @@ class Transaction(models.Model):
 
     tags = models.ManyToManyField(Tag, blank=True)
 
-    # TODO: ADD THESE
-    # created = models.DateTimeField(auto_now_add=True)
-    # modified = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now_add=True)
 
     income = models.BooleanField(
         default=False, help_text="Signifies that this is part of an income"

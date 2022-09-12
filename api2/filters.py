@@ -69,6 +69,18 @@ class TransactionFilterset(filters.FilterSet):
         field_name="tags", lookup_expr="exact", method="tags_none"
     )
 
+    created = filters.DateTimeFilter(field_name="created")
+    created__gt = filters.DateTimeFilter(field_name="created", lookup_expr="gt")
+    created__gte = filters.DateTimeFilter(field_name="created", lookup_expr="gte")
+    created__lt = filters.DateTimeFilter(field_name="created", lookup_expr="lt")
+    created__lte = filters.DateTimeFilter(field_name="created", lookup_expr="lte")
+
+    modified = filters.DateTimeFilter(field_name="modified")
+    modified__gt = filters.DateTimeFilter(field_name="modified", lookup_expr="gt")
+    modified__gte = filters.DateTimeFilter(field_name="modified", lookup_expr="gte")
+    modified__lt = filters.DateTimeFilter(field_name="modified", lookup_expr="lt")
+    modified__lte = filters.DateTimeFilter(field_name="modified", lookup_expr="lte")
+
     @staticmethod
     def excludes(queryset, name, value):
         return queryset.exclude(**{f"{name}__in": value})

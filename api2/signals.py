@@ -1,11 +1,12 @@
 import logging
 
+import arrow
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from api2.constants import ROOT_BUDGET_NAME, DefaultTags
-from api2.models import UserInfo, Budget, Tag
+from api2.models import UserInfo, Budget, Tag, Transaction
 
 logger = logging.getLogger(__name__)
 
@@ -49,3 +50,8 @@ def set_is_node(sender, instance: Budget, **kwargs):
     if budget.parent and not budget.parent.is_node:
         budget.parent.is_node = True
         budget.parent.save(update_fields=["is_node"])
+
+
+@receiver(pre_save, sender=Transaction)
+def update_transaction_modified_time(sender, instance: Transaction, **kwargs):
+    instance.modified = arrow.now().datetime

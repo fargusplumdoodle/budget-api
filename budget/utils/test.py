@@ -59,7 +59,7 @@ class BudgetTestCase(APITestCase):
         self.assertEqual(len(first), second)  # type: ignore
 
     @classmethod
-    def generate_user(cls, **kwargs):
+    def generate_user(cls, **kwargs) -> User:
         defaults = {"username": f"user_{User.objects.count():07}"}
         defaults.update(kwargs)
         return User.objects.create(**defaults)
@@ -95,7 +95,7 @@ class BudgetTestCase(APITestCase):
         return UserInfo.objects.create(**defaults)
 
     @classmethod
-    def generate_tag(cls, **kwargs):
+    def generate_tag(cls, **kwargs) -> Tag:
         defaults = {"name": f"tag_{Tag.objects.count():07}", "rank": 0}
         if "user" not in kwargs:
             defaults["user"] = cls.user  # type: ignore
@@ -104,7 +104,7 @@ class BudgetTestCase(APITestCase):
         return Tag.objects.create(**defaults)
 
     @classmethod
-    def generate_transaction(cls, budget: Budget, **kwargs):
+    def generate_transaction(cls, budget: Budget, **kwargs) -> Transaction:
         num_transactions = Transaction.objects.count()
         defaults = {
             "amount": num_transactions * 100,
