@@ -27,13 +27,17 @@ class Budget(models.Model):
         # the current balance is equal to the sum of all transactions plus the initial balance
         balance = 0
         transactions = Transaction.objects.filter(budget=self, prediction=False)
+        children = Budget.objects.filter(parent=self)
 
         if date_range:
             assert isinstance(date_range, Q)
             transactions = transactions.filter(date_range)
 
-        for x in transactions:
-            balance += x.amount
+        for trans in transactions:
+            balance += trans.amount
+        for child in children:
+            balance += child.balance()
+
         return balance
 
     def calculate_income_outcome(self, time_period=6, save=False):

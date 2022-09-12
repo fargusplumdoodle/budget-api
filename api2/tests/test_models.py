@@ -36,6 +36,27 @@ class TestBudget(BudgetTestCase):
         # 1 initial balance + 1 non transfer transaction
         self.assertEqual(self.budget.balance(), 2)
 
+    def test_children_included_in_balance(self):
+        #  Hierarchy
+        #     root
+        #   b     c
+        #  d e   f g
+        b = self.generate_budget(parent=self.budget_root)
+        d = self.generate_budget(parent=b)
+        e = self.generate_budget(parent=b)
+
+        c = self.generate_budget(parent=self.budget_root)
+        f = self.generate_budget(parent=c)
+        g = self.generate_budget(parent=c)
+
+        leaf_budgets = [d, e, f, g]
+        [self.generate_transaction(amount=1, budget=budget) for budget in leaf_budgets]
+
+        self.assertEqual(self.budget_root.balance(), 4)
+        self.assertEqual(b.balance(), 2)
+        self.assertEqual(c.balance(), 2)
+        [self.assertEqual(budget.balance(), 1) for budget in leaf_budgets]
+
     @patch("arrow.now", return_value=now)
     def test_balance_range(self, _):
         date_range = (now.shift(weeks=-1).datetime, now.datetime)
