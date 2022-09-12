@@ -3,27 +3,33 @@
 from django.db import migrations, models
 import django.utils.timezone
 
-from api2.custom_migrations.budget_tree.SetupCreatedAndModifiedTime import SetupCreatedAndModifiedTime
+from api2.custom_migrations.budget_tree.SetupCreatedAndModifiedTime import (
+    SetupCreatedAndModifiedTime,
+)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api2', '0024_budget_is_node'),
+        ("api2", "0024_budget_is_node"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='transaction',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="transaction",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='transaction',
-            name='modified',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="transaction",
+            name="modified",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
-        SetupCreatedAndModifiedTime.get_operation()
+        SetupCreatedAndModifiedTime.get_operation(),
     ]
