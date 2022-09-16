@@ -8,12 +8,14 @@ class EnsureRootBudget(CustomMigration):
             Budget.objects.using(self.db).get_or_create(
                 name=ROOT_BUDGET_NAME,
                 user=user_info.user,
-                percentage=0,
-                initial_balance=0,
             )
 
     def put_all_budgets_under_root(self, Budget):
-        orphan_budgets = Budget.objects.using(self.db).filter(parent=None)
+        orphan_budgets = (
+            Budget.objects.using(self.db)
+            .filter(parent=None)
+            .exclude(name=ROOT_BUDGET_NAME)
+        )
 
         for budget in orphan_budgets:
             budget.parent = Budget.objects.using(self.db).get(

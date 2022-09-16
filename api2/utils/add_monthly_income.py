@@ -31,7 +31,7 @@ def add_monthly_income(user: User, date=None, prediction=False) -> List[Transact
 
         root_income_trans = Transaction.objects.create(
             amount=0 - abs(budget.monthly_allocation),
-            description=f"Monthly Income: ${budget.name}",
+            description=f"Monthly Income: {budget.name}",
             budget=root_budget,
             date=date.date(),
             income=True,

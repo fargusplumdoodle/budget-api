@@ -35,6 +35,7 @@ class Budget(models.Model):
 
         for trans in transactions:
             balance += trans.amount
+
         for child in children:
             balance += child.balance()
 

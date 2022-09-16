@@ -23,3 +23,5 @@ class EnsureRootBudgetTestCase(BudgetTestCase):
             budget.refresh_from_db()
 
             self.assertEqual(budget.parent, root_budget)
+
+        self.assertIsNone(root_budget.parent)
