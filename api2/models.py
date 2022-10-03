@@ -126,6 +126,8 @@ class Transaction(models.Model):
 class UserInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
     expected_monthly_net_income = models.IntegerField(default=0)
+    theme = models.CharField(max_length=20, default="CLASSIC")
+    darkMode = models.BooleanField(default=False)
 
     # Prediction info
     income_frequency_days = models.IntegerField(
