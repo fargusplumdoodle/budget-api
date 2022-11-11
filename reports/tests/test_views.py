@@ -1,6 +1,7 @@
 import arrow
 from rest_framework.reverse import reverse
 
+from api2.constants import ROOT_BUDGET_NAME
 from api2.models import Transaction, Budget
 from budget.utils.test import BudgetTestCase
 from reports.time_buckets import get_time_buckets, get_report_dates
@@ -130,22 +131,43 @@ class TestBudgetDelta(TestReportViewMixin, BudgetTestCase):
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
         cls.buckets = get_time_buckets(cls.time_range, cls.time_bucket_size)
 
-        cls.budgets = Budget.objects.all()
+        cls.budgets = Budget.objects.exclude(name=ROOT_BUDGET_NAME)
         for bucket in cls.buckets:
             for budget in cls.budgets:
                 cls.generate_transaction(budget, date=bucket[0].date(), amount=-100)
                 cls.generate_transaction(budget, date=bucket[0].date(), amount=50)
 
-    def test(self):
+    def request_report(self, user):
         qp = self.get_query_params()
 
-        r = self.get(self.url, query=qp)
+        r = self.get(self.url, query=qp, user=user)
         self.assertEqual(r.status_code, 200)
-        data = r.json()["data"]
+        return r.json()["data"]
+
+    def test(self):
+        data = self.request_report(self.user)
         self.assertLengthEqual(data, 6)
 
         for budget in self.budgets:
             self.assertEqual(data[str(budget.id)], [-50, -50, -50, -50, -50, -50])
+
+    def a_test_include_child_budgets(self):
+        user = self.generate_user()
+        root_budget = Budget.objects.get(user=user, name=ROOT_BUDGET_NAME)
+        children = [
+            self.generate_budget(user=user, parent=root_budget),
+            self.generate_budget(user=user, parent=root_budget),
+        ]
+
+        for bucket in self.buckets:
+            for child_budget in children:
+                self.generate_transaction(
+                    child_budget, date=bucket[0].date(), amount=100
+                )
+
+        data = self.request_report(user)
+        root_budget_report_data = data[str(root_budget.id)]
+        self.assertEqual(root_budget_report_data, [200, 200, 200, 200, 200, 200])
 
 
 class TestTagDelta(TestReportViewMixin, BudgetTestCase):
@@ -280,13 +302,13 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        [cls.generate_budget() for _ in range(4)]
+        [cls.generate_budget(user=cls.user) for _ in range(4)]
         cls.time_bucket_size = TimeBucketSizeOption.ONE_MONTH.value
         cls.time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
         cls.buckets = get_time_buckets(cls.time_range, cls.time_bucket_size)
         cls.expected_bucket_values = [550, 500, 450, 400, 350, 300]
 
-        cls.budgets = Budget.objects.all()
+        cls.budgets = Budget.objects.filter(user=cls.user).exclude(name=ROOT_BUDGET_NAME)
         for bucket in cls.buckets:
             for budget in cls.budgets:
                 # Initial Transactions outside time range
@@ -296,6 +318,11 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
                 cls.generate_transaction(budget, date=bucket[0], amount=-50)
                 cls.generate_transaction(budget, date=bucket[0], income=True, amount=50)
                 cls.generate_transaction(budget, date=bucket[0], amount=-50)
+
+    def request_report(self, qp, user):
+        r = self.get(self.url, query=qp, user=user)
+        self.assertEqual(r.status_code, 200)
+        return r.json()["data"]
 
     def test(self):
         qp = self.get_query_params()
@@ -309,12 +336,29 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
 
     def test_only_show_some_budgets(self):
         qp = self.get_query_params(budget__includes=self.budget.id)
-        r = self.get(self.url, query=qp)
-        self.assertEqual(r.status_code, 200)
-        data = r.json()["data"]
+        data = self.request_report(qp, self.user)
 
         self.assertLengthEqual(data, 1)
         self.assertEqual(data[str(self.budget.id)], self.expected_bucket_values)
+
+    def test_include_child_budgets(self):
+        user = self.generate_user()
+        root_budget = Budget.objects.get(user=user, name=ROOT_BUDGET_NAME)
+        children = [
+            self.generate_budget(user=user, parent=root_budget),
+            self.generate_budget(user=user, parent=root_budget),
+        ]
+
+        for bucket in self.buckets:
+            for child_budget in children:
+                self.generate_transaction(
+                    child_budget, date=bucket[0].date(), amount=100
+                )
+
+        qp = self.get_query_params()
+        data = self.request_report(qp, user)
+        root_budget_report_data = data[str(root_budget.id)]
+        self.assertEqual(root_budget_report_data, [200, 400, 600, 800, 1000, 1200])
 
 
 class TestTagBalanceReport(TestReportViewMixin, BudgetTestCase):

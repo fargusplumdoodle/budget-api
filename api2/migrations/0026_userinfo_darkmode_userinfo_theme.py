@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api2', '0025_transaction_created_transaction_modified'),
+        ("api2", "0025_transaction_created_transaction_modified"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userinfo',
-            name='darkMode',
+            model_name="userinfo",
+            name="darkMode",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='userinfo',
-            name='theme',
-            field=models.CharField(default='CLASSIC', max_length=20),
+            model_name="userinfo",
+            name="theme",
+            field=models.CharField(default="CLASSIC", max_length=20),
         ),
     ]
