@@ -38,10 +38,21 @@ class BudgetSerializer(serializers.ModelSerializer):
         max_length=20, validators=[UniqueValidator(queryset=Budget.objects.all())]
     )
     balance = serializers.SerializerMethodField(read_only=True)
-    is_node = serializers.BooleanField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(
         many=False, queryset=User.objects.all(), required=False
     )
+
+    class Errors:
+        BUDGET_PARENTS_MUST_BE_NODES = 'Budget parents must be nodes'
+        CANNOT_UPDATE_ROOT_BUDGET = 'You cannot update root budget'
+        CANNOT_MUTATE_IS_NODE = 'A node budget cannot be turned into a non node budget and vise versa'
+
+    @classmethod
+    def validate(cls, attrs):
+        parent = attrs.get("parent")
+        if parent and not parent.is_node:
+            raise ValidationError(cls.Errors.BUDGET_PARENTS_MUST_BE_NODES)
+        return attrs
 
     class Meta:
         model = Budget
@@ -52,9 +63,22 @@ class BudgetSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if instance.name == ROOT_BUDGET_NAME:
-            raise ValidationError("You cannot update root budget")
+            raise ValidationError(self.Errors.CANNOT_UPDATE_ROOT_BUDGET)
+
+        self.validate_update_is_node(instance, validated_data)
 
         return super().update(instance, validated_data)
+
+    def validate_update_is_node(self, instance, validated_data):
+        new_is_node_value = validated_data.get('is_node')
+        old_is_node_value = instance.is_node
+
+        if new_is_node_value is None or old_is_node_value == new_is_node_value:
+            return
+
+        raise ValidationError(self.Errors.CANNOT_MUTATE_IS_NODE)
+
+
 
 
 class TransactionTagSerializer(serializers.ModelSerializer):

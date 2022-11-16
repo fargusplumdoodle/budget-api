@@ -295,6 +295,7 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     serializer = BudgetSerializer
     model = Budget
     paginated_response = False
+    ERRORS = BudgetSerializer.Errors
 
     def test_reject_updates_to_root_budget(self):
         budget = Budget.objects.get(user=self.user, name=ROOT_BUDGET_NAME)
@@ -303,18 +304,52 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
             r = request_method(
                 reverse(self.detail_url, (budget.id,)), data, user=self.user
             )
-            self.assertEqual(r.status_code, 400)
+            self.assertErrorInResponse(r, self.ERRORS.CANNOT_UPDATE_ROOT_BUDGET, 400)
 
-    def test_is_node_field_is_ignored(self):
-        node = self.generate_budget()
-        self.generate_budget(parent=node)
+    def test_cannot_turn_a_budget_into_a_node(self):
+        non_node_budget = self.generate_budget()
 
         r = self.patch(
-            reverse(self.detail_url, (node.id,)), {"is_node": False}, user=self.user
+            reverse(self.detail_url, (non_node_budget.id,)), {"is_node": True}, user=self.user
         )
-        self.assertEqual(r.status_code, 200)
-        node.refresh_from_db()
-        self.assertTrue(node.is_node)
+        self.assertErrorInResponse(r, self.ERRORS.CANNOT_MUTATE_IS_NODE, 400)
+
+        non_node_budget.refresh_from_db()
+        self.assertFalse(non_node_budget.is_node)
+
+    def test_create_node_budget(self):
+        node = self.generate_budget(is_node=True)
+        Budget.objects.filter(pk=node.pk).delete()
+        data = BudgetSerializer(node).data
+
+        r = self.post(
+            reverse(self.list_url), data, user=self.user
+        )
+        self.assertEqual(r.status_code, 201)
+        is_node = Budget.objects.get(name=node.name).is_node
+        self.assertTrue(is_node)
+
+    def test_cannot_turn_a_node_budget_into_a_non_node(self):
+        node_budget = self.generate_budget(is_node=True)
+
+        r = self.patch(
+            reverse(self.detail_url, (node_budget.id,)), {"is_node": False}, user=self.user
+        )
+        self.assertErrorInResponse(r, self.ERRORS.CANNOT_MUTATE_IS_NODE, 400)
+
+        node_budget.refresh_from_db()
+        self.assertTrue(node_budget.is_node)
+
+    def test_can_only_assign_a_parent_to_a_node(self):
+        non_node = self.generate_budget(is_node=False)
+        budget_to_attempt_to_put_under_non_node = self.generate_budget(is_node=False)
+
+        r = self.patch(
+            reverse(self.detail_url, (budget_to_attempt_to_put_under_non_node.id,)), {"parent": non_node.id}
+        )
+        self.assertErrorInResponse(r, self.ERRORS.BUDGET_PARENTS_MUST_BE_NODES, 400)
+
+
 
 
 class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):

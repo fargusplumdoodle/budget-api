@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 import arrow
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
 from api2.constants import ROOT_BUDGET_NAME
@@ -57,6 +58,14 @@ class BudgetTestCase(APITestCase):
 
     def assertLengthEqual(self, first: Sized, second: int) -> None:
         self.assertEqual(len(first), second)  # type: ignore
+
+    def assertErrorInResponse(self, response: Response, expected_error_message, expected_status):
+        self.assertEqual(response.status_code, expected_status)
+        data = response.json()
+        if 'non_field_errors' in data:
+            self.assertIn(expected_error_message, data['non_field_errors'])
+        else:
+            self.assertIn(expected_error_message, data)
 
     @classmethod
     def generate_user(cls, **kwargs) -> User:
