@@ -2,8 +2,12 @@ from api2.models import Budget
 
 
 def get_all_children(budget: Budget):
+    if not budget.is_node:
+        return []
+
     budget_table = Budget.objects.model._meta.db_table
-    return Budget.objects.raw(f"""
+    return Budget.objects.raw(
+        f"""
         WITH RECURSIVE search_tree(id, parent_id) AS (
                 SELECT id, parent_id
                 FROM {budget_table}
@@ -14,4 +18,5 @@ def get_all_children(budget: Budget):
                  WHERE b.parent_id = t.id
         )
     SELECT * FROM search_tree;
-    """)
+    """
+    )

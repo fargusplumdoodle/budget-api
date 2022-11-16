@@ -17,6 +17,16 @@ router.register(
     "budget_delta",
 )
 router.register(
+    "budget_income",
+    views.BudgetIncomeReport,
+    "budget_income",
+)
+router.register(
+    "budget_outcome",
+    views.BudgetOutcomeReport,
+    "budget_outcome",
+)
+router.register(
     "budget_balance",
     views.BudgetBalanceReport,
     "budget_balance",

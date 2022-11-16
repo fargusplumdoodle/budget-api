@@ -11,6 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from api2.filters import TransactionFilterset
 from api2.models import Transaction, Budget, Tag
+from api2.queries import get_all_children
 from reports.time_buckets import (
     get_time_buckets,
     get_date_range,
@@ -113,12 +114,6 @@ class MultiValuedReport(ReportViewSet):
         return queryset
 
 
-class BudgetReport(MultiValuedReport):
-    @staticmethod
-    def get_budget_and_children(budget: Budget):
-        return Budget.objects.filter(parent=budget) if budget.is_node else [budget]
-
-
 class TransactionCountReport(ReportViewSet):
     @staticmethod
     def generate_report_bucket(transactions: QuerySet[Transaction], time_bucket) -> Any:
@@ -154,23 +149,108 @@ class OutcomeReport(ReportViewSet):
         return cls.sum_transactions(transactions, Q(transfer=False, income=False))
 
 
-class BudgetDeltaReport(BudgetReport):
+class BudgetReport(ReportViewSet):
+    @classmethod
+    def generate_report_bucket(cls, transactions, *args) -> Any:
+        return cls.sum_transactions(transactions, Q())
+
+    def filter_queryset(self, queryset) -> QuerySet[Transaction]:
+        return queryset
+
+    def get_bucket_data(
+        self,
+        budget: Budget,
+        children: List[Budget],
+        queryset: QuerySet[Transaction],
+        time_range: TimeRange,
+    ):
+        raise NotImplementedError()
+
+    def get_buckets_for_budget(
+        self,
+        budget: Budget,
+        queryset: QuerySet[Transaction],
+        time_buckets: List[TimeRange],
+    ):
+        children = get_all_children(budget)
+        return [
+            self.get_bucket_data(budget, children, queryset, time_range)
+            for time_range in time_buckets
+        ]
+
     def get_report_data(
         self, queryset: QuerySet[Transaction], time_buckets: List[TimeRange]
     ):
         budgets = self.get_budgets()
         return {
-            budget.id: [
-                self.generate_report_bucket(
-                    queryset.filter(
-                        budget__in=self.get_budget_and_children(budget), date__range=get_date_range(time_range)
-                    ),
-                    time_range,
-                )
-                for time_range in time_buckets
-            ]
+            budget.id: self.get_buckets_for_budget(budget, queryset, time_buckets)
             for budget in budgets
         }
+
+
+class BudgetDeltaReport(BudgetReport):
+    def get_bucket_data(
+        self,
+        budget: Budget,
+        children: List[Budget],
+        queryset: QuerySet[Transaction],
+        time_range: TimeRange,
+    ):
+        return self.generate_report_bucket(
+            queryset.filter(
+                budget__in=[budget, *children],
+                date__range=get_date_range(time_range),
+            )
+        )
+
+
+class BudgetBalanceReport(BudgetReport):
+    def get_bucket_data(
+        self,
+        budget: Budget,
+        children: List[Budget],
+        queryset: QuerySet[Transaction],
+        time_range: TimeRange,
+    ):
+        return self.generate_report_bucket(
+            queryset.filter(
+                budget__in=[budget, *children], date__lte=time_range[1].datetime
+            ),
+        )
+
+
+class BudgetIncomeReport(BudgetReport):
+    def get_bucket_data(
+        self,
+        budget: Budget,
+        children: List[Budget],
+        queryset: QuerySet[Transaction],
+        time_range: TimeRange,
+    ):
+        return self.generate_report_bucket(
+            queryset.filter(
+                budget__in=[budget, *children],
+                date__range=get_date_range(time_range),
+                amount__gt=0,
+            ),
+        )
+
+
+class BudgetOutcomeReport(BudgetReport):
+    def get_bucket_data(
+        self,
+        budget: Budget,
+        children: List[Budget],
+        queryset: QuerySet[Transaction],
+        time_range: TimeRange,
+    ):
+        return self.generate_report_bucket(
+            queryset.filter(
+                budget__in=[budget, *children],
+                date__range=get_date_range(time_range),
+                amount__lt=0,
+            ),
+        )
 
 
 class TagDeltaReport(MultiValuedReport):
@@ -187,32 +267,6 @@ class TagDeltaReport(MultiValuedReport):
                 for time_range in time_buckets
             ]
             for tag in tags
-        }
-
-
-class BudgetBalanceReport(BudgetReport):
-    def get_buckets_for_budget(
-        self,
-        budget: Budget,
-        queryset: QuerySet[Transaction],
-        time_buckets: List[TimeRange],
-    ):
-        budgets = self.get_budget_and_children(budget)
-        return [
-            self.generate_report_bucket(
-                queryset.filter(budget__in=budgets, date__lte=time_range[1].datetime),
-                time_range,
-            )
-            for time_range in time_buckets
-        ]
-
-    def get_report_data(
-        self, queryset: QuerySet[Transaction], time_buckets: List[TimeRange]
-    ):
-        budgets = self.get_budgets()
-        return {
-            budget.id: self.get_buckets_for_budget(budget, queryset, time_buckets)
-            for budget in budgets
         }
 
 

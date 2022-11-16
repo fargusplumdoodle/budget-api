@@ -377,6 +377,8 @@ class UserInfoTestCase(BudgetTestCase):
             "income_frequency_days": 13,
             "analyze_start": str(self.now.shift(months=3).date()),
             "predict_end": str(self.now.shift(months=4).date()),
+            "theme": "CLASSIC",
+            "darkMode": False,
         }
         r = self.put(reverse("api2:info"), data=new_info)
         self.assertEqual(r.status_code, 201)

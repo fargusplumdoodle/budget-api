@@ -82,6 +82,23 @@ class BudgetTestCase(APITestCase):
         return Budget.objects.create(**defaults)
 
     @classmethod
+    def generate_budget_tree(cls):
+
+        #      a
+        #   b     c
+        #  de     fg
+        a = cls.generate_budget(name="a")
+
+        b = cls.generate_budget(parent=a, name="b")
+        d = cls.generate_budget(parent=b, name="d")
+        e = cls.generate_budget(parent=b, name="e")
+
+        c = cls.generate_budget(parent=a, name="c")
+        f = cls.generate_budget(parent=c, name="f")
+        g = cls.generate_budget(parent=c, name="g")
+        return a, {b, c}, {d, e, f, g}
+
+    @classmethod
     def generate_user_info(cls, **kwargs):
         defaults = {
             "user": cls.user,

@@ -1,3 +1,5 @@
+from typing import List
+
 import arrow
 from rest_framework.reverse import reverse
 
@@ -33,6 +35,21 @@ class TestReportViewMixin:
             "time_bucket_size": self.time_bucket_size,
             **kwargs,
         }
+
+    def generate_transaction_for_each_bucket(
+        self, time_buckets: List[TimeRange], *args, **kwargs
+    ):
+        for (start_date, end_date) in time_buckets:
+            self.generate_transaction(*args, date=start_date, **kwargs)  # type: ignore
+
+    def request_report(self, qp=None, user=None):
+        r = self.get(
+            self.url,
+            query=qp if qp else self.get_query_params(),
+            user=user if user else self.user,
+        )
+        self.assertEqual(r.status_code, 200)
+        return r.json()["data"]
 
     def test_missing_time_bucket_size_query_param(self):
         r = self.get(self.url)
@@ -308,7 +325,9 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
         cls.buckets = get_time_buckets(cls.time_range, cls.time_bucket_size)
         cls.expected_bucket_values = [550, 500, 450, 400, 350, 300]
 
-        cls.budgets = Budget.objects.filter(user=cls.user).exclude(name=ROOT_BUDGET_NAME)
+        cls.budgets = Budget.objects.filter(user=cls.user).exclude(
+            name=ROOT_BUDGET_NAME
+        )
         for bucket in cls.buckets:
             for budget in cls.budgets:
                 # Initial Transactions outside time range
@@ -359,6 +378,66 @@ class TestBudgetBalanceReport(TestReportViewMixin, BudgetTestCase):
         data = self.request_report(qp, user)
         root_budget_report_data = data[str(root_budget.id)]
         self.assertEqual(root_budget_report_data, [200, 400, 600, 800, 1000, 1200])
+
+
+class TestBudgetIncomeReport(TestReportViewMixin, BudgetTestCase):
+    url = reverse("reports:budget_income-list")
+    time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
+    time_bucket_size = TimeBucketSizeOption.ONE_MONTH.value
+
+    def test(self):
+        root, nodes, children = self.generate_budget_tree()
+
+        buckets = get_time_buckets(self.time_range, self.time_bucket_size)
+
+        for budget in children:
+            self.generate_transaction_for_each_bucket(buckets, budget, amount=50)
+            self.generate_transaction_for_each_bucket(buckets, budget, amount=50)
+
+            # Negative transactions not counted
+            self.generate_transaction_for_each_bucket(buckets, budget, amount=-100)
+
+        data = self.request_report()
+        # 400, because there are 4 child budgets and each has 100
+        self.assertEqual(data[str(root.id)], [400, 400, 400, 400, 400, 400])
+
+        for node_budget in nodes:
+            self.assertEqual(data[str(node_budget.id)], [200, 200, 200, 200, 200, 200])
+
+        for child_budget in children:
+            self.assertEqual(data[str(child_budget.id)], [100, 100, 100, 100, 100, 100])
+
+
+class TestBudgetOutcomeReport(TestReportViewMixin, BudgetTestCase):
+    url = reverse("reports:budget_outcome-list")
+    time_range = (arrow.get(2022, 1, 1), arrow.get(2022, 7, 1))
+    time_bucket_size = TimeBucketSizeOption.ONE_MONTH.value
+
+    def test(self):
+        root, nodes, children = self.generate_budget_tree()
+
+        buckets = get_time_buckets(self.time_range, self.time_bucket_size)
+
+        for budget in children:
+            self.generate_transaction_for_each_bucket(buckets, budget, amount=-50)
+            self.generate_transaction_for_each_bucket(buckets, budget, amount=-50)
+
+            # positive transactions not counted
+            self.generate_transaction_for_each_bucket(buckets, budget, amount=100)
+
+        data = self.request_report()
+        # -400, because there are 4 child budgets and each has -100
+        self.assertEqual(data[str(root.id)], [-400, -400, -400, -400, -400, -400])
+
+        for node_budget in nodes:
+            self.assertEqual(
+                data[str(node_budget.id)], [-200, -200, -200, -200, -200, -200]
+            )
+
+        for child_budget in children:
+            self.assertEqual(
+                data[str(child_budget.id)], [-100, -100, -100, -100, -100, -100]
+            )
 
 
 class TestTagBalanceReport(TestReportViewMixin, BudgetTestCase):
