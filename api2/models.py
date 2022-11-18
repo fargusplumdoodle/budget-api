@@ -2,7 +2,7 @@ import hashlib
 import arrow
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Sum, Q
+from django.db.models import Sum
 
 
 class Budget(models.Model):
@@ -23,15 +23,11 @@ class Budget(models.Model):
         unique_together = ("name", "user")
         ordering = ["-rank", "name"]
 
-    def balance(self, date_range=None) -> int:
+    def balance(self) -> int:
         # the current balance is equal to the sum of all transactions plus the initial balance
         balance = 0
         transactions = Transaction.objects.filter(budget=self, prediction=False)
         children = Budget.objects.filter(parent=self)
-
-        if date_range:
-            assert isinstance(date_range, Q)
-            transactions = transactions.filter(date_range)
 
         for trans in transactions:
             balance += trans.amount

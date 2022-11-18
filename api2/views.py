@@ -2,7 +2,7 @@ import io
 import operator
 from typing import Type, List, Dict
 
-from django.db.models import Model, Q, Sum, QuerySet
+from django.db.models import Model, Sum, QuerySet
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -101,7 +101,7 @@ class ReportViewset(ModelViewSet):
             budget_stats = {
                 "id": budget.id,
                 "name": budget.name,
-                "final_balance": budget.balance(Q(date__lte=end_date)),
+                "final_balance": budget.balance(),
                 "income": Transaction.objects.filter(
                     budget=budget, date__range=date_range, income=True
                 ).aggregate(total=Sum("amount"))["total"]

@@ -5,6 +5,7 @@ from rest_framework.validators import UniqueValidator
 
 from api2.constants import DefaultTags, ROOT_BUDGET_NAME
 from api2.models import Budget, Transaction, Tag, UserInfo
+from api2.queries import get_all_children
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -38,14 +39,17 @@ class BudgetSerializer(serializers.ModelSerializer):
         max_length=20, validators=[UniqueValidator(queryset=Budget.objects.all())]
     )
     balance = serializers.SerializerMethodField(read_only=True)
+    monthly_allocation = serializers.SerializerMethodField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(
         many=False, queryset=User.objects.all(), required=False
     )
 
     class Errors:
-        BUDGET_PARENTS_MUST_BE_NODES = 'Budget parents must be nodes'
-        CANNOT_UPDATE_ROOT_BUDGET = 'You cannot update root budget'
-        CANNOT_MUTATE_IS_NODE = 'A node budget cannot be turned into a non node budget and vise versa'
+        BUDGET_PARENTS_MUST_BE_NODES = "Budget parents must be nodes"
+        CANNOT_UPDATE_ROOT_BUDGET = "You cannot update root budget"
+        CANNOT_MUTATE_IS_NODE = (
+            "A node budget cannot be turned into a non node budget and vise versa"
+        )
 
     @classmethod
     def validate(cls, attrs):
@@ -61,6 +65,13 @@ class BudgetSerializer(serializers.ModelSerializer):
     def get_balance(self, obj):
         return obj.balance()
 
+    def get_monthly_allocation(self, obj: Budget):
+        if not obj.is_node:
+            return obj.monthly_allocation
+
+        children = get_all_children(obj)
+        return sum([child.monthly_allocation for child in children])
+
     def update(self, instance, validated_data):
         if instance.name == ROOT_BUDGET_NAME:
             raise ValidationError(self.Errors.CANNOT_UPDATE_ROOT_BUDGET)
@@ -70,15 +81,13 @@ class BudgetSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def validate_update_is_node(self, instance, validated_data):
-        new_is_node_value = validated_data.get('is_node')
+        new_is_node_value = validated_data.get("is_node")
         old_is_node_value = instance.is_node
 
         if new_is_node_value is None or old_is_node_value == new_is_node_value:
             return
 
         raise ValidationError(self.Errors.CANNOT_MUTATE_IS_NODE)
-
-
 
 
 class TransactionTagSerializer(serializers.ModelSerializer):

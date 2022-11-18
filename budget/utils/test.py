@@ -59,11 +59,13 @@ class BudgetTestCase(APITestCase):
     def assertLengthEqual(self, first: Sized, second: int) -> None:
         self.assertEqual(len(first), second)  # type: ignore
 
-    def assertErrorInResponse(self, response: Response, expected_error_message, expected_status):
+    def assertErrorInResponse(
+        self, response: Response, expected_error_message, expected_status
+    ):
         self.assertEqual(response.status_code, expected_status)
         data = response.json()
-        if 'non_field_errors' in data:
-            self.assertIn(expected_error_message, data['non_field_errors'])
+        if "non_field_errors" in data:
+            self.assertIn(expected_error_message, data["non_field_errors"])
         else:
             self.assertIn(expected_error_message, data)
 
