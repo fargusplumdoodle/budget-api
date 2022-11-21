@@ -3,7 +3,7 @@ from typing import Type, Union
 import arrow
 from django.contrib.auth.models import User
 from django.core.serializers.base import Serializer
-from django.db.models import Model, Q
+from django.db.models import Model
 from rest_framework.reverse import reverse
 from rest_framework.serializers import ModelSerializer
 
@@ -126,29 +126,6 @@ class ReportTestCase(BudgetTestCase):
         self.assertEqual(r.status_code, 200, r.json())
         self.assertEqual(r.json()["budgets"], {})
 
-    def test_budget_stats(self):
-        r = self.get(
-            self.url,
-            query={"date__gte": self.start.date(), "date__lte": self.end.date()},
-        )
-        self.assertEqual(r.status_code, 200, r.json())
-        data = r.json()
-
-        self.assertEqual(len(data["transactions"]), len(self.in_range))
-        self.assertEqual(len(data["budgets"]), 1)
-        budget_stats = data["budgets"][0]
-        self.assertEqual(budget_stats["id"], self.budget.id)
-        self.assertEqual(budget_stats["name"], self.budget.name)
-        self.assertEqual(
-            budget_stats["final_balance"],
-            self.budget.balance(Q(date__lte=self.end.date())),
-        )
-        self.assertEqual(budget_stats["income"], 100)
-        self.assertEqual(budget_stats["outcome"], -700)
-        self.assertEqual(
-            budget_stats["difference"], budget_stats["income"] + budget_stats["outcome"]
-        )
-
     def test_get_stats(self):
         Transaction.objects.all().delete()
         tag1 = self.generate_tag()
@@ -189,6 +166,7 @@ class UserRelatedModelViewSetMixin:
     serializer: Type[Union[Serializer, ModelSerializer]]
     paginated_response: bool
     user: User
+    detail_url: str
 
     @classmethod
     def setUpTestData(cls):
@@ -297,6 +275,11 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
     paginated_response = False
     ERRORS = BudgetSerializer.Errors
 
+    def get_detail(self, budget: Budget):
+        r = self.get(reverse(self.detail_url, (budget.id,)))
+        self.assertEqual(r.status_code, 200)
+        return r.json()
+
     def test_reject_updates_to_root_budget(self):
         budget = Budget.objects.get(user=self.user, name=ROOT_BUDGET_NAME)
         for request_method in [self.put, self.patch]:
@@ -310,7 +293,9 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
         non_node_budget = self.generate_budget()
 
         r = self.patch(
-            reverse(self.detail_url, (non_node_budget.id,)), {"is_node": True}, user=self.user
+            reverse(self.detail_url, (non_node_budget.id,)),
+            {"is_node": True},
+            user=self.user,
         )
         self.assertErrorInResponse(r, self.ERRORS.CANNOT_MUTATE_IS_NODE, 400)
 
@@ -322,9 +307,7 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
         Budget.objects.filter(pk=node.pk).delete()
         data = BudgetSerializer(node).data
 
-        r = self.post(
-            reverse(self.list_url), data, user=self.user
-        )
+        r = self.post(reverse(self.list_url), data, user=self.user)
         self.assertEqual(r.status_code, 201)
         is_node = Budget.objects.get(name=node.name).is_node
         self.assertTrue(is_node)
@@ -333,7 +316,9 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
         node_budget = self.generate_budget(is_node=True)
 
         r = self.patch(
-            reverse(self.detail_url, (node_budget.id,)), {"is_node": False}, user=self.user
+            reverse(self.detail_url, (node_budget.id,)),
+            {"is_node": False},
+            user=self.user,
         )
         self.assertErrorInResponse(r, self.ERRORS.CANNOT_MUTATE_IS_NODE, 400)
 
@@ -345,11 +330,37 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
         budget_to_attempt_to_put_under_non_node = self.generate_budget(is_node=False)
 
         r = self.patch(
-            reverse(self.detail_url, (budget_to_attempt_to_put_under_non_node.id,)), {"parent": non_node.id}
+            reverse(self.detail_url, (budget_to_attempt_to_put_under_non_node.id,)),
+            {"parent": non_node.id},
         )
         self.assertErrorInResponse(r, self.ERRORS.BUDGET_PARENTS_MUST_BE_NODES, 400)
 
+    def test_node_budget_returns_the_balance_of_all_child_budgets(self):
+        root, nodes, children = self.generate_budget_tree()
+        [self.generate_transaction(child, amount=100) for child in children]
 
+        for node in nodes:
+            data = self.get_detail(node)
+            self.assertEqual(data["balance"], 100 * 2)
+
+        root_data = self.get_detail(root)
+        self.assertEqual(root_data["balance"], 100 * 4)
+
+    def test_node_budget_returns_the_allocation_of_all_child_budgets(self):
+        root, nodes, children = self.generate_budget_tree()
+        for child in children:
+            child.monthly_allocation = 100
+            child.save()
+
+            data = self.get_detail(child)
+            self.assertEqual(data["monthly_allocation"], 100 * 1)
+
+        for node in nodes:
+            data = self.get_detail(node)
+            self.assertEqual(data["monthly_allocation"], 100 * 2)
+
+        root_data = self.get_detail(root)
+        self.assertEqual(root_data["monthly_allocation"], 100 * 4)
 
 
 class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):

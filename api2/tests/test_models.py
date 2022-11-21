@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 import arrow
-from django.db.models import Q
 
 from api2.constants import ROOT_BUDGET_NAME, DefaultTags
 from api2.models import Budget, UserInfo, Tag
@@ -56,20 +55,6 @@ class TestBudget(BudgetTestCase):
         self.assertEqual(b.balance(), 2)
         self.assertEqual(c.balance(), 2)
         [self.assertEqual(budget.balance(), 1) for budget in leaf_budgets]
-
-    @patch("arrow.now", return_value=now)
-    def test_balance_range(self, _):
-        date_range = (now.shift(weeks=-1).datetime, now.datetime)
-        self.generate_transaction(
-            budget=self.budget, date=now.shift(months=-1).datetime, amount=100
-        )
-        in_range = self.generate_transaction(
-            budget=self.budget, date=now.shift(days=-1).datetime, amount=200
-        )
-        self.assertEqual(
-            self.budget.balance(Q(date__range=date_range)),
-            in_range.amount,
-        )
 
     @patch("arrow.now", return_value=now)
     def test_calculate_income_outcome(self, _):
