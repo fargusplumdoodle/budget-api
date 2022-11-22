@@ -39,7 +39,7 @@ class BudgetSerializer(serializers.ModelSerializer):
         max_length=20, validators=[UniqueValidator(queryset=Budget.objects.all())]
     )
     balance = serializers.SerializerMethodField(read_only=True)
-    monthly_allocation = serializers.SerializerMethodField(read_only=True)
+    recursive_monthly_allocation = serializers.SerializerMethodField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(
         many=False, queryset=User.objects.all(), required=False
     )
@@ -56,16 +56,22 @@ class BudgetSerializer(serializers.ModelSerializer):
         parent = attrs.get("parent")
         if parent and not parent.is_node:
             raise ValidationError(cls.Errors.BUDGET_PARENTS_MUST_BE_NODES)
+
         return attrs
 
     class Meta:
         model = Budget
         fields = "__all__"
 
-    def get_balance(self, obj):
+    @staticmethod
+    def get_balance(obj):
         return obj.balance()
 
-    def get_monthly_allocation(self, obj: Budget):
+    def ensure_monthly_allocation_is_zero_on_node(self):
+        pass
+
+    @staticmethod
+    def get_recursive_monthly_allocation(obj: Budget):
         if not obj.is_node:
             return obj.monthly_allocation
 

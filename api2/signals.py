@@ -44,14 +44,6 @@ def ensure_default_tags(sender, instance: User, **kwargs):
             logger.info("Created %s tag for %s", tag_name, instance.username)
 
 
-@receiver(post_save, sender=Budget)
-def set_is_node(sender, instance: Budget, **kwargs):
-    budget = instance
-    if budget.parent and not budget.parent.is_node:
-        budget.parent.is_node = True
-        budget.parent.save(update_fields=["is_node"])
-
-
 @receiver(pre_save, sender=Transaction)
 def update_transaction_modified_time(sender, instance: Transaction, **kwargs):
     instance.modified = arrow.now().datetime

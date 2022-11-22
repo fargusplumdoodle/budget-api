@@ -354,13 +354,16 @@ class BudgetViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):
 
             data = self.get_detail(child)
             self.assertEqual(data["monthly_allocation"], 100 * 1)
+            self.assertEqual(data["recursive_monthly_allocation"], 100 * 1)
 
         for node in nodes:
             data = self.get_detail(node)
-            self.assertEqual(data["monthly_allocation"], 100 * 2)
+            self.assertEqual(data["recursive_monthly_allocation"], 100 * 2)
+            self.assertEqual(data["monthly_allocation"], 0)
 
         root_data = self.get_detail(root)
-        self.assertEqual(root_data["monthly_allocation"], 100 * 4)
+        self.assertEqual(root_data["monthly_allocation"], 0)
+        self.assertEqual(root_data["recursive_monthly_allocation"], 100 * 4)
 
 
 class TagViewSetTestCase(UserRelatedModelViewSetMixin, BudgetTestCase):

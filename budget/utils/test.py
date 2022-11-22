@@ -98,13 +98,13 @@ class BudgetTestCase(APITestCase):
         #      a
         #   b     c
         #  de     fg
-        a = cls.generate_budget(name="a")
+        a = cls.generate_budget(name="a", is_node=True)
 
-        b = cls.generate_budget(parent=a, name="b")
+        b = cls.generate_budget(parent=a, name="b", is_node=True)
         d = cls.generate_budget(parent=b, name="d")
         e = cls.generate_budget(parent=b, name="e")
 
-        c = cls.generate_budget(parent=a, name="c")
+        c = cls.generate_budget(parent=a, name="c", is_node=True)
         f = cls.generate_budget(parent=c, name="f")
         g = cls.generate_budget(parent=c, name="g")
         return a, {b, c}, {d, e, f, g}

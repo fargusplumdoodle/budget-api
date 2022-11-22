@@ -15,4 +15,3 @@ class TransactionViewset(ModelViewSet):
         return Transaction.objects.filter(
             budget__user=self.request.user, prediction=False
         ).order_by("-date")
-

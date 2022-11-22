@@ -129,17 +129,6 @@ class TestBudget(BudgetTestCase):
             budget_only_outcome.outcome_per_month, round(-10_00 / time_period)
         )
 
-    def test_calculate_is_node_on_save(self):
-        parent = self.generate_budget(name="parent", parent=self.budget_root)
-        child = self.generate_budget(parent=parent, name="child")
-
-        self.budget_root.refresh_from_db()
-        parent.refresh_from_db()
-        child.refresh_from_db()
-        self.assertTrue(self.budget_root.is_node)
-        self.assertTrue(parent.is_node)
-        self.assertFalse(child.is_node)
-
 
 class TestTransaction(BudgetTestCase):
     def test_modified_timestamp(self):

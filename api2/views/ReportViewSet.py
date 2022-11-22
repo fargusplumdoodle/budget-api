@@ -1,7 +1,7 @@
 import operator
 from typing import List, Dict
 
-from django.db.models import QuerySet, Sum, Q
+from django.db.models import QuerySet, Sum
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -39,18 +39,18 @@ class ReportViewset(ModelViewSet):
             budget_stats = {
                 "id": budget.id,
                 "name": budget.name,
-                "final_balance": budget.balance(Q(date__lte=end_date)),
+                "final_balance": budget.balance(),
                 "income": Transaction.objects.filter(
                     budget=budget, date__range=date_range, income=True
                 ).aggregate(total=Sum("amount"))["total"]
-                          or 0,
+                or 0,
                 "outcome": Transaction.objects.filter(
                     budget=budget, date__range=date_range, income=False
                 ).aggregate(total=Sum("amount"))["total"]
-                           or 0,
+                or 0,
             }
             budget_stats["difference"] = (
-                    budget_stats["income"] + budget_stats["outcome"]  # type: ignore
+                budget_stats["income"] + budget_stats["outcome"]  # type: ignore
             )
             stats.append(budget_stats)
 
@@ -87,4 +87,3 @@ class ReportViewset(ModelViewSet):
             response["budgets"] = self.get_budget_stats(qs)
 
         return Response(response)
-

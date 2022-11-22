@@ -14,4 +14,3 @@ class TagViewset(UserRelatedModelViewSet):
 
     def get_queryset(self):
         return Tag.objects.filter(user=self.request.user)
-

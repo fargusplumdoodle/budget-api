@@ -7,4 +7,3 @@ class HealthCheck(APIView):
     @staticmethod
     def get(request: Request):
         return Response(status=200)
-
