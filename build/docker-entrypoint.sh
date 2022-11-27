@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-until python scripts/wait-for-servers.py $DB_HOST:5432; do
+until python /code/build/wait-for-servers.py $DB_HOST:5432; do
   echo "Waiting for postgres to become available..."
-  sleep 5
+  sleep 2
 done
 
 python manage.py makemigrations --noinput

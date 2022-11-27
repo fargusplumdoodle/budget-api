@@ -30,6 +30,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = SECRET_KEY
 DEBUG = DEBUG
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "https://staging.budget.sekhnet.ra",
+    "http://staging.budget.sekhnet.ra",
+    "https://budget.sekhnet.ra",
+    "http://budget.sekhnet.ra",
+]
 # We use sqlite in CI
 CI = os.getenv("CI", "FALSE") == "TRUE"
 
