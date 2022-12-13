@@ -7,25 +7,25 @@ from oauth2_provider.models import Application
 
 from api2.models import User, Budget, Transaction, Tag
 from budget.utils.test import BudgetTestCase
-from cron.jobs.update_tag_rankings import UpdateTagRankings
+from cron.jobs.daily.update_tag_stats import UpdateTagStats
 
 
 class Command(BaseCommand):
     help = "Pre-populate the test database with some commonly used objects"
     EXPECTED_TRANSACTIONS = 50
     BUDGETS = [
-        {"name": "housing", "percentage": 41},
-        {"name": "food", "percentage": 22},
-        {"name": "debt", "percentage": 11},
-        {"name": "transportation", "percentage": 6},
-        {"name": "savings", "percentage": 6},
-        {"name": "personal", "percentage": 5},
-        {"name": "phone", "percentage": 3},
-        {"name": "health", "percentage": 2},
-        {"name": "camping", "percentage": 1},
-        {"name": "server", "percentage": 1},
-        {"name": "clothing", "percentage": 1},
-        {"name": "charity", "percentage": 1},
+        {"name": "housing", "monthly_allocation": 4100},
+        {"name": "food", "monthly_allocation": 2200},
+        {"name": "debt", "monthly_allocation": 1100},
+        {"name": "transportation", "monthly_allocation": 600},
+        {"name": "savings", "monthly_allocation": 600},
+        {"name": "personal", "monthly_allocation": 500},
+        {"name": "phone", "monthly_allocation": 300},
+        {"name": "health", "monthly_allocation": 200},
+        {"name": "camping", "monthly_allocation": 100},
+        {"name": "server", "monthly_allocation": 100},
+        {"name": "clothing", "monthly_allocation": 100},
+        {"name": "charity", "monthly_allocation": 100},
     ]
     TAGS = [
         "car",
@@ -51,11 +51,11 @@ class Command(BaseCommand):
         "internet",
         "power",
         "household supplies",
-        "GDrive",
+        "gdrive",
         "isaacthiessen.ca",
-        "Backpacking",
+        "backpacking",
         "gift",
-        "ICBC",
+        "icbc",
         "trips",
         "parking",
         "tutoring",
@@ -123,7 +123,9 @@ class Command(BaseCommand):
         now = arrow.now()
         tags = Tag.objects.all()
         for budget in Budget.objects.all():
-            existing_transactions = Transaction.objects.filter(budget=budget).count()
+            existing_transactions = Transaction.objects.filter(
+                budget=budget, prediction=False
+            ).count()
 
             if existing_transactions < cls.EXPECTED_TRANSACTIONS:
                 expected_transactions = (
@@ -151,7 +153,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def _update_tag_rankings():
-        UpdateTagRankings().run()
+        UpdateTagStats().run()
 
     def handle(self, *args, **options):
         if not settings.DEBUG:

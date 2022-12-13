@@ -1,12 +1,14 @@
 from unittest.mock import patch
 
 import arrow
-from django.db.models import Q
 
-from api2.models import Budget
+from api2.constants import ROOT_BUDGET_NAME, DefaultTags
+from api2.models import Budget, UserInfo, Tag
 from budget.utils.test import BudgetTestCase
 
 now = arrow.get(2021, 1, 1)
+
+SIGNAL_MODULE = "api2.signals"
 
 
 class TestBudget(BudgetTestCase):
@@ -15,7 +17,7 @@ class TestBudget(BudgetTestCase):
         super().setUpTestData()
 
         cls.user = cls.generate_user()
-        cls.budget = cls.generate_budget(user=cls.user, initial_balance=1)
+        cls.budget = cls.generate_budget(user=cls.user)
         cls.other_budget = cls.generate_budget(user=cls.user)
 
     def test_balance(self):
@@ -31,21 +33,28 @@ class TestBudget(BudgetTestCase):
         self.generate_transaction(budget=self.other_budget, amount=1, transfer=False)
 
         # 1 initial balance + 1 non transfer transaction
-        self.assertEqual(self.budget.balance(), 3)
+        self.assertEqual(self.budget.balance(), 2)
 
-    @patch("arrow.now", return_value=now)
-    def test_balance_range(self, _):
-        date_range = (now.shift(weeks=-1).datetime, now.datetime)
-        self.generate_transaction(
-            budget=self.budget, date=now.shift(months=-1).datetime, amount=100
-        )
-        in_range = self.generate_transaction(
-            budget=self.budget, date=now.shift(days=-1).datetime, amount=200
-        )
-        self.assertEqual(
-            self.budget.balance(Q(date__range=date_range)),
-            in_range.amount + self.budget.initial_balance,
-        )
+    def test_children_included_in_balance(self):
+        #  Hierarchy
+        #     root
+        #   b     c
+        #  d e   f g
+        b = self.generate_budget(parent=self.budget_root)
+        d = self.generate_budget(parent=b)
+        e = self.generate_budget(parent=b)
+
+        c = self.generate_budget(parent=self.budget_root)
+        f = self.generate_budget(parent=c)
+        g = self.generate_budget(parent=c)
+
+        leaf_budgets = [d, e, f, g]
+        [self.generate_transaction(amount=1, budget=budget) for budget in leaf_budgets]
+
+        self.assertEqual(self.budget_root.balance(), 4)
+        self.assertEqual(b.balance(), 2)
+        self.assertEqual(c.balance(), 2)
+        [self.assertEqual(budget.balance(), 1) for budget in leaf_budgets]
 
     @patch("arrow.now", return_value=now)
     def test_calculate_income_outcome(self, _):
@@ -118,4 +127,58 @@ class TestBudget(BudgetTestCase):
         self.assertEqual(budget_only_outcome.income_per_month, 0)
         self.assertEqual(
             budget_only_outcome.outcome_per_month, round(-10_00 / time_period)
+        )
+
+
+class TestTransaction(BudgetTestCase):
+    def test_modified_timestamp(self):
+        trans = self.generate_transaction(self.budget_root)
+
+        with patch("arrow.now", return_value=now):
+            trans.amount = 2
+            trans.save()
+
+        trans.refresh_from_db()
+        self.assertEqual(trans.modified, now.datetime)
+
+
+class TestUser(BudgetTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Dont start with any data
+        pass
+
+    def test_ensure_user_info_created_on_create_user(self):
+        with self.assertLogs(SIGNAL_MODULE, "INFO"):
+            user = self.generate_user()
+
+        self.assertTrue(UserInfo.objects.filter(user=user).exists())
+
+    def test_ensure_no_signals_log_on_update(self):
+        user = self.generate_user()
+
+        user.username = "something"
+        with self.assertNoLogs(SIGNAL_MODULE, "INFO"):
+            user.save()
+
+    def test_ensure_root_budget_created_on_create_user(self):
+        with self.assertLogs(SIGNAL_MODULE, "INFO"):
+            user = self.generate_user()
+
+        self.assertTrue(
+            Budget.objects.filter(
+                user=user, is_node=True, name=ROOT_BUDGET_NAME
+            ).exists()
+        )
+
+    def test_ensure_tags_created_on_create_user(self):
+        with self.assertLogs(SIGNAL_MODULE, "INFO"):
+            user = self.generate_user()
+
+        self.assertTrue(Tag.objects.filter(name=DefaultTags.INCOME).exists())
+        self.assertTrue(
+            Tag.objects.filter(user=user, name=DefaultTags.TRANSFER).exists()
+        )
+        self.assertTrue(
+            Tag.objects.filter(user=user, name=DefaultTags.PAYCHEQUE).exists()
         )

@@ -2,7 +2,7 @@
 set -e
 commands=( 
 	'flake8 --config .flake8 .' 
-#	'mypy --config .mypy .' 
+	'mypy --config .mypy .' 
 	'python manage.py makemigrations --check' 
 )
 pids=()

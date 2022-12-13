@@ -8,6 +8,7 @@ class VariablePageSizePagination(PageNumberPagination):
     page_size_query_param = "page_size"
 
     def get_paginated_response(self, data) -> Response:
+        assert self.request
         if self.request.GET.get("no_pagination"):
             return Response(data)
 

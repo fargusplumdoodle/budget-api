@@ -1,3 +1,4 @@
+# vi: ft=Pipfile
 [mypy]
 warn_unused_configs = True
 allow_redefinition = True
@@ -15,4 +16,6 @@ ignore_missing_imports = True
 [mypy-django_filters]
 ignore_missing_imports = True
 [mypy-rest_framework_nested]
+ignore_missing_imports = True
+[mypy-oauth2_provider.*]
 ignore_missing_imports = True

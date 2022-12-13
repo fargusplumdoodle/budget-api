@@ -9,14 +9,14 @@ from typing import List
 import re
 
 import arrow
-from . import jobs
+from .jobs import daily, monthly
 
 logger = logging.getLogger(__name__)
 
 
 class CronJob(abc.ABC):
     """
-    Override to run cron jobs
+    Override to run cron daily
     """
 
     name: str
@@ -31,15 +31,19 @@ class CronJob(abc.ABC):
 
 class CronJobRunner:
     _extension = re.compile(r"\.py$")
+    batch_map = {
+        "daily": daily,
+        "monthly": monthly,
+    }
 
     @classmethod
-    def _discover_jobs(cls) -> List[CronJob]:
+    def _discover_jobs(cls, batch, mod) -> List[CronJob]:
         cron_jobs: List[CronJob] = []
-        for filename in listdir(dirname(jobs.__file__)):
+        for filename in listdir(dirname(mod.__file__)):
             module_name = re.sub(cls._extension, "", basename(filename))
             if module_name == "__init__":
                 continue
-            module = import_module(f"cron.jobs.{module_name}")
+            module = import_module(f"cron.jobs.{batch}.{module_name}")
             for entry in dir(module):
                 job = getattr(module, entry)
                 try:
@@ -50,8 +54,9 @@ class CronJobRunner:
         return cron_jobs
 
     @classmethod
-    def execute_cron_jobs(cls):
-        for job in cls._discover_jobs():
+    def execute_jobs(cls, batch="daily"):
+
+        for job in cls._discover_jobs(batch, cls.batch_map[batch]):
             logger.info("%s STARTING: %s", arrow.now().isoformat(), job.name)
             job.start()
             logger.info("%s COMPLETE: %s", arrow.now().isoformat(), job.name)

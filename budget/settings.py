@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from typing import Dict, Union
 
 try:
-    from budget.environment import DEBUG, SECRET_KEY, DB_HOST, DB, DB_USER, DB_PASS
+    from budget.environment import DEBUG, SECRET_KEY, DB_HOST, DB, DB_USER, DB_PASS  # type: ignore
 
     print("Read variables from environment file")
 except ImportError:
@@ -29,6 +30,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = SECRET_KEY
 DEBUG = DEBUG
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "https://staging.budget.sekhnet.ra",
+    "http://staging.budget.sekhnet.ra",
+    "https://budget.sekhnet.ra",
+    "http://budget.sekhnet.ra",
+]
 # We use sqlite in CI
 CI = os.getenv("CI", "FALSE") == "TRUE"
 
@@ -50,6 +58,7 @@ INSTALLED_APPS = [
     "oauth2_provider",
     "django_filters",
     "api2",
+    "reports",
     "cron",
 ]
 
@@ -104,26 +113,28 @@ LOGGING = {
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+DatabaseDef = Dict[str, Dict[str, Union[str, int, bool]]]
+CI_DATABASES: DatabaseDef = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    }
+}
+
+DATABASES: DatabaseDef = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": DB,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASS,
+        "HOST": DB_HOST,
+        "PORT": 5432,
+        "ATOMIC_REQUESTS": True,  # type: ignore
+        "CONN_MAX_AGE": 0,
+    }
+}
 if CI:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-        }
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": DB,
-            "USER": DB_USER,
-            "PASSWORD": DB_PASS,
-            "HOST": DB_HOST,
-            "PORT": 5432,
-            "ATOMIC_REQUESTS": True,
-            "CONN_MAX_AGE": 0,
-        }
-    }
+    DATABASES = CI_DATABASES
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

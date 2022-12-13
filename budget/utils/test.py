@@ -1,19 +1,28 @@
-from typing import Sized
+from typing import Sized, List
 from urllib.parse import urlencode
 
 import arrow
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
-from api2.models import Budget, Transaction, Tag
+from api2.constants import ROOT_BUDGET_NAME
+from api2.models import Budget, Transaction, Tag, UserInfo
+from budget.utils.dates import nativify_dates
 
 
 class BudgetTestCase(APITestCase):
+    user: User
+    user_info: UserInfo
+    now: arrow.Arrow
+
     @classmethod
     def setUpTestData(cls):
         cls.user = cls.generate_user()
         cls.now = arrow.now()
+        cls.user_info = UserInfo.objects.get(user=cls.user)
+        cls.budget_root = Budget.objects.get(user=cls.user, name=ROOT_BUDGET_NAME)
 
     def _make_request(
         self, method_name, endpoint, data, encoding="json", query=None, user=None
@@ -50,27 +59,71 @@ class BudgetTestCase(APITestCase):
     def assertLengthEqual(self, first: Sized, second: int) -> None:
         self.assertEqual(len(first), second)  # type: ignore
 
+    def assertErrorInResponse(
+        self, response: Response, expected_error_message, expected_status
+    ):
+        self.assertEqual(response.status_code, expected_status)
+        data = response.json()
+        if "non_field_errors" in data:
+            self.assertIn(expected_error_message, data["non_field_errors"])
+        else:
+            self.assertIn(expected_error_message, data)
+
     @classmethod
-    def generate_user(cls, **kwargs):
+    def generate_user(cls, **kwargs) -> User:
         defaults = {"username": f"user_{User.objects.count():07}"}
         defaults.update(kwargs)
         return User.objects.create(**defaults)
 
     @classmethod
-    def generate_budget(cls, **kwargs):
+    def generate_budget(cls, **kwargs) -> Budget:
+        if "user" not in kwargs:
+            kwargs["user"] = cls.user  # type: ignore
+
+        if "parent" not in kwargs:
+            kwargs["parent"] = Budget.objects.get(
+                user=kwargs["user"], name=ROOT_BUDGET_NAME
+            )
+
         defaults = {
             "name": f"budget_{Budget.objects.count():07}",
-            "percentage": 0,
-            "initial_balance": 0,
+            "monthly_allocation": 0,
+            **kwargs,
         }
-        if "user" not in kwargs:
-            defaults["user"] = cls.user  # type: ignore
-
-        defaults.update(kwargs)
         return Budget.objects.create(**defaults)
 
     @classmethod
-    def generate_tag(cls, **kwargs):
+    def generate_budget_tree(cls):
+
+        #      a
+        #   b     c
+        #  de     fg
+        a = cls.generate_budget(name="a", is_node=True)
+
+        b = cls.generate_budget(parent=a, name="b", is_node=True)
+        d = cls.generate_budget(parent=b, name="d")
+        e = cls.generate_budget(parent=b, name="e")
+
+        c = cls.generate_budget(parent=a, name="c", is_node=True)
+        f = cls.generate_budget(parent=c, name="f")
+        g = cls.generate_budget(parent=c, name="g")
+        return a, {b, c}, {d, e, f, g}
+
+    @classmethod
+    def generate_user_info(cls, **kwargs):
+        defaults = {
+            "user": cls.user,
+            "expected_monthly_net_income": 300,
+            "income_frequency_days": 14,
+            "analyze_start": cls.now.shift(months=-3),
+            "predict_end": cls.now.shift(months=3),
+        }
+        defaults.update(kwargs)
+        defaults = nativify_dates(defaults)
+        return UserInfo.objects.create(**defaults)
+
+    @classmethod
+    def generate_tag(cls, **kwargs) -> Tag:
         defaults = {"name": f"tag_{Tag.objects.count():07}", "rank": 0}
         if "user" not in kwargs:
             defaults["user"] = cls.user  # type: ignore
@@ -79,7 +132,7 @@ class BudgetTestCase(APITestCase):
         return Tag.objects.create(**defaults)
 
     @classmethod
-    def generate_transaction(cls, budget: Budget, **kwargs):
+    def generate_transaction(cls, budget: Budget, **kwargs) -> Transaction:
         num_transactions = Transaction.objects.count()
         defaults = {
             "amount": num_transactions * 100,
@@ -90,12 +143,10 @@ class BudgetTestCase(APITestCase):
             "transfer": False,
         }
         defaults.update(kwargs)
+        defaults = nativify_dates(defaults)
 
-        if isinstance(defaults["date"], arrow.Arrow):
-            defaults["date"] = defaults["date"].datetime
-
-        tags = defaults.get("tags")
-        if tags:
+        tags: List[Tag] = defaults.get("tags")  # type: ignore
+        if tags is not None:
             del defaults["tags"]
 
         trans = Transaction.objects.create(**defaults)

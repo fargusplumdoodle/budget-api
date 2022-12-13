@@ -1,4 +1,4 @@
-from cron.jobs.calculate_income_outcome import CalculateIncomeOutcome
+from cron.jobs.daily.calculate_income_outcome import CalculateIncomeOutcome
 from cron.tests import CronJobTest
 
 
