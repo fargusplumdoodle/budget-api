@@ -6,7 +6,7 @@ from django.db.models import Sum
 
 
 class Budget(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=60)
     monthly_allocation = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
