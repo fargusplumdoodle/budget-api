@@ -1,3 +1,5 @@
 .python-version
 postgres-data
 .env
+*__pycache__
+*pyc

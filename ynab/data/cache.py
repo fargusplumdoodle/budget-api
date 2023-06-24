@@ -14,8 +14,12 @@ def get_redis_key(request_kwargs: dict):
     return f"ynab_api:{method}:{uri}"
 
 
+def _should_cache_response(response: Response):
+    return response.is_success and response.method == "get"
+
+
 def cache_response(key, response: Response):
-    if response.is_success:
+    if _should_cache_response(response):
         r.set(key, response.json())
     else:
         r.delete(key)
