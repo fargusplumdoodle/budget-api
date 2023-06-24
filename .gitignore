@@ -1,2 +1,3 @@
 .python-version
 postgres-data
+.env
