@@ -3,8 +3,8 @@ from typing import List, Optional
 from arrow import Arrow
 from pydantic import BaseModel
 
-from ynab.data.req import make_ynab_request
-from ynab.data.types import Response, Category, Payee, TransactionType, Transaction
+from .request import make_ynab_request
+from .types import Response, Category, Payee, TransactionType, Transaction
 
 TEST_BUDGET_ID = "d87689f7-f450-4fa0-99ec-b590c7bf3494"
 PROD_BUDGET_ID = "e6c14005-8892-49f8-9ab5-3bc5c8fe3d8c"

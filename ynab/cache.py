@@ -3,7 +3,7 @@ from typing import Optional
 
 import redis
 
-from ynab.data.types import Response
+from .types import Response
 
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
@@ -11,7 +11,8 @@ r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 def get_redis_key(request_kwargs: dict):
     method = request_kwargs["method"]
     uri = request_kwargs["url"]
-    return f"ynab_api:{method}:{uri}"
+    params = request_kwargs.get("params", {})
+    return f"ynab_api:{method}:{uri}:{json.dumps(params)}"
 
 
 def _should_cache_response(response: Response):
@@ -21,8 +22,6 @@ def _should_cache_response(response: Response):
 def cache_response(key, response: Response):
     if _should_cache_response(response):
         r.set(key, response.json())
-    else:
-        r.delete(key)
 
 
 def get_cached_response(key) -> Optional[Response]:

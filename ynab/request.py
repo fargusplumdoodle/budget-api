@@ -4,8 +4,8 @@ import os
 
 import requests
 
-from ynab.data.cache import get_redis_key, cache_response, get_cached_response
-from ynab.data.types import Response, YnabException
+from .cache import get_redis_key, cache_response, get_cached_response
+from .types import Response, YnabException
 
 API_KEY = os.getenv("YNAB_API_KEY")
 YNAB_HOST = "https://api.ynab.com/v1"
