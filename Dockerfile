@@ -3,7 +3,7 @@ FROM python:3.10-slim
 RUN set -ex \
     && RUN_DEPS=" \
         postgresql-client \
- 	build-essential \
+      	build-essential \
     " \
     && apt-get update \
     && apt-get install -y --no-install-recommends $RUN_DEPS \
@@ -16,13 +16,11 @@ WORKDIR /code/
 ADD ./pyproject.toml /code/
 ADD ./poetry.lock /code/
 
-ENV PATH=/code/.venv/bin:${PATH} \
-    PIP_NO_CACHE_DIR=true
-
 RUN set -ex \
-    && pip install -U "poetry==1.1.12"  \
-    && poetry config virtualenvs.in-project true \
-    && poetry install --no-root --no-dev
+    && pip install --upgrade pip  \
+    && pip install -U "poetry==1.2.2"  \
+    && poetry export -f requirements.txt --without-hashes \
+        | pip install -r /dev/stdin
 
 ADD . /code/
 EXPOSE 8000
