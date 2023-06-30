@@ -9,6 +9,7 @@ services:
    - POSTGRES_PASSWORD=budget
   volumes:
    - ./postgres-data:/var/lib/postgresql
+   - .env:/code/.env
   ports:
    - "5432:5432"
  api:
@@ -18,7 +19,7 @@ services:
     dockerfile: Dockerfile
   command: python manage.py runserver 0.0.0.0:8000
   environment:
-   - DB=postgres
+   - DB=budget
    - DB_HOST=db
    - DB_USER=budget
    - DB_PASS=budget

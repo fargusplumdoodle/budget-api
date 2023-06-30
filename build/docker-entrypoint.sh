@@ -1,7 +1,16 @@
 #!/bin/sh
 set -e
 
-until python /code/build/wait-for-servers.py $DB_HOST:5432; do
+CODE_DIR=/code
+
+if [ -f $CODE_DIR/.env ]; then
+  echo "Loading environment variables from $CODE_DIR/.env"
+  set -a
+  . $CODE_DIR/.env
+  set +a
+fi
+
+until python $CODE_DIR/build/wait-for-servers.py $DB_HOST:5432; do
   echo "Waiting for postgres to become available..."
   sleep 2
 done

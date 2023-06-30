@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 from typing import Dict, Union
+from dotenv import load_dotenv
+
+load_dotenv()
 
 try:
     from budget.environment import DEBUG, SECRET_KEY, DB_HOST, DB, DB_USER, DB_PASS  # type: ignore
